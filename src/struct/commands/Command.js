@@ -39,7 +39,7 @@ class Command extends AkairoModule {
             ignorePermissions,
             flags = [],
             optionFlags = [],
-            slashEmpemeral = false
+            slashEmphemeral = false
         } = options;
 
         /**
