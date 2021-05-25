@@ -38,7 +38,8 @@ class Command extends AkairoModule {
             ignoreCooldown,
             ignorePermissions,
             flags = [],
-            optionFlags = []
+            optionFlags = [],
+            slashEmpemeral = false
         } = options;
 
         /**
