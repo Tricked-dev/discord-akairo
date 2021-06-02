@@ -1,28 +1,34 @@
 # Changes in this fork of akairo
 
+## for support regarding this pr you can ping @tricked in akairo discord general or preferably join [my discord](https://discord.gg/KkMKCchJb8) and ask there
 
 ## Slash commands
+
 For slash commands to work you need to add `execSlash` to the command, and when it recieves a slash command it will run `execSlash`.
 
 New slash command related events:
+
 > these are all emitted by the command handler
- * slashError
- * slashBlocked
-    * owner
-    * superuser
- * slashStarted
- * slashNotFound
- * slashGuildOnly
- * slashMissingPermissions
-    * user
-    * client
+
+- slashError
+- slashBlocked
+  - owner
+  - superuser
+- slashStarted
+- slashNotFound
+- slashGuildOnly
+- slashMissingPermissions
+  - user
+  - client
 
 > Cooldown event will also run on slash commands
 
 For more info about these events view the [source code](https://github.com/SkyBlockDev/discord-akairo/blob/master/src/struct/commands/CommandHandler.js#L408). If you don't want to do that, you can safely assume that they are the exact same as their non-slash versions, execpt all `Message` arguments are changed to `CommandInteraction`.
 
 Slash command example:
+
 > Slash commands are turned into messages like objects to make interacting with them easier the original ineraction is maintained though at message.interaction
+
 ```ts
 import { Command } from "discord-akairo";
 import {  Message, User } from "discord.js";
@@ -54,14 +60,16 @@ export default class slashCommand extends Command {
     }
 }
 ```
+
 Note that this example assumes a few things.
+
 1. You already have a registered slash command called `avatar`
 2. The registered command has one option named `user`, and
-    1. The type is `6` (enum value for user)
-    2. Required is `false`
+   1. The type is `6` (enum value for user)
+   2. Required is `false`
 
-Message.util.send/reply doesnt work on slash commands to know whats a slash command use message.util.slash, true if true  
-  
+Message.util.send/reply doesnt work on slash commands to know whats a slash command use message.util.slash, true if true
+
 slash option in commands is just so you can know if a command is slashed for yourself
 
 You can do this all manually using something like an eval command, or just making the http requests to the discord api yourself, or making it automated, but just keep in mind that the library won't register anything for you. Read [this](https://github.com/MatteZ02/discord-interactions) or [this](https://discord.js.org/#/docs/main/master/class/ApplicationCommandManager?scrollTo=set) for how to create/edit/delete slash commands in discord.js.
@@ -76,7 +84,7 @@ Warning: fetchReply will not work with emphemeral responses.
 
 Yes this fork has tasks!
 
-Example: 
+Example:
 
 ```ts
 //bot.ts
@@ -98,19 +106,19 @@ export default class extends Task {
 	constructor() {
 		super("hello", {
 			delay: 200,
-			runOnStart: false,
+			runOnStart: false
 		});
 	}
 	async exec() {
-		console.log("hello from", this.client.user.username)
+		console.log("hello from", this.client.user.username);
 	}
 }
-````
-
+```
 
 ## Superusers
 
-SuperUsers example: 
+SuperUsers example:
+
 ```ts
 constructor(config: Option) {
 		super({
@@ -119,6 +127,7 @@ constructor(config: Option) {
 		});
 	}
 ```
+
 ```ts
 constructor(config: Option) {
 		super({
@@ -130,22 +139,24 @@ constructor(config: Option) {
 ```
 
 ## Auto defer
+
 Auto defer automatically defers a message aka "BotName is thinking"
 
 ```ts
 commandHandler: CommandHandler = new CommandHandler(this, {
-		directory: join(__dirname, "..", "Commands"),
-		prefix: "!",
-        //To disable it
-        autoDefer: false
-	});
+	directory: join(__dirname, "..", "Commands"),
+	prefix: "!",
+	//To disable it
+	autoDefer: false
+});
 ```
 
 ## Removed features
-* Providers
-    * mongo
-    * sequelize
-    * sqlite
+
+- Providers
+  - mongo
+  - sequelize
+  - sqlite
 
 If you want a good database, we recommend using an ORM like sequelize. Databases aren't hard to set up by themselves, and are much more convienent when used without being limited by providers.
 
