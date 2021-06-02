@@ -1,13 +1,9 @@
 const AkairoError = require('../../util/AkairoError');
 const AkairoModule = require('../AkairoModule');
 class Task extends AkairoModule {
-    constructor(id, options = {}) {
-        super(id, { options.category });
-        
-        const { 
-            delay,
-            runOnStart = false
-        } = options;
+    constructor(id, { category, delay, runOnStart = false } = {}) {
+        super(id, { category });
+
 
         this.delay = delay;
 
