@@ -372,7 +372,7 @@ declare module "discord-akairo" {
 		public parse(message: Message, content: string): Promise<Flag | any>;
 		public reload(): this;
 		public remove(): this;
-		public onlyNsfw: boolean
+		public onlyNsfw: boolean;
 	}
 
 	export class CommandHandler extends AkairoHandler {
@@ -953,7 +953,7 @@ declare module "discord-akairo" {
 			| MissingPermissionSupplier;
 		quoted?: boolean;
 		slashEmphemeral?: boolean;
-		onlyNsfw?:boolean
+		onlyNsfw?: boolean;
 	}
 
 	export interface CommandHandlerOptions extends AkairoHandlerOptions {

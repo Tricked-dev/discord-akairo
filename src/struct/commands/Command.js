@@ -72,7 +72,7 @@ class Command extends AkairoModule {
 		 * Usable only in this NSFW Channels.
 		 * @type {boolean}
 		 */
-		 this.onlyNsfw = Boolean(onlyNsfw);
+		this.onlyNsfw = Boolean(onlyNsfw);
 
 		/**
 		 * Usable only in this channel type.
