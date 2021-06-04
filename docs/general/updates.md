@@ -19,7 +19,8 @@ New slash command related events:
   - user
   - client
 
-New normal events 
+New normal events
+
 - notNsfw
 
 > Cooldown event will also run on slash commands
@@ -78,8 +79,6 @@ slash option in commands is just so you can know if a command is slashed for you
 You can do this all manually using something like an eval command, or just making the http requests to the discord api yourself, or making it automated, but just keep in mind that the library won't register anything for you. Read [this](https://github.com/MatteZ02/discord-interactions) or [this](https://discord.js.org/#/docs/main/master/class/ApplicationCommandManager?scrollTo=set) for how to create/edit/delete slash commands in discord.js.
 
 ### Emphemeral responses
-
-
 
 If you are unaware, an emphemeral response is what causes the "Only you can see this" response with slash commands. You can cause the command to do this with the `slashEmphemeral` command option. Just add `slashEmphemeral: true` and it will respond privately.
 
