@@ -1,10 +1,8 @@
 # Changes in this fork of akairo
 
-## for support regarding this pr you can ping @tricked in akairo discord general or preferably join [my discord](https://discord.gg/KkMKCchJb8) and ask there
-
 ## Slash commands
 
-For slash commands to work you need to add `execSlash` to the command, and when it recieves a slash command it will run `execSlash`.
+For slash commands to work you will just need to register your commands as slash commands and if a slash commmand is ran akairo will find that command and run it with a ["fake" message](https://github.com/SkyBlockDev/discord-akairo) that works pretty much the same as a normal message, if you need anymore properties added feel free to pr them so everyone can enjoy em.
 
 New slash command related events:
 
@@ -21,9 +19,12 @@ New slash command related events:
   - user
   - client
 
+New normal events 
+- notNsfw
+
 > Cooldown event will also run on slash commands
 
-For more info about these events view the [source code](https://github.com/SkyBlockDev/discord-akairo/blob/master/src/struct/commands/CommandHandler.js#L408). If you don't want to do that, you can safely assume that they are the exact same as their non-slash versions, execpt all `Message` arguments are changed to `CommandInteraction`.
+For more info about these events view the [source code](https://github.com/SkyBlockDev/discord-akairo/blob/master/src/struct/commands/CommandHandler.js#L464). If you don't want to do that, you can safely assume that they are the exact same as their non-slash versions, execpt all `Message` arguments are changed to `CommandInteraction`.
 
 Slash command example:
 
@@ -45,6 +46,8 @@ export default class slashCommand extends Command {
 				},
 			],
             //Slash command options you are going to have to register yourself
+			//You might need to add the types etc yourself for this to be allowed
+			//This is for yourself to have the options in the command
 			options: [
 				{
 					type: 6,
@@ -55,7 +58,7 @@ export default class slashCommand extends Command {
 			],
         });
     }
-    exec(message: Message, { member }:{ member:GuildMember }) {
+    exec(message: Message, { member } : { member : GuildMember }) {
        message.reply(`Hello ${member}!`)
     }
 }
@@ -76,9 +79,13 @@ You can do this all manually using something like an eval command, or just makin
 
 ### Emphemeral responses
 
+
+
 If you are unaware, an emphemeral response is what causes the "Only you can see this" response with slash commands. You can cause the command to do this with the `slashEmphemeral` command option. Just add `slashEmphemeral: true` and it will respond privately.
 
 Warning: fetchReply will not work with emphemeral responses.
+
+> This is for slash commands and not normal commands
 
 ## Tasks
 
