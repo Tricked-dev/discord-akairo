@@ -151,6 +151,30 @@ commandHandler: CommandHandler = new CommandHandler(this, {
 });
 ```
 
+## onlyNsfw
+
+Makes a command usable ONLY in NSFW rooms
+
+If a uesr tries to use a command with `onlyNsfw: true` in a channel that is not NSFW the CommandHandler will emit the `notNsfw` event that can be listened for in order to act in different ways.
+
+Example
+```ts
+export default class NsfwCommand extends Command {
+  constructor() {
+    super("nsfw", {
+      aliases: ["nsfw"],
+      category: "NSFW 🔞",
+      onlyNsfw: true,
+      description: {
+        content: "Random nsfw example",
+        usage: "nsfw",
+        examples: ["nsfw"],
+      },
+    });
+  }
+}
+```
+
 ## Removed features
 
 - Providers
