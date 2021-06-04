@@ -2,8 +2,6 @@
 
 ## Slash commands
 
-For slash commands to work you will just need to register your commands as slash commands and if a slash commmand is ran akairo will find that command and run it with a ["fake" message](https://github.com/SkyBlockDev/discord-akairo) that works pretty much the same as a normal message, if you need anymore properties added feel free to pr them so everyone can enjoy em.
-
 New slash command related events:
 
 > these are all emitted by the command handler
@@ -28,7 +26,7 @@ For more info about these events view the [source code](https://github.com/SkyBl
 
 Slash command example:
 
-> Slash commands are turned into messages like objects to make interacting with them easier the original ineraction is maintained though at message.interaction
+> Slash commands are turned into  [message](https://github.com/SkyBlockDev/discord-akairo/blob/master/src/util/AkairoMessage.js) like objects to make interacting with them easier the original ineraction is maintained though at message.interaction, please note that you will need to register the slash commands yourself with the name of the command
 
 ```ts
 import { Command } from "discord-akairo";
