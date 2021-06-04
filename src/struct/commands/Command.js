@@ -15,6 +15,7 @@ class Command extends AkairoModule {
 		super(id, { category: options.category });
 
 		const {
+			onlyNsfw = false,
 			slash = false,
 			aliases = [],
 			args = this.args || [],
@@ -66,6 +67,12 @@ class Command extends AkairoModule {
 					args.map(arg => [arg.id, new Argument(this, arg)])
 			  )
 			: args.bind(this);
+
+		/**
+		 * Usable only in this NSFW Channels.
+		 * @type {boolean}
+		 */
+		 this.onlyNsfw = Boolean(onlyNsfw);
 
 		/**
 		 * Usable only in this channel type.
@@ -281,6 +288,7 @@ module.exports = Command;
  * @prop {boolean} [ownerOnly=false] - Whether or not to allow client owner(s) only.
  * @prop {boolean} [superUserOnly=false] - Whether or not to allow client SuperUsers(s) only.
  * @prop {boolean} [typing=false] - Whether or not to type in channel during execution.
+ * @prop {boolean} [onlyNsfw=false] - Whether or not to type in channel during execution.
  * @prop {boolean} [editable=true] - Whether or not message edits will run this command.
  * @prop {number} [cooldown] - The command cooldown in milliseconds.
  * @prop {number} [ratelimit=1] - Amount of command uses allowed until cooldown.

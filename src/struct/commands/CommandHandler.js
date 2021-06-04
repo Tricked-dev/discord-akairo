@@ -1014,7 +1014,10 @@ class CommandHandler extends AkairoHandler {
 		if (command.typing) {
 			message.channel.startTyping();
 		}
-
+		if (command.onlyNsfw && !message.channel.nsfw) {
+			return this.emit("notNsfw", message, command)
+			
+		}
 		try {
 			this.emit(CommandHandlerEvents.COMMAND_STARTED, message, command, args);
 			const ret = await command.exec(message, args);
