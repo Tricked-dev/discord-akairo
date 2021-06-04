@@ -164,7 +164,7 @@ export default class NsfwCommand extends Command {
     super("nsfw", {
       aliases: ["nsfw"],
       category: "NSFW 🔞",
-			onlyNsfw: true,
+      onlyNsfw: true,
       description: {
         content: "Random nsfw example",
         usage: "nsfw",
