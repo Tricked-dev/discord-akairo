@@ -559,10 +559,10 @@ class Argument {
 				typeof x === "number" || typeof x === "bigint"
 					? x
 					: x.length != null
-						? x.length
-						: x.size != null
-							? x.size
-							: x;
+					? x.length
+					: x.size != null
+					? x.size
+					: x;
 
 			return o >= min && (inclusive ? o <= max : o < max);
 		});

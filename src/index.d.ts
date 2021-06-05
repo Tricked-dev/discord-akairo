@@ -875,17 +875,9 @@ declare module "discord-akairo" {
 
 	export interface ArgumentPromptOptions {
 		breakout?: boolean;
-		cancel?:
-			| string
-			| MessageOptions
-			| MessageAdditions
-			| PromptContentSupplier;
+		cancel?: string | MessageOptions | MessageAdditions | PromptContentSupplier;
 		cancelWord?: string;
-		ended?:
-			| string
-			| MessageOptions
-			| MessageAdditions
-			| PromptContentSupplier;
+		ended?: string | MessageOptions | MessageAdditions | PromptContentSupplier;
 		infinite?: boolean;
 		limit?: number;
 		modifyCancel?: PromptContentModifier;
@@ -895,16 +887,8 @@ declare module "discord-akairo" {
 		modifyTimeout?: PromptContentModifier;
 		optional?: boolean;
 		retries?: number;
-		retry?:
-			| string
-			| MessageOptions
-			| MessageAdditions
-			| PromptContentSupplier;
-		start?:
-			| string
-			| MessageOptions
-			| MessageAdditions
-			| PromptContentSupplier;
+		retry?: string | MessageOptions | MessageAdditions | PromptContentSupplier;
+		start?: string | MessageOptions | MessageAdditions | PromptContentSupplier;
 		stopWord?: string;
 		time?: number;
 		timeout?:
