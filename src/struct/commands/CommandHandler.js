@@ -545,7 +545,7 @@ class CommandHandler extends AkairoHandler {
 				await interaction.defer(command.slashEmphemeral);
 			}
 			const convertedOptions = {};
-			for (const option of interaction.options) {
+			for (const [, option] of interaction.options) {
 				if (option.member) convertedOptions[option.name] = option.member;
 				else if (option.channel) convertedOptions[option.name] = option.channel;
 				else if (option.role) convertedOptions[option.name] = option.role;
@@ -908,8 +908,8 @@ class CommandHandler extends AkairoHandler {
 			const isIgnored = Array.isArray(ignorer)
 				? ignorer.includes(message.author.id)
 				: typeof ignorer === "function"
-				? ignorer(message, command)
-				: message.author.id === ignorer;
+					? ignorer(message, command)
+					: message.author.id === ignorer;
 
 			if (!isIgnored) {
 				if (typeof command.userPermissions === "function") {
@@ -959,8 +959,8 @@ class CommandHandler extends AkairoHandler {
 		const isIgnored = Array.isArray(ignorer)
 			? ignorer.includes(id)
 			: typeof ignorer === "function"
-			? ignorer(message, command)
-			: id === ignorer;
+				? ignorer(message, command)
+				: id === ignorer;
 
 		if (isIgnored) return false;
 
