@@ -933,7 +933,7 @@ declare module "discord-akairo" {
 			| MissingPermissionSupplier;
 		condition?: ExecutionPredicate;
 		cooldown?: number;
-		description?: string;
+		description?: any;
 		editable?: boolean;
 		flags?: string[];
 		ignoreCooldown?: Snowflake | Snowflake[] | IgnoreCheckPredicate;
