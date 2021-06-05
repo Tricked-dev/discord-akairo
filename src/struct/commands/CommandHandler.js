@@ -1032,6 +1032,7 @@ class CommandHandler extends AkairoHandler {
 				message.channel.stopTyping();
 			}
 		}
+		return undefined;
 	}
 
 	/**

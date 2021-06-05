@@ -17,7 +17,9 @@
 		"commands",
 		"arguments"
 	],
-	"dependencies": {},
+	"dependencies": {
+		"discord.js": "discordjs/discord.js"
+	},
 	"devDependencies": {
 		"@types/node": "^10.14.4",
 		"discord.js-docgen": "github:discordjs/docgen",
