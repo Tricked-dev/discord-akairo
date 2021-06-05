@@ -42,6 +42,7 @@ class Command extends AkairoModule {
 			ignorePermissions,
 			flags = [],
 			optionFlags = [],
+			slashOptions,
 			slashEmphemeral = false
 		} = options;
 		this.slash = slash;
@@ -65,8 +66,8 @@ class Command extends AkairoModule {
 		this.argumentRunner = new ArgumentRunner(this);
 		this.argumentGenerator = Array.isArray(args)
 			? ArgumentRunner.fromArguments(
-					args.map(arg => [arg.id, new Argument(this, arg)])
-			  )
+				args.map(arg => [arg.id, new Argument(this, arg)])
+			)
 			: args.bind(this);
 
 		/**
@@ -216,6 +217,11 @@ class Command extends AkairoModule {
 			typeof ignorePermissions === "function"
 				? ignorePermissions.bind(this)
 				: ignorePermissions;
+
+		/**
+		 * Option for using slash command
+		 */
+		this.slashOptions = slashOptions;
 
 		/**
 		 * Whether slash command responses for this command should be emphemeral or not.

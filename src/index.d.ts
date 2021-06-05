@@ -357,7 +357,7 @@ declare module "discord-akairo" {
 		public superUserOnly: boolean;
 		public prefix?: string | string[] | PrefixSupplier;
 		public ratelimit: number;
-		public options?: any | any[];
+		public slashOptions?: any | any[];
 		public regex: RegExp | RegexSupplier;
 		public typing: boolean;
 		public userPermissions:
@@ -368,7 +368,7 @@ declare module "discord-akairo" {
 		public before(message: Message): any;
 		public condition(message: Message): boolean;
 		public exec(message: Message, args: any): any;
-		public execSlash(message: CommandInteraction, args: any): any;
+		public execSlash(message: AkairoMessage, args: any): any;
 		public parse(message: Message, content: string): Promise<Flag | any>;
 		public reload(): this;
 		public remove(): this;
@@ -961,7 +961,7 @@ declare module "discord-akairo" {
 		ignorePermissions?: Snowflake | Snowflake[] | IgnoreCheckPredicate;
 		lock?: KeySupplier | "guild" | "channel" | "user";
 		optionFlags?: string[];
-		options?: any | any[];
+		slashOptions?: any | any[];
 		ownerOnly?: boolean;
 		superUserOnly?: boolean;
 		prefix?: string | string[] | PrefixSupplier;
