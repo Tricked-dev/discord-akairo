@@ -27,7 +27,7 @@ For more info about these events view the [source code](https://github.com/SkyBl
 
 Slash command example:
 
-> Slash commands are turned into  [message](https://github.com/SkyBlockDev/discord-akairo/blob/master/src/util/AkairoMessage.js) like objects to make interacting with them easier the original ineraction is maintained though at message.interaction, please note that you will need to register the slash commands yourself with the name of the command
+> Slash commands are turned into [message](https://github.com/SkyBlockDev/discord-akairo/blob/master/src/util/AkairoMessage.js) like objects to make interacting with them easier the original ineraction is maintained though at message.interaction, please note that you will need to register the slash commands yourself with the name of the command
 
 ```ts
 import { Command } from "discord-akairo";
