@@ -343,7 +343,7 @@ declare module "discord-akairo" {
 			| PermissionResolvable[]
 			| MissingPermissionSupplier;
 		public cooldown?: number;
-		public description: string | any;
+		public description: any;
 		public editable: boolean;
 		public filepath: string;
 		public handler: CommandHandler;
