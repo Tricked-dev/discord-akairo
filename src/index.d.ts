@@ -20,7 +20,6 @@ declare module "discord-akairo" {
 		Guild,
 		TextChannel,
 		PermissionResolvable,
-		StringResolvable,
 		Snowflake,
 		CommandInteraction
 	} from "discord.js";
@@ -110,7 +109,7 @@ declare module "discord-akairo" {
 		public multipleFlags: boolean;
 		public flag?: string | string[];
 		public otherwise?:
-			| StringResolvable
+			| string
 			| MessageOptions
 			| MessageAdditions
 			| OtherwiseContentSupplier;
@@ -546,20 +545,20 @@ declare module "discord-akairo" {
 
 		public addMessage(message: Message | Message[]): Message | Message[];
 		public edit(
-			content?: StringResolvable,
+			content?: string,
 			options?: MessageEmbed | MessageEditOptions
 		): Promise<Message>;
 		public edit(options?: MessageOptions | MessageAdditions): Promise<Message>;
 		public reply(
-			content?: StringResolvable,
+			content?: string,
 			options?: MessageOptions | MessageAdditions
 		): Promise<Message>;
 		public reply(
-			content?: StringResolvable,
+			content?: string,
 			options?: (MessageOptions & { split?: false }) | MessageAdditions
 		): Promise<Message>;
 		public reply(
-			content?: StringResolvable,
+			content?: string,
 			options?:
 				| (MessageOptions & { split: true | SplitOptions })
 				| MessageAdditions
@@ -574,15 +573,15 @@ declare module "discord-akairo" {
 				| MessageAdditions
 		): Promise<Message[]>;
 		public send(
-			content?: StringResolvable,
+			content?: string,
 			options?: MessageOptions | MessageAdditions
 		): Promise<Message>;
 		public send(
-			content?: StringResolvable,
+			content?: string,
 			options?: (MessageOptions & { split?: false }) | MessageAdditions
 		): Promise<Message>;
 		public send(
-			content?: StringResolvable,
+			content?: string,
 			options?:
 				| (MessageOptions & { split: true | SplitOptions })
 				| MessageAdditions
@@ -597,15 +596,15 @@ declare module "discord-akairo" {
 				| MessageAdditions
 		): Promise<Message[]>;
 		public sendNew(
-			content?: StringResolvable,
+			content?: string,
 			options?: MessageOptions | MessageAdditions
 		): Promise<Message>;
 		public sendNew(
-			content?: StringResolvable,
+			content?: string,
 			options?: (MessageOptions & { split?: false }) | MessageAdditions
 		): Promise<Message>;
 		public sendNew(
-			content?: StringResolvable,
+			content?: string,
 			options?:
 				| (MessageOptions & { split: true | SplitOptions })
 				| MessageAdditions
@@ -625,7 +624,7 @@ declare module "discord-akairo" {
 		public setLastResponse(message: Message | Message[]): Message;
 
 		public static transformOptions(
-			content?: StringResolvable,
+			content?: string,
 			options?: MessageOptions | MessageAdditions
 		): any[];
 	}
@@ -839,7 +838,7 @@ declare module "discord-akairo" {
 	export interface DefaultArgumentOptions {
 		prompt?: ArgumentPromptOptions;
 		otherwise?:
-			| StringResolvable
+			| string
 			| MessageOptions
 			| MessageAdditions
 			| OtherwiseContentSupplier;
@@ -848,7 +847,7 @@ declare module "discord-akairo" {
 
 	export interface ArgumentOptions {
 		default?: DefaultValueSupplier | any;
-		description?: StringResolvable;
+		description?: string;
 		id?: string;
 		index?: number;
 		limit?: number;
@@ -857,7 +856,7 @@ declare module "discord-akairo" {
 		multipleFlags?: boolean;
 		flag?: string | string[];
 		otherwise?:
-			| StringResolvable
+			| string
 			| MessageOptions
 			| MessageAdditions
 			| OtherwiseContentSupplier;
@@ -877,13 +876,13 @@ declare module "discord-akairo" {
 	export interface ArgumentPromptOptions {
 		breakout?: boolean;
 		cancel?:
-			| StringResolvable
+			| string
 			| MessageOptions
 			| MessageAdditions
 			| PromptContentSupplier;
 		cancelWord?: string;
 		ended?:
-			| StringResolvable
+			| string
 			| MessageOptions
 			| MessageAdditions
 			| PromptContentSupplier;
@@ -897,19 +896,19 @@ declare module "discord-akairo" {
 		optional?: boolean;
 		retries?: number;
 		retry?:
-			| StringResolvable
+			| string
 			| MessageOptions
 			| MessageAdditions
 			| PromptContentSupplier;
 		start?:
-			| StringResolvable
+			| string
 			| MessageOptions
 			| MessageAdditions
 			| PromptContentSupplier;
 		stopWord?: string;
 		time?: number;
 		timeout?:
-			| StringResolvable
+			| string
 			| MessageOptions
 			| MessageAdditions
 			| PromptContentSupplier;
@@ -933,7 +932,7 @@ declare module "discord-akairo" {
 			| MissingPermissionSupplier;
 		condition?: ExecutionPredicate;
 		cooldown?: number;
-		description?: StringResolvable;
+		description?: string;
 		editable?: boolean;
 		flags?: string[];
 		ignoreCooldown?: Snowflake | Snowflake[] | IgnoreCheckPredicate;
@@ -1138,19 +1137,19 @@ declare module "discord-akairo" {
 		text: string,
 		data: FailureData
 	) =>
-		| StringResolvable
+		| string
 		| MessageOptions
 		| MessageAdditions
-		| Promise<StringResolvable | MessageOptions | MessageAdditions>;
+		| Promise<string | MessageOptions | MessageAdditions>;
 
 	export type OtherwiseContentSupplier = (
 		message: Message,
 		data: FailureData
 	) =>
-		| StringResolvable
+		| string
 		| MessageOptions
 		| MessageAdditions
-		| Promise<StringResolvable | MessageOptions | MessageAdditions>;
+		| Promise<string | MessageOptions | MessageAdditions>;
 
 	export type ParsedValuePredicate = (
 		message: Message,
@@ -1167,19 +1166,19 @@ declare module "discord-akairo" {
 		text: string,
 		data: ArgumentPromptData
 	) =>
-		| StringResolvable
+		| string
 		| MessageOptions
 		| MessageAdditions
-		| Promise<StringResolvable | MessageOptions | MessageAdditions>;
+		| Promise<string | MessageOptions | MessageAdditions>;
 
 	export type PromptContentSupplier = (
 		message: Message,
 		data: ArgumentPromptData
 	) =>
-		| StringResolvable
+		| string
 		| MessageOptions
 		| MessageAdditions
-		| Promise<StringResolvable | MessageOptions | MessageAdditions>;
+		| Promise<string | MessageOptions | MessageAdditions>;
 
 	export type RegexSupplier = (message: Message) => RegExp;
 
