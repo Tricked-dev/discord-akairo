@@ -331,7 +331,8 @@ declare module "discord-akairo" {
 	}
 	export class Command extends AkairoModule {
 		public constructor(id: string, options?: CommandOptions);
-		public slash: boolean;
+		public slash?: boolean;
+		public slashEmphemeral?: boolean;
 		public aliases: string[];
 		public argumentDefaults: DefaultArgumentOptions;
 		public quoted: boolean;
@@ -363,7 +364,7 @@ declare module "discord-akairo" {
 			| PermissionResolvable
 			| PermissionResolvable[]
 			| MissingPermissionSupplier;
-
+		public onlyNsfw: boolean;
 		public before(message: Message): any;
 		public condition(message: Message): boolean;
 		public exec(message: Message, args: any): any;
@@ -371,7 +372,6 @@ declare module "discord-akairo" {
 		public parse(message: Message, content: string): Promise<Flag | any>;
 		public reload(): this;
 		public remove(): this;
-		public onlyNsfw: boolean;
 	}
 
 	export class CommandHandler extends AkairoHandler {
@@ -829,9 +829,6 @@ declare module "discord-akairo" {
 
 	export interface AkairoOptions {
 		ownerID?: Snowflake | Snowflake[];
-	}
-
-	export interface AkairoOptions {
 		superUserID?: Snowflake | Snowflake[];
 	}
 
