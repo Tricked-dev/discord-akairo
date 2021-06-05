@@ -531,6 +531,30 @@ declare module "discord-akairo" {
 				missing?: any
 			) => any
 		): this;
+		public on(
+			event: "slashError",
+			listener: (error: Error, interaction?: CommandInteraction) => any
+		): this;
+		public on(
+			event: "slashBlocked",
+			listener: (interaction: CommandInteraction, reason?: string) => any
+		): this;
+		public on(
+			event: "slashStarted",
+			listener: (interaction: CommandInteraction) => any
+		): this;
+		public on(
+			event: "slashNotFound",
+			listener: (interaction: CommandInteraction) => any
+		): this;
+		public on(
+			event: "slashGuildOnly",
+			listener: (interaction: CommandInteraction) => any
+		): this;
+		public on(
+			event: "slashMissingPermissions",
+			listener: (interaction: CommandInteraction) => any
+		): this;
 	}
 
 	export class CommandUtil {
@@ -937,7 +961,7 @@ declare module "discord-akairo" {
 		ignorePermissions?: Snowflake | Snowflake[] | IgnoreCheckPredicate;
 		lock?: KeySupplier | "guild" | "channel" | "user";
 		optionFlags?: string[];
-		options: any | any[];
+		options?: any | any[];
 		ownerOnly?: boolean;
 		superUserOnly?: boolean;
 		prefix?: string | string[] | PrefixSupplier;
@@ -1258,6 +1282,12 @@ declare module "discord-akairo" {
 			COOLDOWN: "cooldown";
 			IN_PROMPT: "inPrompt";
 			ERROR: "error";
+			SLASH_ERROR: "slashError";
+			SLASH_BLOCKED: "slashBlocked";
+			SLASH_STARTED: "slashStarted";
+			SLASH_NOT_FOUND: "slashNotFound";
+			SLASH_GUILD_ONLY: "slashGuildOnly";
+			SLASH_MISSING_PERMISSIONS: "slashMissingPermissions";
 		};
 		BuiltInReasons: {
 			CLIENT: "client";

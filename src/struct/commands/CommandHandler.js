@@ -247,6 +247,12 @@ class CommandHandler extends AkairoHandler {
 		this.inhibitorHandler = null;
 
 		/**
+		 * autoDefer interaction
+		 * @type {boolean}
+		 */
+		this.autoDefer = Boolean(autoDefer);
+
+		/**
 		 * Directory to commands.
 		 * @name CommandHandler#directory
 		 * @type {string}
@@ -552,7 +558,7 @@ class CommandHandler extends AkairoHandler {
 				else convertedOptions[option.name] = option.value;
 			}
 			this.emit("slashStarted", interaction, command);
-			await command.exec(message, convertedOptions);
+			await command.execSlash(message, convertedOptions);
 			return true;
 		} catch (err) {
 			this.emit("slashError", err, interaction, command);
