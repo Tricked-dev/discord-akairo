@@ -540,7 +540,6 @@ class CommandHandler extends AkairoHandler {
 			replied: this.autoDefer || command.slashEmphemeral
 		});
 		try {
-
 			if (this.autoDefer || command.slashEmphemeral) {
 				await interaction.defer(command.slashEmphemeral);
 			}
@@ -908,8 +907,8 @@ class CommandHandler extends AkairoHandler {
 			const isIgnored = Array.isArray(ignorer)
 				? ignorer.includes(message.author.id)
 				: typeof ignorer === "function"
-					? ignorer(message, command)
-					: message.author.id === ignorer;
+				? ignorer(message, command)
+				: message.author.id === ignorer;
 
 			if (!isIgnored) {
 				if (typeof command.userPermissions === "function") {
@@ -959,8 +958,8 @@ class CommandHandler extends AkairoHandler {
 		const isIgnored = Array.isArray(ignorer)
 			? ignorer.includes(id)
 			: typeof ignorer === "function"
-				? ignorer(message, command)
-				: id === ignorer;
+			? ignorer(message, command)
+			: id === ignorer;
 
 		if (isIgnored) return false;
 
