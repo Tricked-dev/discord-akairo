@@ -535,12 +535,12 @@ class CommandHandler extends AkairoHandler {
 		if (this.runCooldowns(interaction, command)) {
 			return true;
 		}
-
+		const message = new AkairoMessage(this.client, interaction, {
+			slash: true,
+			replied: this.autoDefer || command.slashEmphemeral
+		});
 		try {
-			const message = new AkairoMessage(this.client, interaction, {
-				slash: true,
-				replied: this.autoDefer || command.slashEmphemeral
-			});
+
 			if (this.autoDefer || command.slashEmphemeral) {
 				await interaction.defer(command.slashEmphemeral);
 			}
@@ -555,7 +555,7 @@ class CommandHandler extends AkairoHandler {
 			await command.exec(message, convertedOptions);
 			return true;
 		} catch (err) {
-			this.emit("slashError", err, interaction, command);
+			this.emit("slashError", err, message, command);
 			return false;
 		}
 	}
@@ -908,8 +908,8 @@ class CommandHandler extends AkairoHandler {
 			const isIgnored = Array.isArray(ignorer)
 				? ignorer.includes(message.author.id)
 				: typeof ignorer === "function"
-				? ignorer(message, command)
-				: message.author.id === ignorer;
+					? ignorer(message, command)
+					: message.author.id === ignorer;
 
 			if (!isIgnored) {
 				if (typeof command.userPermissions === "function") {
@@ -959,8 +959,8 @@ class CommandHandler extends AkairoHandler {
 		const isIgnored = Array.isArray(ignorer)
 			? ignorer.includes(id)
 			: typeof ignorer === "function"
-			? ignorer(message, command)
-			: id === ignorer;
+				? ignorer(message, command)
+				: id === ignorer;
 
 		if (isIgnored) return false;
 
