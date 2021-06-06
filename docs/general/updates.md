@@ -186,7 +186,12 @@ export default class NsfwCommand extends Command {
   - mongo
   - sequelize
   - sqlite
+- Type function
 
-If you want a good database, we recommend using an ORM like sequelize. Databases aren't hard to set up by themselves, and are much more convienent when used without being limited by providers.
+
+
+If you want a good database, we recommend using an ORM like sequelize. Databases aren't hard to set up by themselves, and are much more convienent when used without being limited by providers.  
+  
+Type functions have been removed and you now will have to add customType function to create custom types, this is so slash commands can easier be parsed
 
 > For support regarding this fork, you can ping @Tricked in the Akairo discord server #general or preferably join [my discord](https://discord.gg/KkMKCchJb8) and ask there.
