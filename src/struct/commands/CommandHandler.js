@@ -4,9 +4,8 @@ const {
 	BuiltInReasons,
 	CommandHandlerEvents
 } = require("../../util/Constants");
-const { Message } = require("discord.js");
+const { Message, Collection } = require("discord.js");
 const AkairoMessage = require("../../util/AkairoMessage");
-const { Collection } = require("discord.js");
 const Command = require("./Command");
 const CommandUtil = require("./CommandUtil");
 const Flag = require("./Flag");
@@ -20,13 +19,13 @@ const {
 } = require("../../util/Util");
 const TypeResolver = require("./arguments/TypeResolver");
 
-/**
- * Loads commands and handles messages.
- * @param {AkairoClient} client - The Akairo client.
- * @param {CommandHandlerOptions} options - Options.
- * @extends {AkairoHandler}
- */
 class CommandHandler extends AkairoHandler {
+	/**
+	 * Loads commands and handles messages.
+	 * @param {AkairoClient} client - The Akairo client.
+	 * @param {CommandHandlerOptions} options - Options.
+	 * @extends {AkairoHandler}
+	 */
 	constructor(
 		client,
 		{
@@ -247,7 +246,7 @@ class CommandHandler extends AkairoHandler {
 		this.inhibitorHandler = null;
 
 		/**
-		 * autoDefer interaction
+		 * Option to auto defer interaction
 		 * @type {boolean}
 		 */
 		this.autoDefer = Boolean(autoDefer);
@@ -551,7 +550,7 @@ class CommandHandler extends AkairoHandler {
 				await interaction.defer(command.slashEmphemeral);
 			}
 			const convertedOptions = {};
-			for (const option of interaction.options) {
+			for (const option of interaction.options.values()) {
 				if (option.member) convertedOptions[option.name] = option.member;
 				else if (option.channel) convertedOptions[option.name] = option.channel;
 				else if (option.role) convertedOptions[option.name] = option.role;

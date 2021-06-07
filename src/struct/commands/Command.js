@@ -1,4 +1,3 @@
-const { CommandInteraction } = require("discord.js");
 const AkairoError = require("../../util/AkairoError");
 const AkairoModule = require("../AkairoModule");
 const Argument = require("./arguments/Argument");
@@ -66,8 +65,8 @@ class Command extends AkairoModule {
 		this.argumentRunner = new ArgumentRunner(this);
 		this.argumentGenerator = Array.isArray(args)
 			? ArgumentRunner.fromArguments(
-				args.map(arg => [arg.id, new Argument(this, arg)])
-			)
+					args.map(arg => [arg.id, new Argument(this, arg)])
+			  )
 			: args.bind(this);
 
 		/**
@@ -255,13 +254,17 @@ class Command extends AkairoModule {
 
 	/**
 	 * Execute the slash command
-	 * @param {CommandInteraction} message
-	 * @param {any} args
+	 * @param {AkairoMessage} message - Message for slash command
+	 * @param {any} args - Slash command options
 	 * @returns {any}
 	 */
 	execSlash() {
 		if (this.slash) {
-			throw new AkairoError("NOT_IMPLEMENTED", this.constructor.name, "execSlash")
+			throw new AkairoError(
+				"NOT_IMPLEMENTED",
+				this.constructor.name,
+				"execSlash"
+			);
 		}
 	}
 
