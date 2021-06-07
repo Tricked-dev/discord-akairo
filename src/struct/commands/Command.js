@@ -41,6 +41,7 @@ class Command extends AkairoModule {
 			ignorePermissions,
 			flags = [],
 			optionFlags = [],
+			slashOptions,
 			slashEmphemeral = false
 		} = options;
 		this.slash = slash;
@@ -217,6 +218,11 @@ class Command extends AkairoModule {
 				: ignorePermissions;
 
 		/**
+		 * Option for using slash command
+		 */
+		this.slashOptions = slashOptions;
+
+		/**
 		 * Whether slash command responses for this command should be emphemeral or not.
 		 * @type {boolean}
 		 */
@@ -244,6 +250,22 @@ class Command extends AkairoModule {
 	 */
 	exec() {
 		throw new AkairoError("NOT_IMPLEMENTED", this.constructor.name, "exec");
+	}
+
+	/**
+	 * Execute the slash command
+	 * @param {AkairoMessage} message - Message for slash command
+	 * @param {any} args - Slash command options
+	 * @returns {any}
+	 */
+	execSlash() {
+		if (this.slash) {
+			throw new AkairoError(
+				"NOT_IMPLEMENTED",
+				this.constructor.name,
+				"execSlash"
+			);
+		}
 	}
 
 	/**

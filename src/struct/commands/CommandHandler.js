@@ -4,9 +4,8 @@ const {
 	BuiltInReasons,
 	CommandHandlerEvents
 } = require("../../util/Constants");
-const { Message } = require("discord.js");
+const { Message, Collection } = require("discord.js");
 const AkairoMessage = require("../../util/AkairoMessage");
-const { Collection } = require("discord.js");
 const Command = require("./Command");
 const CommandUtil = require("./CommandUtil");
 const Flag = require("./Flag");
@@ -20,13 +19,13 @@ const {
 } = require("../../util/Util");
 const TypeResolver = require("./arguments/TypeResolver");
 
-/**
- * Loads commands and handles messages.
- * @param {AkairoClient} client - The Akairo client.
- * @param {CommandHandlerOptions} options - Options.
- * @extends {AkairoHandler}
- */
 class CommandHandler extends AkairoHandler {
+	/**
+	 * Loads commands and handles messages.
+	 * @param {AkairoClient} client - The Akairo client.
+	 * @param {CommandHandlerOptions} options - Options.
+	 * @extends {AkairoHandler}
+	 */
 	constructor(
 		client,
 		{
@@ -245,6 +244,12 @@ class CommandHandler extends AkairoHandler {
 		 * @type {?InhibitorHandler}
 		 */
 		this.inhibitorHandler = null;
+
+		/**
+		 * Option to auto defer interaction
+		 * @type {boolean}
+		 */
+		this.autoDefer = Boolean(autoDefer);
 
 		/**
 		 * Directory to commands.
@@ -544,14 +549,14 @@ class CommandHandler extends AkairoHandler {
 				await interaction.defer(command.slashEmphemeral);
 			}
 			const convertedOptions = {};
-			for (const [, option] of interaction.options) {
+			for (const option of interaction.options.values()) {
 				if (option.member) convertedOptions[option.name] = option.member;
 				else if (option.channel) convertedOptions[option.name] = option.channel;
 				else if (option.role) convertedOptions[option.name] = option.role;
 				else convertedOptions[option.name] = option.value;
 			}
 			this.emit("slashStarted", interaction, command);
-			await command.exec(message, convertedOptions);
+			await command.execSlash(message, convertedOptions);
 			return true;
 		} catch (err) {
 			this.emit("slashError", err, message, command);
@@ -1031,6 +1036,7 @@ class CommandHandler extends AkairoHandler {
 				message.channel.stopTyping();
 			}
 		}
+		return undefined;
 	}
 
 	/**

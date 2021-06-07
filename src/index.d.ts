@@ -332,7 +332,8 @@ declare module "discord-akairo" {
 	}
 	export class Command extends AkairoModule {
 		public constructor(id: string, options?: CommandOptions);
-		public slash: boolean;
+		public slash?: boolean;
+		public slashEmphemeral?: boolean;
 		public aliases: string[];
 		public argumentDefaults: DefaultArgumentOptions;
 		public quoted: boolean;
@@ -344,7 +345,7 @@ declare module "discord-akairo" {
 			| PermissionResolvable[]
 			| MissingPermissionSupplier;
 		public cooldown?: number;
-		public description: string | any;
+		public description: any;
 		public editable: boolean;
 		public filepath: string;
 		public handler: CommandHandler;
@@ -357,22 +358,21 @@ declare module "discord-akairo" {
 		public superUserOnly: boolean;
 		public prefix?: string | string[] | PrefixSupplier;
 		public ratelimit: number;
-		public options: any | any[];
+		public slashOptions?: any | any[];
 		public regex: RegExp | RegexSupplier;
 		public typing: boolean;
 		public userPermissions:
 			| PermissionResolvable
 			| PermissionResolvable[]
 			| MissingPermissionSupplier;
-
+		public onlyNsfw: boolean;
 		public before(message: Message): any;
 		public condition(message: Message): boolean;
 		public exec(message: Message, args: any): any;
-		public execSlash(message: CommandInteraction, args: any): any;
+		public execSlash(message: AkairoMessage, args: any): any;
 		public parse(message: Message, content: string): Promise<Flag | any>;
 		public reload(): this;
 		public remove(): this;
-		public onlyNsfw: boolean;
 	}
 
 	export class CommandHandler extends AkairoHandler {
@@ -529,6 +529,39 @@ declare module "discord-akairo" {
 				message: Message,
 				command: Command,
 				type: "client" | "user",
+				missing?: any
+			) => any
+		): this;
+		public on(
+			event: "slashError",
+			listener: (error: Error, message: AkairoMessage, command: Command) => any
+		): this;
+		public on(
+			event: "slashBlocked",
+			listener: (
+				interaction: CommandInteraction,
+				command: Command,
+				type: "owner" | "superuser"
+			) => any
+		): this;
+		public on(
+			event: "slashStarted",
+			listener: (interaction: CommandInteraction, command: Command) => any
+		): this;
+		public on(
+			event: "slashNotFound",
+			listener: (interaction: CommandInteraction) => any
+		): this;
+		public on(
+			event: "slashGuildOnly",
+			listener: (interaction: CommandInteraction) => any
+		): this;
+		public on(
+			event: "slashMissingPermissions",
+			listener: (
+				interaction: CommandInteraction,
+				command: Command,
+				type: "user" | "client",
 				missing?: any
 			) => any
 		): this;
@@ -830,9 +863,6 @@ declare module "discord-akairo" {
 
 	export interface AkairoOptions {
 		ownerID?: Snowflake | Snowflake[];
-	}
-
-	export interface AkairoOptions {
 		superUserID?: Snowflake | Snowflake[];
 	}
 
@@ -848,7 +878,7 @@ declare module "discord-akairo" {
 
 	export interface ArgumentOptions {
 		default?: DefaultValueSupplier | any;
-		description?: string;
+		description?: string | any | any[];
 		id?: string;
 		index?: number;
 		limit?: number;
@@ -906,6 +936,7 @@ declare module "discord-akairo" {
 	}
 
 	export interface CommandOptions extends AkairoModuleOptions {
+		slash?: boolean;
 		aliases?: string[];
 		args?: ArgumentOptions[] | ArgumentGenerator;
 		argumentDefaults?: DefaultArgumentOptions;
@@ -924,6 +955,7 @@ declare module "discord-akairo" {
 		ignorePermissions?: Snowflake | Snowflake[] | IgnoreCheckPredicate;
 		lock?: KeySupplier | "guild" | "channel" | "user";
 		optionFlags?: string[];
+		slashOptions?: any | any[];
 		ownerOnly?: boolean;
 		superUserOnly?: boolean;
 		prefix?: string | string[] | PrefixSupplier;
@@ -956,6 +988,7 @@ declare module "discord-akairo" {
 		ignorePermissions?: Snowflake | Snowflake[] | IgnoreCheckPredicate;
 		prefix?: string | string[] | PrefixSupplier;
 		storeMessages?: boolean;
+		autoDefer?: boolean;
 	}
 
 	export interface ContentParserResult {
@@ -1243,6 +1276,12 @@ declare module "discord-akairo" {
 			COOLDOWN: "cooldown";
 			IN_PROMPT: "inPrompt";
 			ERROR: "error";
+			SLASH_ERROR: "slashError";
+			SLASH_BLOCKED: "slashBlocked";
+			SLASH_STARTED: "slashStarted";
+			SLASH_NOT_FOUND: "slashNotFound";
+			SLASH_GUILD_ONLY: "slashGuildOnly";
+			SLASH_MISSING_PERMISSIONS: "slashMissingPermissions";
 		};
 		BuiltInReasons: {
 			CLIENT: "client";

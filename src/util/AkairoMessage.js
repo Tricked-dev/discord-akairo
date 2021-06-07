@@ -1,4 +1,10 @@
 class AkairoMessage {
+	/**
+	 *
+	 * @param {AkairoClient} client - AkairoClient
+	 * @param {CommandInteraction} interaction - CommandInteraction
+	 * @param {boolean} param2 - any
+	 */
 	constructor(client, interaction, { slash, replied }) {
 		this.interaction = interaction;
 		this._message = null;
@@ -9,7 +15,7 @@ class AkairoMessage {
 		this.replied = replied;
 		this.client = client;
 		this.content = `/${interaction.name}`;
-		for (const option of interaction.options) {
+		for (const option of interaction.options.values()) {
 			if (option.member) {
 				this.content += ` ${option.name}: ${option.member}`;
 			} else if (option.channel) {
