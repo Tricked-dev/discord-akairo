@@ -406,6 +406,7 @@ declare module "discord-akairo" {
 		public resolver: TypeResolver;
 		public storeMessage: boolean;
 		public autoDefer: boolean;
+		public execSlash: boolean;
 
 		public add(filename: string): Command;
 		public addPrompt(channel: Channel, user: User): void;
