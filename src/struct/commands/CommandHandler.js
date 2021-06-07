@@ -540,12 +540,11 @@ class CommandHandler extends AkairoHandler {
 		if (this.runCooldowns(interaction, command)) {
 			return true;
 		}
-
+		const message = new AkairoMessage(this.client, interaction, {
+			slash: true,
+			replied: this.autoDefer || command.slashEmphemeral
+		});
 		try {
-			const message = new AkairoMessage(this.client, interaction, {
-				slash: true,
-				replied: this.autoDefer || command.slashEmphemeral
-			});
 			if (this.autoDefer || command.slashEmphemeral) {
 				await interaction.defer(command.slashEmphemeral);
 			}
@@ -560,7 +559,7 @@ class CommandHandler extends AkairoHandler {
 			await command.execSlash(message, convertedOptions);
 			return true;
 		} catch (err) {
-			this.emit("slashError", err, interaction, command);
+			this.emit("slashError", err, message, command);
 			return false;
 		}
 	}

@@ -326,6 +326,7 @@ declare module "discord-akairo" {
 		public replied: boolean;
 		public author: User;
 		public id: string;
+		public content: string;
 		public send(...options: any): Promise<Message>;
 		public reply(...options: any): Promise<Message>;
 	}
@@ -938,7 +939,7 @@ declare module "discord-akairo" {
 			| MissingPermissionSupplier;
 		condition?: ExecutionPredicate;
 		cooldown?: number;
-		description?: any;
+		description?: string | any | any[];
 		editable?: boolean;
 		flags?: string[];
 		ignoreCooldown?: Snowflake | Snowflake[] | IgnoreCheckPredicate;
