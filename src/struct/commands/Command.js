@@ -65,8 +65,8 @@ class Command extends AkairoModule {
 		this.argumentRunner = new ArgumentRunner(this);
 		this.argumentGenerator = Array.isArray(args)
 			? ArgumentRunner.fromArguments(
-					args.map(arg => [arg.id, new Argument(this, arg)])
-			  )
+				args.map(arg => [arg.id, new Argument(this, arg)])
+			)
 			: args.bind(this);
 
 		/**
@@ -257,16 +257,17 @@ class Command extends AkairoModule {
 	 * @param {AkairoMessage} message - Message for slash command
 	 * @param {any} args - Slash command options
 	 * @returns {any}
+	 * Disabled cause it wouldnt work with the current design
 	 */
-	execSlash() {
-		if (this.slash) {
-			throw new AkairoError(
-				"NOT_IMPLEMENTED",
-				this.constructor.name,
-				"execSlash"
-			);
-		}
-	}
+	// execSlash() {
+	// 	if (this.slash) {
+	// 		throw new AkairoError(
+	// 			"NOT_IMPLEMENTED",
+	// 			this.constructor.name,
+	// 			"execSlash"
+	// 		);
+	// 	}
+	// }
 
 	/**
 	 * Parses content using the command's arguments.
