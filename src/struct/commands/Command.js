@@ -65,8 +65,8 @@ class Command extends AkairoModule {
 		this.argumentRunner = new ArgumentRunner(this);
 		this.argumentGenerator = Array.isArray(args)
 			? ArgumentRunner.fromArguments(
-				args.map(arg => [arg.id, new Argument(this, arg)])
-			)
+					args.map(arg => [arg.id, new Argument(this, arg)])
+			  )
 			: args.bind(this);
 
 		/**
