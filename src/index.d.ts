@@ -549,6 +549,10 @@ declare module "discord-akairo" {
 			listener: (message: AkairoMessage, command: Command) => any
 		): this;
 		public on(
+			event: "slashFinished",
+			listener: (message: AkairoMessage, command: Command) => any
+		): this;
+		public on(
 			event: "slashNotFound",
 			listener: (message: AkairoMessage) => any
 		): this;

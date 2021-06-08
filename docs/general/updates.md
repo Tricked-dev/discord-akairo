@@ -11,6 +11,7 @@ New slash command related events:
   - owner
   - superuser
 - slashStarted
+- slashFinished
 - slashNotFound
 - slashGuildOnly
   - user
