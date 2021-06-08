@@ -80,7 +80,7 @@ module.exports = {
 		SLASH_STARTED: "slashStarted",
 		SLASH_FINISHED: "slashFinished",
 		SLASH_NOT_FOUND: "slashNotFound",
-		SLASH_GUILD_ONLY: "slashGuildOnly",
+		SLASH_GUILD_ONLY: "slashGuildOnly"
 	},
 	BuiltInReasons: {
 		CLIENT: "client",

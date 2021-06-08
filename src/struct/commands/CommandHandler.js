@@ -480,7 +480,7 @@ class CommandHandler extends AkairoHandler {
 			return false;
 		}
 
-		if (command.channel === 'guild' || !interaction.guildID) {
+		if (command.channel === "guild" || !interaction.guildID) {
 			this.emit(CommandHandlerEvents.SLASH_GUILD_ONLY, message);
 			return false;
 		}
