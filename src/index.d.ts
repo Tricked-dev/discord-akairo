@@ -556,15 +556,6 @@ declare module "discord-akairo" {
 			event: "slashGuildOnly",
 			listener: (message: AkairoMessage) => any
 		): this;
-		public on(
-			event: "slashMissingPermissions",
-			listener: (
-				message: AkairoMessage,
-				command: Command,
-				type: "user" | "client",
-				missing?: any
-			) => any
-		): this;
 	}
 
 	export class CommandUtil {
@@ -1282,7 +1273,6 @@ declare module "discord-akairo" {
 			SLASH_FINISHED: "slashFinished";
 			SLASH_NOT_FOUND: "slashNotFound";
 			SLASH_GUILD_ONLY: "slashGuildOnly";
-			SLASH_MISSING_PERMISSIONS: "slashMissingPermissions";
 		};
 		BuiltInReasons: {
 			CLIENT: "client";

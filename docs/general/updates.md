@@ -13,7 +13,6 @@ New slash command related events:
 - slashStarted
 - slashNotFound
 - slashGuildOnly
-- slashMissingPermissions
   - user
   - client
 
@@ -62,7 +61,7 @@ export default class slashCommand extends Command {
     }
 	// By default it will use the normal exec method but if you specify execSlash it will run and not the exec
 	// If you want it to always run execSlash you will have to add the execSlash option to your command handler and it will only use the execSlash and throw a error if you arent using it
-	execSlash(message: Message, { member } : { member : GuildMember }) {
+	execSlash(message: AkairoMessage, { member } : { member : GuildMember }) {
        message.reply(`Hello ${member}!`)
     }
 }
