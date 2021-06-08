@@ -534,27 +534,36 @@ declare module "discord-akairo" {
 		): this;
 		public on(
 			event: "slashError",
-			listener: (error: Error, interaction?: CommandInteraction) => any
+			listener: (error: Error, message: AkairoMessage, command: Command) => any
 		): this;
 		public on(
 			event: "slashBlocked",
-			listener: (interaction: CommandInteraction, reason?: string) => any
+			listener: (
+				message: AkairoMessage,
+				command: Command,
+				type: "owner" | "superuser"
+			) => any
 		): this;
 		public on(
 			event: "slashStarted",
-			listener: (interaction: CommandInteraction) => any
+			listener: (message: AkairoMessage, command: Command) => any
 		): this;
 		public on(
 			event: "slashNotFound",
-			listener: (interaction: CommandInteraction) => any
+			listener: (message: AkairoMessage) => any
 		): this;
 		public on(
 			event: "slashGuildOnly",
-			listener: (interaction: CommandInteraction) => any
+			listener: (message: AkairoMessage) => any
 		): this;
 		public on(
 			event: "slashMissingPermissions",
-			listener: (interaction: CommandInteraction) => any
+			listener: (
+				message: AkairoMessage,
+				command: Command,
+				type: "user" | "client",
+				missing?: any
+			) => any
 		): this;
 	}
 
@@ -869,7 +878,7 @@ declare module "discord-akairo" {
 
 	export interface ArgumentOptions {
 		default?: DefaultValueSupplier | any;
-		description?: string;
+		description?: string | any | any[];
 		id?: string;
 		index?: number;
 		limit?: number;
@@ -1270,6 +1279,7 @@ declare module "discord-akairo" {
 			SLASH_ERROR: "slashError";
 			SLASH_BLOCKED: "slashBlocked";
 			SLASH_STARTED: "slashStarted";
+			SLASH_FINISHED: "slashFinished";
 			SLASH_NOT_FOUND: "slashNotFound";
 			SLASH_GUILD_ONLY: "slashGuildOnly";
 			SLASH_MISSING_PERMISSIONS: "slashMissingPermissions";
