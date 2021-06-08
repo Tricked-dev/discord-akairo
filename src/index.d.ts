@@ -539,31 +539,22 @@ declare module "discord-akairo" {
 		public on(
 			event: "slashBlocked",
 			listener: (
-				interaction: CommandInteraction,
+				message: AkairoMessage,
 				command: Command,
 				type: "owner" | "superuser"
 			) => any
 		): this;
 		public on(
 			event: "slashStarted",
-			listener: (interaction: CommandInteraction, command: Command) => any
+			listener: (message: AkairoMessage, command: Command) => any
 		): this;
 		public on(
 			event: "slashNotFound",
-			listener: (interaction: CommandInteraction) => any
+			listener: (message: AkairoMessage) => any
 		): this;
 		public on(
 			event: "slashGuildOnly",
-			listener: (interaction: CommandInteraction) => any
-		): this;
-		public on(
-			event: "slashMissingPermissions",
-			listener: (
-				interaction: CommandInteraction,
-				command: Command,
-				type: "user" | "client",
-				missing?: any
-			) => any
+			listener: (message: AkairoMessage) => any
 		): this;
 	}
 
@@ -1279,9 +1270,9 @@ declare module "discord-akairo" {
 			SLASH_ERROR: "slashError";
 			SLASH_BLOCKED: "slashBlocked";
 			SLASH_STARTED: "slashStarted";
+			SLASH_FINISHED: "slashFinished";
 			SLASH_NOT_FOUND: "slashNotFound";
 			SLASH_GUILD_ONLY: "slashGuildOnly";
-			SLASH_MISSING_PERMISSIONS: "slashMissingPermissions";
 		};
 		BuiltInReasons: {
 			CLIENT: "client";

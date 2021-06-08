@@ -4,7 +4,7 @@ const {
 	BuiltInReasons,
 	CommandHandlerEvents
 } = require("../../util/Constants");
-const { Message, Collection } = require("discord.js");
+const { Collection } = require("discord.js");
 const AkairoMessage = require("../../util/AkairoMessage");
 const Command = require("./Command");
 const CommandUtil = require("./CommandUtil");
@@ -469,81 +469,45 @@ class CommandHandler extends AkairoHandler {
 	async handleSlash(interaction) {
 		if (!interaction.isCommand()) return false;
 
-		if (!interaction.guildID) {
-			this.emit("slashGuildOnly", interaction);
-			return false;
-		}
-
-		const command = this.modules.get(interaction.commandName);
-
-		if (!command) {
-			this.emit("slashNotFound", interaction);
-			return false;
-		}
-
-		if (command.ownerOnly && !this.client.isOwner(interaction.user)) {
-			this.emit("slashBlocked", interaction, command, "owner");
-			return false;
-		}
-		if (command.superUserOnly && !this.client.isSuperUser(interaction.user)) {
-			this.emit("slashBlocked", interaction, command, "superuser");
-			return false;
-		}
-		const userPermissions = interaction.channel
-			.permissionsFor(interaction.member)
-			.toArray();
-
-		if (command.userPermissions) {
-			const userMissingPermissions = command.userPermissions.filter(
-				p => !userPermissions.includes(p)
-			);
-			if (
-				command.userPermissions &&
-				command.userPermissions.length > 0 &&
-				userMissingPermissions.length > 0
-			) {
-				this.emit(
-					"slashMissingPermissions",
-					interaction,
-					command,
-					"user",
-					userMissingPermissions
-				);
-				return false;
-			}
-		}
-
-		const clientPermissions = interaction.channel
-			.permissionsFor(interaction.guild.me)
-			.toArray();
-
-		if (command.clientPermissions) {
-			const clientMissingPermissions = command.clientPermissions.filter(
-				p => !clientPermissions.includes(p)
-			);
-			if (
-				command.clientPermissions &&
-				command.clientPermissions.length > 0 &&
-				clientMissingPermissions.length > 0
-			) {
-				this.emit(
-					"slashMissingPermissions",
-					interaction,
-					command,
-					"client",
-					clientMissingPermissions
-				);
-				return false;
-			}
-		}
-
-		if (this.runCooldowns(interaction, command)) {
-			return true;
-		}
 		const message = new AkairoMessage(this.client, interaction, {
 			slash: true,
 			replied: this.autoDefer || command.slashEmphemeral
 		});
+
+		const command = this.modules.get(interaction.commandName);
+		if (!command || !command.slash || !command.execSlash) {
+			this.emit(CommandHandlerEvents.SLASH_NOT_FOUND, message);
+			return false;
+		}
+
+		if (command.channel === 'guild' || !interaction.guildID) {
+			this.emit(CommandHandlerEvents.SLASH_GUILD_ONLY, message);
+			return false;
+		}
+
+		if (command.ownerOnly && !this.client.isOwner(message.user)) {
+			this.emit(CommandHandlerEvents.SLASH_BLOCKED, message, command, "owner");
+			return false;
+		}
+
+		if (command.superUserOnly && !this.client.isSuperUser(message.user)) {
+			this.emit(
+				CommandHandlerEvents.SLASH_BLOCKED,
+				message,
+				command,
+				"superuser"
+			);
+			return false;
+		}
+
+		if (await this.runPermissionChecks(message, command)) {
+			return true;
+		}
+
+		if (this.runCooldowns(message, command)) {
+			return true;
+		}
+
 		try {
 			if (this.autoDefer || command.slashEmphemeral) {
 				await interaction.defer(command.slashEmphemeral);
@@ -555,14 +519,16 @@ class CommandHandler extends AkairoHandler {
 				else if (option.role) convertedOptions[option.name] = option.role;
 				else convertedOptions[option.name] = option.value;
 			}
-			this.emit("slashStarted", interaction, command);
-			await command.execSlash(message, convertedOptions);
+			this.emit(CommandHandlerEvents.SLASH_STARTED, message, command);
+			const execute = await command.execSlash(message, convertedOptions);
+			this.emit(CommandHandlerEvents.SLASH_FINISHED, command, message, execute);
 			return true;
 		} catch (err) {
-			this.emit("slashError", err, message, command);
+			this.emit(CommandHandlerEvents.SLASH_ERROR, err, message, command);
 			return false;
 		}
 	}
+
 	/**
 	 * Handles normal commands.
 	 * @param {Message} message - Message to handle.
@@ -870,7 +836,7 @@ class CommandHandler extends AkairoHandler {
 
 	/**
 	 * Runs permission checks.
-	 * @param {Message} message - Message that called the command.
+	 * @param {Message|AkairoMessage} message - Message that called the command.
 	 * @param {Command} command - Command to cooldown.
 	 * @returns {Promise<boolean>}
 	 */
@@ -953,12 +919,12 @@ class CommandHandler extends AkairoHandler {
 
 	/**
 	 * Runs cooldowns and checks if a user is under cooldown.
-	 * @param {Message} message - Message that called the command.
+	 * @param {Message|AkairoMessage} message - Message that called the command.
 	 * @param {Command} command - Command to cooldown.
 	 * @returns {boolean}
 	 */
 	runCooldowns(message, command) {
-		const id = message instanceof Message ? message.author.id : message.user.id;
+		const id = message.author.id;
 		const ignorer = command.ignoreCooldown || this.ignoreCooldown;
 		const isIgnored = Array.isArray(ignorer)
 			? ignorer.includes(id)

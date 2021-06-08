@@ -257,16 +257,17 @@ class Command extends AkairoModule {
 	 * @param {AkairoMessage} message - Message for slash command
 	 * @param {any} args - Slash command options
 	 * @returns {any}
+	 * Disabled cause it wouldnt work with the current design
 	 */
-	execSlash() {
-		if (this.slash) {
-			throw new AkairoError(
-				"NOT_IMPLEMENTED",
-				this.constructor.name,
-				"execSlash"
-			);
-		}
-	}
+	// execSlash() {
+	// 	if (this.slash) {
+	// 		throw new AkairoError(
+	// 			"NOT_IMPLEMENTED",
+	// 			this.constructor.name,
+	// 			"execSlash"
+	// 		);
+	// 	}
+	// }
 
 	/**
 	 * Parses content using the command's arguments.
