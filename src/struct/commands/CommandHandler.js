@@ -4,7 +4,7 @@ const {
 	BuiltInReasons,
 	CommandHandlerEvents
 } = require("../../util/Constants");
-const { Collection } = require("discord.js");
+const { Collection, Message } = require("discord.js");
 const Command = require("./Command");
 const CommandUtil = require("./CommandUtil");
 const Flag = require("./Flag");
@@ -16,6 +16,7 @@ const {
 	isPromise,
 	prefixCompare
 } = require("../../util/Util");
+const AkairoMessage = require("../../util/AkairoMessage");
 const TypeResolver = require("./arguments/TypeResolver");
 
 /**
@@ -244,6 +245,8 @@ class CommandHandler extends AkairoHandler {
 		 */
 		this.inhibitorHandler = null;
 
+		this.autoDefer = Boolean(autoDefer);
+
 		/**
 		 * Directory to commands.
 		 * @name CommandHandler#directory
@@ -459,6 +462,7 @@ class CommandHandler extends AkairoHandler {
 	 * @param {CommandInteraction} interaction - Interaction to handle.
 	 * @returns {Promise<?boolean>}
 	 */
+	// eslint-disable-next-line complexity
 	async handleSlash(interaction) {
 		if (!interaction.isCommand()) return false;
 
@@ -530,21 +534,32 @@ class CommandHandler extends AkairoHandler {
 			}
 		}
 
+		if (this.runCooldowns(interaction, command)) {
+			return true;
+		}
+		const message = new AkairoMessage(this.client, interaction, {
+			slash: true,
+			replied: this.autoDefer || command.slashEmphemeral
+		});
 		try {
 			if (this.autoDefer || command.slashEmphemeral) {
-				interaction.defer(command.slashEmphemeral);
-				interaction.reply = interaction.editReply;
+				await interaction.defer(command.slashEmphemeral);
 			}
-
 			const convertedOptions = {};
-			for (const option of interaction.options) {
-				convertedOptions[option.name] = option;
+			for (const option of interaction.options.values()) {
+				if (option.member) convertedOptions[option.name] = option.member;
+				else if (option.channel) convertedOptions[option.name] = option.channel;
+				else if (option.role) convertedOptions[option.name] = option.role;
+				else convertedOptions[option.name] = option.value;
 			}
 			this.emit("slashStarted", interaction, command);
-			await command.execSlash(interaction, convertedOptions);
+			if (command.execSlash || this.execSlash)
+				await command.execSlash(message, convertedOptions);
+			else await command.exec(message, convertedOptions);
+
 			return true;
 		} catch (err) {
-			this.emit("slashError", err, interaction, command);
+			this.emit("slashError", err, message, command);
 			return false;
 		}
 	}
@@ -903,8 +918,8 @@ class CommandHandler extends AkairoHandler {
 			const isIgnored = Array.isArray(ignorer)
 				? ignorer.includes(message.author.id)
 				: typeof ignorer === "function"
-				? ignorer(message, command)
-				: message.author.id === ignorer;
+					? ignorer(message, command)
+					: message.author.id === ignorer;
 
 			if (!isIgnored) {
 				if (typeof command.userPermissions === "function") {
@@ -949,12 +964,13 @@ class CommandHandler extends AkairoHandler {
 	 * @returns {boolean}
 	 */
 	runCooldowns(message, command) {
+		const id = message instanceof Message ? message.author.id : message.user.id;
 		const ignorer = command.ignoreCooldown || this.ignoreCooldown;
 		const isIgnored = Array.isArray(ignorer)
-			? ignorer.includes(message.author.id)
+			? ignorer.includes(id)
 			: typeof ignorer === "function"
-			? ignorer(message, command)
-			: message.author.id === ignorer;
+				? ignorer(message, command)
+				: id === ignorer;
 
 		if (isIgnored) return false;
 
@@ -964,7 +980,6 @@ class CommandHandler extends AkairoHandler {
 
 		const endTime = message.createdTimestamp + time;
 
-		const id = message.author.id;
 		if (!this.cooldowns.has(id)) this.cooldowns.set(id, {});
 
 		if (!this.cooldowns.get(id)[command.id]) {
@@ -987,7 +1002,7 @@ class CommandHandler extends AkairoHandler {
 		const entry = this.cooldowns.get(id)[command.id];
 
 		if (entry.uses >= command.ratelimit) {
-			const end = this.cooldowns.get(message.author.id)[command.id].end;
+			const end = this.cooldowns.get(id)[command.id].end;
 			const diff = end - message.createdTimestamp;
 
 			this.emit(CommandHandlerEvents.COOLDOWN, message, command, diff);
@@ -1009,7 +1024,10 @@ class CommandHandler extends AkairoHandler {
 		if (command.typing) {
 			message.channel.startTyping();
 		}
-
+		if (command.onlyNsfw && !message.channel.nsfw) {
+			this.emit("notNsfw", message, command);
+			return
+		}
 		try {
 			this.emit(CommandHandlerEvents.COMMAND_STARTED, message, command, args);
 			const ret = await command.exec(message, args);
@@ -1024,6 +1042,7 @@ class CommandHandler extends AkairoHandler {
 			if (command.typing) {
 				message.channel.stopTyping();
 			}
+
 		}
 	}
 
