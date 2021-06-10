@@ -81,6 +81,7 @@ module.exports = {
 		BOT: "bot",
 		OWNER: "owner",
 		GUILD: "guild",
-		DM: "dm"
+		DM: "dm",
+		AUTHOR_NOT_FOUND: "authorNotFound"
 	}
 };
