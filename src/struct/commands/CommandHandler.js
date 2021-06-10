@@ -918,8 +918,8 @@ class CommandHandler extends AkairoHandler {
 			const isIgnored = Array.isArray(ignorer)
 				? ignorer.includes(message.author.id)
 				: typeof ignorer === "function"
-					? ignorer(message, command)
-					: message.author.id === ignorer;
+				? ignorer(message, command)
+				: message.author.id === ignorer;
 
 			if (!isIgnored) {
 				if (typeof command.userPermissions === "function") {
@@ -969,8 +969,8 @@ class CommandHandler extends AkairoHandler {
 		const isIgnored = Array.isArray(ignorer)
 			? ignorer.includes(id)
 			: typeof ignorer === "function"
-				? ignorer(message, command)
-				: id === ignorer;
+			? ignorer(message, command)
+			: id === ignorer;
 
 		if (isIgnored) return false;
 
@@ -1026,7 +1026,7 @@ class CommandHandler extends AkairoHandler {
 		}
 		if (command.onlyNsfw && !message.channel.nsfw) {
 			this.emit("notNsfw", message, command);
-			return
+			return;
 		}
 		try {
 			this.emit(CommandHandlerEvents.COMMAND_STARTED, message, command, args);
@@ -1042,7 +1042,6 @@ class CommandHandler extends AkairoHandler {
 			if (command.typing) {
 				message.channel.stopTyping();
 			}
-
 		}
 	}
 
