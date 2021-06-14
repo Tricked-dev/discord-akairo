@@ -533,7 +533,7 @@ class CommandHandler extends AkairoHandler {
 			return false;
 		}
 
-		const command = this.modules.get(interaction.commandName);
+		const command = this.findCommand(interaction.commandName);
 
 		if (!command) {
 			this.emit("slashNotFound", interaction);
