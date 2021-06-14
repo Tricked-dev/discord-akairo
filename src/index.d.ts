@@ -993,6 +993,7 @@ declare module "discord-akairo" {
 		storeMessages?: boolean;
 		autoDefer?: boolean;
 		typing?: boolean;
+		autoRegisterSlashCommands?: boolean;
 	}
 
 	export interface ContentParserResult {
