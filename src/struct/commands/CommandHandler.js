@@ -293,7 +293,7 @@ class CommandHandler extends AkairoHandler {
 
 	registerSlashCommands() {
 		const slashCommandsParsed = [];
-		for (const [, data] of this.commandHandler.modules) {
+		for (const [, data] of this.modules) {
 			if (data.slash) {
 				slashCommandsParsed.push({
 					name: data.slashName ? data.slashName : data.aliases[0],
