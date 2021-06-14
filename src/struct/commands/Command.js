@@ -237,7 +237,8 @@ class Command extends AkairoModule {
 
 		/**
 		 * Name of slash command.
-		 * @type {boolean}
+		 * @type {string}
+		 * @default command.aliases[0]
 		 */
 		this.slashName = slashName;
 

@@ -296,7 +296,9 @@ class CommandHandler extends AkairoHandler {
 		for (const [, data] of this.modules) {
 			if (data.slash) {
 				slashCommandsParsed.push({
-					name: data.slashName ? data.slashName : data.aliases[0],
+					name: data.slashName
+						? data.slashName.toLowerCase().trim()
+						: data.aliases[0],
 					description: this.parseDescriptionCommand(data.description),
 					options: data.slashOptions,
 					guilds: data.slashGuilds
