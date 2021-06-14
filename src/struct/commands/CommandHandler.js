@@ -297,44 +297,43 @@ class CommandHandler extends AkairoHandler {
 			if (data.slash) {
 				slashCommandsParsed.push({
 					name: data.slashName ? data.slashName : data.aliases[0],
-					description:
-						typeof data.description == "string"
-							? data.description
-							: data.description.content,
+					description: this.parseDescriptionCommand(data.description),
 					options: data.slashOptions,
-					guilds: data.slashGuilds,
-					defaultName: data.aliases[0]
+					guilds: data.slashGuilds
 				});
 			}
 		}
 
-		for (const {
-			name,
-			description,
-			options,
-			guilds,
-			defaultName
-		} of slashCommandsParsed) {
+		for (const { name, description, options, guilds } of slashCommandsParsed) {
 			for (const guildId of guilds) {
 				const guild = this.client.guilds.cache.get(guildId);
 				if (!guild) continue;
 
 				guild.commands.create({
-					name: name ? name : defaultName,
-					description:
-						typeof description == "string" ? description : description.content,
-					options: options
+					name,
+					description,
+					options
 				});
 			}
 		}
 
 		const slashCommandsApp = slashCommandsParsed
-			.filter(({ guilds }) => guilds.length === 0)
+			.filter(({ guilds }) => !guilds.length)
 			.map(({ name, description, options }) => {
 				return { name, description, options };
 			});
 
 		this.client.application.commands.set(slashCommandsApp);
+	}
+
+	parseDescriptionCommand(description) {
+		if (typeof description === "object") {
+			if (typeof description.content === "function")
+				return description.content();
+			if (typeof description.content === "string") return description.content;
+		}
+
+		return description;
 	}
 
 	/**
