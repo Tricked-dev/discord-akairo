@@ -271,6 +271,7 @@ class CommandHandler extends AkairoHandler {
 
 	setup() {
 		this.client.once("ready", () => {
+			this.registerSlashCommands();
 			this.client.on("message", async m => {
 				if (m.partial) await m.fetch();
 				this.handle(m);
@@ -288,6 +289,52 @@ class CommandHandler extends AkairoHandler {
 				this.handleSlash(i);
 			});
 		});
+	}
+
+	registerSlashCommands() {
+		const slashCommandsParsed = [];
+		for (const [, data] of this.commandHandler.modules) {
+			if (data.slash) {
+				slashCommandsParsed.push({
+					name: data.slashName ? data.slashName : data.aliases[0],
+					description:
+						typeof data.description == "string"
+							? data.description
+							: data.description.content,
+					options: data.slashOptions,
+					guilds: data.slashGuilds,
+					defaultName: data.aliases[0]
+				});
+			}
+		}
+
+		for (const {
+			name,
+			description,
+			options,
+			guilds,
+			defaultName
+		} of slashCommandsParsed) {
+			for (const guildId of guilds) {
+				const guild = this.client.guilds.cache.get(guildId);
+				if (!guild) continue;
+
+				guild.commands.create({
+					name: name ? name : defaultName,
+					description:
+						typeof description == "string" ? description : description.content,
+					options: options
+				});
+			}
+		}
+
+		const slashCommandsApp = slashCommandsParsed
+			.filter(({ guilds }) => guilds.length === 0)
+			.map(({ name, description, options }) => {
+				return { name, description, options };
+			});
+
+		this.client.application.commands.set(slashCommandsApp);
 	}
 
 	/**
@@ -350,33 +397,6 @@ class CommandHandler extends AkairoHandler {
 				this.prefixes = this.prefixes.sort((aVal, bVal, aKey, bKey) =>
 					prefixCompare(aKey, bKey)
 				);
-			}
-		}
-
-		if (command.slash && !command.slashGuilds.length) {
-			this.client.application.commands.create({
-				name: command.slashName ? command.slashName : command.aliases[0],
-				description:
-					typeof command.description == "string"
-						? command.description
-						: command.description.content,
-				options: command.slashOptions
-			});
-		}
-
-		if (command.slash && command.slashGuilds.length) {
-			for (const guildId of command.slashGuilds) {
-				const guild = this.client.guilds.cache.get(guildId);
-				if (!guild) continue;
-
-				guild.commands.create({
-					name: command.slashName ? command.slashName : command.aliases[0],
-					description:
-						typeof command.description == "string"
-							? command.description
-							: command.description.content,
-					options: command.slashOptions
-				});
 			}
 		}
 	}
