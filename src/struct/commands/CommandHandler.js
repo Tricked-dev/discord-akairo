@@ -1028,13 +1028,20 @@ class CommandHandler extends AkairoHandler {
 	 * @returns {Promise<void>}
 	 */
 	async runCommand(message, command, args) {
+		if (!command || !message) {
+			this.emit(CommandHandlerEvents.COMMAND_INVALID, message, command);
+			return;
+		}
+
 		if (command.typing || this.typing) {
 			message.channel.startTyping();
 		}
+
 		if (command.onlyNsfw && !message.channel.nsfw) {
-			this.emit("notNsfw", message, command);
+			this.emit(CommandHandlerEvents.COMMAND_LOCKED_NSFW, message, command);
 			return;
 		}
+
 		try {
 			this.emit(CommandHandlerEvents.COMMAND_STARTED, message, command, args);
 			const ret = await command.exec(message, args);
