@@ -352,6 +352,33 @@ class CommandHandler extends AkairoHandler {
 				);
 			}
 		}
+
+		if (command.slash && !command.slashGuilds.length) {
+			this.client.application.commands.create({
+				name: command.slashName ? command.slashName : command.aliases[0],
+				description:
+					typeof command.description == "string"
+						? command.description
+						: command.description.content,
+				options: command.slashOptions
+			});
+		}
+
+		if (command.slash && command.slashGuilds.length) {
+			for (const guildId of command.slashGuilds) {
+				const guild = this.client.guilds.get(guildId);
+				if (!guild) continue;
+
+				guild.commands.create({
+					name: command.slashName ? command.slashName : command.aliases[0],
+					description:
+						typeof command.description == "string"
+							? command.description
+							: command.description.content,
+					options: command.slashOptions
+				});
+			}
+		}
 	}
 
 	/**

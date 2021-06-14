@@ -334,6 +334,8 @@ declare module "discord-akairo" {
 		public constructor(id: string, options?: CommandOptions);
 		public slash?: boolean;
 		public slashEphemeral?: boolean;
+		public slashName?: string;
+		public slashGuilds?: string[];
 		public aliases: string[];
 		public argumentDefaults: DefaultArgumentOptions;
 		public quoted: boolean;
@@ -938,6 +940,9 @@ declare module "discord-akairo" {
 
 	export interface CommandOptions extends AkairoModuleOptions {
 		slash?: boolean;
+		slashEphemeral?: boolean;
+		slashName?: string;
+		slashGuilds?: string[];
 		aliases?: string[];
 		args?: ArgumentOptions[] | ArgumentGenerator;
 		argumentDefaults?: DefaultArgumentOptions;
@@ -969,7 +974,6 @@ declare module "discord-akairo" {
 			| PermissionResolvable[]
 			| MissingPermissionSupplier;
 		quoted?: boolean;
-		slashEphemeral?: boolean;
 		onlyNsfw?: boolean;
 	}
 
