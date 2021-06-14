@@ -1,29 +1,29 @@
 declare module "discord-akairo" {
 	import {
+		APIMessage,
 		BufferResolvable,
+		Channel,
 		Client,
 		ClientOptions,
 		Collection,
-		Message,
-		MessageAttachment,
-		MessageEmbed,
-		MessageAdditions,
-		MessageEditOptions,
-		MessageOptions,
-		SplitOptions,
-		User,
-		UserResolvable,
-		GuildMember,
-		Channel,
-		Role,
+		CommandInteraction,
 		Emoji,
 		Guild,
-		TextChannel,
+		GuildMember,
+		Message,
+		MessageAttachment,
+		MessageEditOptions,
+		MessageEmbed,
+		MessageOptions,
 		PermissionResolvable,
+		ReplyMessageOptions,
+		Role,
 		Snowflake,
-		CommandInteraction
+		SplitOptions,
+		TextChannel,
+		User,
+		UserResolvable
 	} from "discord.js";
-
 	import { EventEmitter } from "events";
 	import { Stream } from "stream";
 
@@ -110,8 +110,8 @@ declare module "discord-akairo" {
 		public flag?: string | string[];
 		public otherwise?:
 			| string
+			| APIMessage
 			| MessageOptions
-			| MessageAdditions
 			| OtherwiseContentSupplier;
 		public prompt?: ArgumentPromptOptions | boolean;
 		public type: ArgumentType | ArgumentTypeCaster;
@@ -580,88 +580,30 @@ declare module "discord-akairo" {
 
 		public addMessage(message: Message | Message[]): Message | Message[];
 		public edit(
-			content?: string,
-			options?: MessageEmbed | MessageEditOptions
-		): Promise<Message>;
-		public edit(options?: MessageOptions | MessageAdditions): Promise<Message>;
-		public reply(
-			content?: string,
-			options?: MessageOptions | MessageAdditions
+			content: string | MessageEditOptions | APIMessage
 		): Promise<Message>;
 		public reply(
-			content?: string,
-			options?: (MessageOptions & { split?: false }) | MessageAdditions
+			options: string | APIMessage | (ReplyMessageOptions & { split?: false })
 		): Promise<Message>;
 		public reply(
-			content?: string,
-			options?:
-				| (MessageOptions & { split: true | SplitOptions })
-				| MessageAdditions
-		): Promise<Message[]>;
-		public reply(options?: MessageOptions | MessageAdditions): Promise<Message>;
-		public reply(
-			options?: (MessageOptions & { split?: false }) | MessageAdditions
-		): Promise<Message>;
-		public reply(
-			options?:
-				| (MessageOptions & { split: true | SplitOptions })
-				| MessageAdditions
+			options:
+				| APIMessage
+				| (ReplyMessageOptions & { split: true | SplitOptions })
 		): Promise<Message[]>;
 		public send(
-			content?: string,
-			options?: MessageOptions | MessageAdditions
+			options: string | APIMessage | (MessageOptions & { split?: false })
 		): Promise<Message>;
 		public send(
-			content?: string,
-			options?: (MessageOptions & { split?: false }) | MessageAdditions
-		): Promise<Message>;
-		public send(
-			content?: string,
-			options?:
-				| (MessageOptions & { split: true | SplitOptions })
-				| MessageAdditions
-		): Promise<Message[]>;
-		public send(options?: MessageOptions | MessageAdditions): Promise<Message>;
-		public send(
-			options?: (MessageOptions & { split?: false }) | MessageAdditions
-		): Promise<Message>;
-		public send(
-			options?:
-				| (MessageOptions & { split: true | SplitOptions })
-				| MessageAdditions
+			options: APIMessage | (MessageOptions & { split: true | SplitOptions })
 		): Promise<Message[]>;
 		public sendNew(
-			content?: string,
-			options?: MessageOptions | MessageAdditions
+			options: string | APIMessage | (MessageOptions & { split?: false })
 		): Promise<Message>;
 		public sendNew(
-			content?: string,
-			options?: (MessageOptions & { split?: false }) | MessageAdditions
-		): Promise<Message>;
-		public sendNew(
-			content?: string,
-			options?:
-				| (MessageOptions & { split: true | SplitOptions })
-				| MessageAdditions
-		): Promise<Message[]>;
-		public sendNew(
-			options?: MessageOptions | MessageAdditions
-		): Promise<Message>;
-		public sendNew(
-			options?: (MessageOptions & { split?: false }) | MessageAdditions
-		): Promise<Message>;
-		public sendNew(
-			options?:
-				| (MessageOptions & { split: true | SplitOptions })
-				| MessageAdditions
+			options: APIMessage | (MessageOptions & { split: true | SplitOptions })
 		): Promise<Message[]>;
 		public setEditable(state: boolean): this;
 		public setLastResponse(message: Message | Message[]): Message;
-
-		public static transformOptions(
-			content?: string,
-			options?: MessageOptions | MessageAdditions
-		): any[];
 	}
 
 	export class Flag {
@@ -869,11 +811,7 @@ declare module "discord-akairo" {
 
 	export interface DefaultArgumentOptions {
 		prompt?: ArgumentPromptOptions;
-		otherwise?:
-			| string
-			| MessageOptions
-			| MessageAdditions
-			| OtherwiseContentSupplier;
+		otherwise?: string | MessageOptions | APIMessage | OtherwiseContentSupplier;
 		modifyOtherwise?: OtherwiseContentModifier;
 	}
 
@@ -887,11 +825,7 @@ declare module "discord-akairo" {
 		modifyOtherwise?: OtherwiseContentModifier;
 		multipleFlags?: boolean;
 		flag?: string | string[];
-		otherwise?:
-			| string
-			| MessageOptions
-			| MessageAdditions
-			| OtherwiseContentSupplier;
+		otherwise?: string | APIMessage | MessageOptions | OtherwiseContentSupplier;
 		prompt?: ArgumentPromptOptions | boolean;
 		type?: ArgumentType | ArgumentTypeCaster;
 		unordered?: boolean | number | number[];
@@ -907,9 +841,9 @@ declare module "discord-akairo" {
 
 	export interface ArgumentPromptOptions {
 		breakout?: boolean;
-		cancel?: string | MessageOptions | MessageAdditions | PromptContentSupplier;
+		cancel?: string | MessageOptions | APIMessage | PromptContentSupplier;
 		cancelWord?: string;
-		ended?: string | MessageOptions | MessageAdditions | PromptContentSupplier;
+		ended?: string | MessageOptions | APIMessage | PromptContentSupplier;
 		infinite?: boolean;
 		limit?: number;
 		modifyCancel?: PromptContentModifier;
@@ -919,15 +853,11 @@ declare module "discord-akairo" {
 		modifyTimeout?: PromptContentModifier;
 		optional?: boolean;
 		retries?: number;
-		retry?: string | MessageOptions | MessageAdditions | PromptContentSupplier;
-		start?: string | MessageOptions | MessageAdditions | PromptContentSupplier;
+		retry?: string | MessageOptions | APIMessage | PromptContentSupplier;
+		start?: string | MessageOptions | APIMessage | PromptContentSupplier;
 		stopWord?: string;
 		time?: number;
-		timeout?:
-			| string
-			| MessageOptions
-			| MessageAdditions
-			| PromptContentSupplier;
+		timeout?: string | MessageOptions | APIMessage | PromptContentSupplier;
 	}
 
 	export interface ArgumentRunnerState {
@@ -1159,8 +1089,8 @@ declare module "discord-akairo" {
 	) =>
 		| string
 		| MessageOptions
-		| MessageAdditions
-		| Promise<string | MessageOptions | MessageAdditions>;
+		| APIMessage
+		| Promise<string | MessageOptions | APIMessage>;
 
 	export type OtherwiseContentSupplier = (
 		message: Message,
@@ -1168,8 +1098,8 @@ declare module "discord-akairo" {
 	) =>
 		| string
 		| MessageOptions
-		| MessageAdditions
-		| Promise<string | MessageOptions | MessageAdditions>;
+		| APIMessage
+		| Promise<string | MessageOptions | APIMessage>;
 
 	export type ParsedValuePredicate = (
 		message: Message,
@@ -1188,8 +1118,8 @@ declare module "discord-akairo" {
 	) =>
 		| string
 		| MessageOptions
-		| MessageAdditions
-		| Promise<string | MessageOptions | MessageAdditions>;
+		| APIMessage
+		| Promise<string | MessageOptions | APIMessage>;
 
 	export type PromptContentSupplier = (
 		message: Message,
@@ -1197,8 +1127,8 @@ declare module "discord-akairo" {
 	) =>
 		| string
 		| MessageOptions
-		| MessageAdditions
-		| Promise<string | MessageOptions | MessageAdditions>;
+		| APIMessage
+		| Promise<string | MessageOptions | APIMessage>;
 
 	export type RegexSupplier = (message: Message) => RegExp;
 

@@ -49,7 +49,7 @@ class CommandUtil {
 	}
 
 	/**
-	 * Sets the last repsonse.
+	 * Sets the last response.
 	 * @param {Message|Message[]} message - Message to set.
 	 * @returns {Message}
 	 */
@@ -94,20 +94,12 @@ class CommandUtil {
 
 	/**
 	 * Sends a response or edits an old response if available.
-	 * @param {string} [content=''] - Content to send.
-	 * @param {MessageOptions|MessageAdditions} [options={}] - Options to use.
+	 * @param {string | APIMessage | MessageOptions} options - Options to use.
 	 * @returns {Promise<Message|Message[]>}
 	 */
-	async send(content, options) {
-		const transformedOptions = this.constructor.transformOptions(
-			content,
-			options
-		);
+	async send(options) {
 		const hasFiles =
-			(transformedOptions.files && transformedOptions.files.length > 0) ||
-			(transformedOptions.embed &&
-				transformedOptions.embed.files &&
-				transformedOptions.embed.files.length > 0);
+			options.files?.length > 0 || options.embed?.files?.length > 0;
 
 		if (
 			this.shouldEdit &&
@@ -116,10 +108,10 @@ class CommandUtil {
 			!this.lastResponse.deleted &&
 			!this.lastResponse.attachments.size
 		) {
-			return this.lastResponse.edit(transformedOptions);
+			return this.lastResponse.edit(options);
 		}
 
-		const sent = await this.message.channel.send(transformedOptions);
+		const sent = await this.message.channel.send(options);
 		const lastSent = this.setLastResponse(sent);
 		this.setEditable(!lastSent.attachments.size);
 		return sent;
@@ -127,59 +119,42 @@ class CommandUtil {
 
 	/**
 	 * Sends a response, overwriting the last response.
-	 * @param {string} [content=''] - Content to send.
-	 * @param {MessageOptions|MessageAdditions} [options={}] - Options to use.
+	 * @param {string | APIMessage | MessageOptions} options - Options to use.
 	 * @returns {Promise<Message|Message[]>}
 	 */
-	async sendNew(content, options) {
-		const sent = await this.message.channel.send(
-			this.constructor.transformOptions(content, options)
-		);
+	async sendNew(options) {
+		const sent = await this.message.channel.send(options);
 		const lastSent = this.setLastResponse(sent);
 		this.setEditable(!lastSent.attachments.size);
 		return sent;
 	}
 
 	/**
-	 * Sends a response with a mention concantenated to it.
-	 * @param {string} [content=''] - Content to send.
-	 * @param {MessageOptions|MessageAdditions} [options={}] - Options to use.
+	 * Send an inline reply to this message.
+	 * @param {string|ReplyMessageOptions|MessageAdditions} options - Options to use.
 	 * @returns {Promise<Message|Message[]>}
 	 */
-	reply(content, options) {
-		return this.send(
-			this.constructor.transformOptions(content, options, {
-				replyTo: this.message
-			})
-		);
+	reply(options) {
+		if (typeof options == "string") {
+			options.content = options;
+		}
+
+		if (!this.shouldEdit && !(options instanceof APIMessage)) {
+			options.reply = {
+				messageReference: this.message,
+				failIfNotExists: options.failIfNotExists ?? true
+			};
+		}
+		return this.send(options);
 	}
 
 	/**
 	 * Edits the last response.
-	 * @param {string} [content=''] - Content to send.
-	 * @param {MessageEditOptions|MessageEmbed} [options={}] - Options to use.
+	 * @param {string | MessageEditOptions | APIMessage} options - Options to use.
 	 * @returns {Promise<Message>}
 	 */
-	edit(content, options) {
-		return this.lastResponse.edit(content, options);
-	}
-
-	/**
-	 * Transform options for sending.
-	 * @param {string} [content=''] - Content to send.
-	 * @param {MessageOptions|MessageAdditions} [options={}] - Options to use.
-	 * @param {MessageOptions} [extra={}] - Extra options to add.
-	 * @returns {MessageOptions}
-	 */
-	static transformOptions(content, options, extra) {
-		const transformedOptions = APIMessage.transformOptions(
-			content,
-			options,
-			extra
-		);
-		if (!transformedOptions.content) transformedOptions.content = null;
-		if (!transformedOptions.embed) transformedOptions.embed = null;
-		return transformedOptions;
+	edit(options) {
+		return this.lastResponse.edit(options);
 	}
 }
 
