@@ -49,7 +49,8 @@ class CommandHandler extends AkairoHandler {
 			prefix = "!",
 			allowMention = true,
 			aliasReplacement,
-			autoDefer = true
+			autoDefer = true,
+			typing = false
 		} = {}
 	) {
 		if (
@@ -69,6 +70,12 @@ class CommandHandler extends AkairoHandler {
 			automateCategories,
 			loadFilter
 		});
+		/**
+		 * Show "BotName is typing" information message on the text channels when a command is running.
+		 * Defaults to false.
+		 */
+		this.typing = typing;
+
 		/**
 		 * Automatically defer messages "BotName is thinking"
 		 * Defaults to true.
@@ -539,11 +546,11 @@ class CommandHandler extends AkairoHandler {
 		}
 		const message = new AkairoMessage(this.client, interaction, {
 			slash: true,
-			replied: this.autoDefer || command.slashEmphemeral
+			replied: this.autoDefer || command.slashEphemeral
 		});
 		try {
-			if (this.autoDefer || command.slashEmphemeral) {
-				await interaction.defer(command.slashEmphemeral);
+			if (this.autoDefer || command.slashEphemeral) {
+				await interaction.defer(command.slashEphemeral);
 			}
 			const convertedOptions = {};
 			for (const option of interaction.options.values()) {
@@ -1021,13 +1028,20 @@ class CommandHandler extends AkairoHandler {
 	 * @returns {Promise<void>}
 	 */
 	async runCommand(message, command, args) {
-		if (command.typing) {
-			message.channel.startTyping();
-		}
-		if (command.onlyNsfw && !message.channel.nsfw) {
-			this.emit("notNsfw", message, command);
+		if (!command || !message) {
+			this.emit(CommandHandlerEvents.COMMAND_INVALID, message, command);
 			return;
 		}
+
+		if (command.typing || this.typing) {
+			message.channel.startTyping();
+		}
+
+		if (command.onlyNsfw && !message.channel.nsfw) {
+			this.emit(CommandHandlerEvents.COMMAND_LOCKED_NSFW, message, command);
+			return;
+		}
+
 		try {
 			this.emit(CommandHandlerEvents.COMMAND_STARTED, message, command, args);
 			const ret = await command.exec(message, args);
@@ -1039,7 +1053,7 @@ class CommandHandler extends AkairoHandler {
 				ret
 			);
 		} finally {
-			if (command.typing) {
+			if (command.typing || this.typing) {
 				message.channel.stopTyping();
 			}
 		}
