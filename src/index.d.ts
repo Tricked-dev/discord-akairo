@@ -990,6 +990,7 @@ declare module "discord-akairo" {
 		prefix?: string | string[] | PrefixSupplier;
 		storeMessages?: boolean;
 		autoDefer?: boolean;
+		typing?: boolean;
 	}
 
 	export interface ContentParserResult {
