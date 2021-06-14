@@ -49,7 +49,8 @@ class CommandHandler extends AkairoHandler {
 			prefix = "!",
 			allowMention = true,
 			aliasReplacement,
-			autoDefer = true
+			autoDefer = true,
+			typing = false
 		} = {}
 	) {
 		if (
@@ -69,6 +70,12 @@ class CommandHandler extends AkairoHandler {
 			automateCategories,
 			loadFilter
 		});
+		/**
+		 * Show "BotName is typing" information message on the text channels when a command is running.
+		 * Defaults to false.
+		 */
+		this.typing = typing;
+
 		/**
 		 * Automatically defer messages "BotName is thinking"
 		 * Defaults to true.
@@ -1021,7 +1028,7 @@ class CommandHandler extends AkairoHandler {
 	 * @returns {Promise<void>}
 	 */
 	async runCommand(message, command, args) {
-		if (command.typing) {
+		if (command.typing || this.typing) {
 			message.channel.startTyping();
 		}
 		if (command.onlyNsfw && !message.channel.nsfw) {
@@ -1039,7 +1046,7 @@ class CommandHandler extends AkairoHandler {
 				ret
 			);
 		} finally {
-			if (command.typing) {
+			if (command.typing || this.typing) {
 				message.channel.stopTyping();
 			}
 		}
