@@ -43,7 +43,6 @@ class Command extends AkairoModule {
 			slash = false,
 			slashOptions,
 			slashEphemeral = false,
-			slashName,
 			slashGuilds = []
 		} = options;
 		/**
@@ -234,13 +233,6 @@ class Command extends AkairoModule {
 		 * @type {boolean}
 		 */
 		this.slash = slash;
-
-		/**
-		 * Name of slash command.
-		 * @type {string}
-		 * @default command.aliases[0]
-		 */
-		this.slashName = slashName;
 
 		/**
 		 * Assign slash commands to Specific guilds. This option will make the commands do not register globally, but only to the chosen servers.

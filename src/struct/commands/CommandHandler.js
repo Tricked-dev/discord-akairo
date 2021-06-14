@@ -50,7 +50,8 @@ class CommandHandler extends AkairoHandler {
 			allowMention = true,
 			aliasReplacement,
 			autoDefer = true,
-			typing = false
+			typing = false,
+			autoRegisterSlashCommands = false
 		} = {}
 	) {
 		if (
@@ -70,6 +71,12 @@ class CommandHandler extends AkairoHandler {
 			automateCategories,
 			loadFilter
 		});
+		/**
+		 * Specify whether to register all slash commands when starting the client.
+		 * Defaults to false.
+		 */
+		this.autoRegisterSlashCommands = autoRegisterSlashCommands;
+
 		/**
 		 * Show "BotName is typing" information message on the text channels when a command is running.
 		 * Defaults to false.
@@ -271,7 +278,8 @@ class CommandHandler extends AkairoHandler {
 
 	setup() {
 		this.client.once("ready", () => {
-			this.registerSlashCommands();
+			if (this.autoRegisterSlashCommands) this.registerSlashCommands();
+
 			this.client.on("message", async m => {
 				if (m.partial) await m.fetch();
 				this.handle(m);
@@ -295,11 +303,20 @@ class CommandHandler extends AkairoHandler {
 		const slashCommandsParsed = [];
 		for (const [, data] of this.modules) {
 			if (data.slash) {
+				const parseDescriptionCommand = description => {
+					if (typeof description === "object") {
+						if (typeof description.content === "function")
+							return description.content();
+						if (typeof description.content === "string")
+							return description.content;
+					}
+
+					return description;
+				};
+
 				slashCommandsParsed.push({
-					name: data.slashName
-						? data.slashName.toLowerCase().trim()
-						: data.aliases[0],
-					description: this.parseDescriptionCommand(data.description),
+					name: data.aliases[0],
+					description: parseDescriptionCommand(data.description),
 					options: data.slashOptions,
 					guilds: data.slashGuilds
 				});
@@ -326,16 +343,6 @@ class CommandHandler extends AkairoHandler {
 			});
 
 		this.client.application.commands.set(slashCommandsApp);
-	}
-
-	parseDescriptionCommand(description) {
-		if (typeof description === "object") {
-			if (typeof description.content === "function")
-				return description.content();
-			if (typeof description.content === "string") return description.content;
-		}
-
-		return description;
 	}
 
 	/**
