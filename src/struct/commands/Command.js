@@ -42,7 +42,7 @@ class Command extends AkairoModule {
 			flags = [],
 			optionFlags = [],
 			slashOptions,
-			slashEmphemeral = false
+			slashEphemeral = false
 		} = options;
 		this.slash = slash;
 		/**
@@ -223,10 +223,10 @@ class Command extends AkairoModule {
 		this.slashOptions = slashOptions;
 
 		/**
-		 * Whether slash command responses for this command should be emphemeral or not.
+		 * Whether slash command responses for this command should be ephemeral or not.
 		 * @type {boolean}
 		 */
-		this.slashEmphemeral = slashEmphemeral;
+		this.slashEphemeral = slashEphemeral;
 
 		/**
 		 * The ID of this command.

@@ -333,7 +333,7 @@ declare module "discord-akairo" {
 	export class Command extends AkairoModule {
 		public constructor(id: string, options?: CommandOptions);
 		public slash?: boolean;
-		public slashEmphemeral?: boolean;
+		public slashEphemeral?: boolean;
 		public aliases: string[];
 		public argumentDefaults: DefaultArgumentOptions;
 		public quoted: boolean;
@@ -969,7 +969,7 @@ declare module "discord-akairo" {
 			| PermissionResolvable[]
 			| MissingPermissionSupplier;
 		quoted?: boolean;
-		slashEmphemeral?: boolean;
+		slashEphemeral?: boolean;
 		onlyNsfw?: boolean;
 	}
 

@@ -546,11 +546,11 @@ class CommandHandler extends AkairoHandler {
 		}
 		const message = new AkairoMessage(this.client, interaction, {
 			slash: true,
-			replied: this.autoDefer || command.slashEmphemeral
+			replied: this.autoDefer || command.slashEphemeral
 		});
 		try {
-			if (this.autoDefer || command.slashEmphemeral) {
-				await interaction.defer(command.slashEmphemeral);
+			if (this.autoDefer || command.slashEphemeral) {
+				await interaction.defer(command.slashEphemeral);
 			}
 			const convertedOptions = {};
 			for (const option of interaction.options.values()) {
