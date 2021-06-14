@@ -366,7 +366,7 @@ class CommandHandler extends AkairoHandler {
 
 		if (command.slash && command.slashGuilds.length) {
 			for (const guildId of command.slashGuilds) {
-				const guild = this.client.guilds.get(guildId);
+				const guild = this.client.guilds.cache.get(guildId);
 				if (!guild) continue;
 
 				guild.commands.create({
