@@ -874,7 +874,7 @@ declare module "discord-akairo" {
 
 	export interface SlashCommandOptions {
 		name: string;
-		descrition: string;
+		description: string;
 		type:
 			| "MENTIONABLE"
 			| "ROLE"
