@@ -359,7 +359,7 @@ declare module "discord-akairo" {
 		public superUserOnly: boolean;
 		public prefix?: string | string[] | PrefixSupplier;
 		public ratelimit: number;
-		public slashOptions?: any | any[];
+		public slashOptions?: SlashCommandOptions[];
 		public regex: RegExp | RegexSupplier;
 		public typing: boolean;
 		public userPermissions:
@@ -867,6 +867,29 @@ declare module "discord-akairo" {
 		usedIndices: Set<number>;
 	}
 
+	export interface SlashCommandsChoicesOptions {
+		name: string;
+		value: string | number;
+	}
+
+	export interface SlashCommandOptions {
+		name: string;
+		descrition: string;
+		type:
+			| "MENTIONABLE"
+			| "ROLE"
+			| "CHANNEL"
+			| "USER"
+			| "BOOLEAN"
+			| "INTEGER"
+			| "STRING"
+			| "SUB_COMMAND_GROUP"
+			| "SUB_COMMAND";
+		options?: SlashCommandOptions[];
+		choices?: SlashCommandsChoicesOptions;
+		required?: boolean;
+	}
+
 	export interface CommandOptions extends AkairoModuleOptions {
 		slash?: boolean;
 		slashEphemeral?: boolean;
@@ -889,7 +912,7 @@ declare module "discord-akairo" {
 		ignorePermissions?: Snowflake | Snowflake[] | IgnoreCheckPredicate;
 		lock?: KeySupplier | "guild" | "channel" | "user";
 		optionFlags?: string[];
-		slashOptions?: any | any[];
+		slashOptions?: SlashCommandOptions[];
 		ownerOnly?: boolean;
 		superUserOnly?: boolean;
 		prefix?: string | string[] | PrefixSupplier;
