@@ -603,6 +603,31 @@ class CommandHandler extends AkairoHandler {
 			slash: true,
 			replied: this.autoDefer || command.slashEphemeral
 		});
+
+		if (this.commandUtil) {
+			if (this.commandUtils.has(message.id)) {
+				message.util = this.commandUtils.get(message.id);
+			} else {
+				message.util = new CommandUtil(this, message);
+				this.commandUtils.set(message.id, message.util);
+			}
+		}
+
+		let parsed = await this.parseCommand(message);
+		if (!parsed.command) {
+			const overParsed = await this.parseCommandOverwrittenPrefixes(message);
+			if (
+				overParsed.command ||
+				(parsed.prefix == null && overParsed.prefix != null)
+			) {
+				parsed = overParsed;
+			}
+		}
+
+		if (this.commandUtil) {
+			message.util.parsed = parsed;
+		}
+
 		try {
 			if (this.autoDefer || command.slashEphemeral) {
 				await interaction.defer(command.slashEphemeral);
