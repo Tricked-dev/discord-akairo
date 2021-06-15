@@ -50,7 +50,8 @@ class CommandHandler extends AkairoHandler {
 			allowMention = true,
 			aliasReplacement,
 			autoDefer = true,
-			typing = false
+			typing = false,
+			autoRegisterSlashCommands = false
 		} = {}
 	) {
 		if (
@@ -70,6 +71,12 @@ class CommandHandler extends AkairoHandler {
 			automateCategories,
 			loadFilter
 		});
+		/**
+		 * Specify whether to register all slash commands when starting the client.
+		 * Defaults to false.
+		 */
+		this.autoRegisterSlashCommands = autoRegisterSlashCommands;
+
 		/**
 		 * Show "BotName is typing" information message on the text channels when a command is running.
 		 * Defaults to false.
@@ -271,6 +278,8 @@ class CommandHandler extends AkairoHandler {
 
 	setup() {
 		this.client.once("ready", () => {
+			if (this.autoRegisterSlashCommands) this.registerSlashCommands();
+
 			this.client.on("message", async m => {
 				if (m.partial) await m.fetch();
 				this.handle(m);
@@ -288,6 +297,52 @@ class CommandHandler extends AkairoHandler {
 				this.handleSlash(i);
 			});
 		});
+	}
+
+	registerSlashCommands() {
+		const slashCommandsParsed = [];
+		for (const [, data] of this.modules) {
+			if (data.slash) {
+				const parseDescriptionCommand = description => {
+					if (typeof description === "object") {
+						if (typeof description.content === "function")
+							return description.content();
+						if (typeof description.content === "string")
+							return description.content;
+					}
+
+					return description;
+				};
+
+				slashCommandsParsed.push({
+					name: data.aliases[0],
+					description: parseDescriptionCommand(data.description),
+					options: data.slashOptions,
+					guilds: data.slashGuilds
+				});
+			}
+		}
+
+		for (const { name, description, options, guilds } of slashCommandsParsed) {
+			for (const guildId of guilds) {
+				const guild = this.client.guilds.cache.get(guildId);
+				if (!guild) continue;
+
+				guild.commands.create({
+					name,
+					description,
+					options
+				});
+			}
+		}
+
+		const slashCommandsApp = slashCommandsParsed
+			.filter(({ guilds }) => !guilds.length)
+			.map(({ name, description, options }) => {
+				return { name, description, options };
+			});
+
+		this.client.application.commands.set(slashCommandsApp);
 	}
 
 	/**
@@ -478,7 +533,7 @@ class CommandHandler extends AkairoHandler {
 			return false;
 		}
 
-		const command = this.modules.get(interaction.commandName);
+		const command = this.findCommand(interaction.commandName);
 
 		if (!command) {
 			this.emit("slashNotFound", interaction);
