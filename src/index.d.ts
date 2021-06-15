@@ -886,7 +886,7 @@ declare module "discord-akairo" {
 			| "SUB_COMMAND_GROUP"
 			| "SUB_COMMAND";
 		options?: SlashCommandOptions[];
-		choices?: SlashCommandsChoicesOptions;
+		choices?: SlashCommandsChoicesOptions[];
 		required?: boolean;
 	}
 
