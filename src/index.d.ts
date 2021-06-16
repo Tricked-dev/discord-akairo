@@ -22,7 +22,8 @@ declare module "discord-akairo" {
 		SplitOptions,
 		TextChannel,
 		User,
-		UserResolvable
+		UserResolvable,
+		InteractionReplyOptions
 	} from "discord.js";
 	import { EventEmitter } from "events";
 	import { Stream } from "stream";
@@ -584,18 +585,30 @@ declare module "discord-akairo" {
 			content: string | MessageEditOptions | APIMessage
 		): Promise<Message>;
 		public reply(
-			options: string | APIMessage | (ReplyMessageOptions & { split?: false })
-		): Promise<Message>;
+			options:
+				| string
+				| APIMessage
+				| (ReplyMessageOptions & { split?: false })
+				| InteractionReplyOptions
+		): Promise<Message | void>;
 		public reply(
 			options:
 				| APIMessage
 				| (ReplyMessageOptions & { split: true | SplitOptions })
-		): Promise<Message[]>;
+				| InteractionReplyOptions
+		): Promise<Message[] | void>;
 		public send(
-			options: string | APIMessage | (MessageOptions & { split?: false })
+			options:
+				| string
+				| APIMessage
+				| (MessageOptions & { split?: false })
+				| InteractionReplyOptions
 		): Promise<Message>;
 		public send(
-			options: APIMessage | (MessageOptions & { split: true | SplitOptions })
+			options:
+				| APIMessage
+				| (MessageOptions & { split: true | SplitOptions })
+				| InteractionReplyOptions
 		): Promise<Message[]>;
 		public sendNew(
 			options: string | APIMessage | (MessageOptions & { split?: false })

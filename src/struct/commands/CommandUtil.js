@@ -15,7 +15,7 @@ class CommandUtil {
 
 		/**
 		 * Message that triggered the command.
-		 * @type {Message}
+		 * @type {Message|AkairoMessage}
 		 */
 		this.message = message;
 
@@ -33,7 +33,7 @@ class CommandUtil {
 
 		/**
 		 * The last response sent.
-		 * @type {?Message}
+		 * @type {?Message|?}
 		 */
 		this.lastResponse = null;
 
@@ -46,6 +46,12 @@ class CommandUtil {
 		} else {
 			this.messages = null;
 		}
+
+		/**
+		 * Whether or not the command is a slash command.
+		 * @type {boolean}
+		 */
+		this.isSlash = !!message.interaction?.isCommand?.();
 	}
 
 	/**
@@ -94,27 +100,46 @@ class CommandUtil {
 
 	/**
 	 * Sends a response or edits an old response if available.
-	 * @param {string | APIMessage | MessageOptions} options - Options to use.
-	 * @returns {Promise<Message|Message[]>}
+	 * @param {string | APIMessage | MessageOptions|InteractionReplyOptions} options - Options to use.
+	 * @returns {Promise<Message|Message[]>|void}
 	 */
 	async send(options) {
 		const hasFiles =
 			options.files?.length > 0 || options.embed?.files?.length > 0;
 
-		if (
-			this.shouldEdit &&
-			(this.command ? this.command.editable : true) &&
-			!hasFiles &&
-			!this.lastResponse.deleted &&
-			!this.lastResponse.attachments.size
-		) {
-			return this.lastResponse.edit(options);
+		let newOptions = {}
+		if (typeof options === 'string') {
+			newOptions.content = options;
+		} else {
+			newOptions = options;
 		}
 
-		const sent = await this.message.channel.send(options);
-		const lastSent = this.setLastResponse(sent);
-		this.setEditable(!lastSent.attachments.size);
-		return sent;
+		if (!this.isSlash) {
+			options.ephemeral = undefined;
+			if (
+				this.shouldEdit &&
+				(this.command ? this.command.editable : true) &&
+				!hasFiles &&
+				!this.lastResponse.deleted &&
+				!this.lastResponse.attachments.size
+			) {
+				return this.lastResponse.edit(options);
+			}
+
+			const sent = await this.message.channel.send(options);
+			const lastSent = this.setLastResponse(sent);
+			this.setEditable(!lastSent.attachments.size);
+			return sent;
+		} else {
+			options.reply = undefined;
+
+			if (!this.shouldEdit) {
+				return this.message.interaction.reply(options);
+			} else {
+				return this.message.interaction.editReply(options);
+			}
+		}
+		
 	}
 
 	/**
@@ -130,22 +155,27 @@ class CommandUtil {
 	}
 
 	/**
-	 * Send an inline reply to this message.
-	 * @param {string|ReplyMessageOptions|MessageAdditions} options - Options to use.
-	 * @returns {Promise<Message|Message[]>}
+	 * Send an inline reply or respond to a slash command.
+	 * @param {string|ReplyMessageOptions|APIMessage|InteractionReplyOptions} options - Options to use.
+	 * @returns {Promise<Message|Message[]|void>}
 	 */
 	reply(options) {
+		let newOptions = {};
 		if (typeof options == "string") {
-			options.content = options;
+			newOptions.content = options;
+		} else {
+			newOptions = options;
 		}
 
-		if (!this.shouldEdit && !(options instanceof APIMessage)) {
-			options.reply = {
-				messageReference: this.message,
-				failIfNotExists: options.failIfNotExists ?? true
-			};
-		}
-		return this.send(options);
+		if (!this.isSlash) {
+			if (!this.shouldEdit && !(newOptions instanceof APIMessage)) {
+				newOptions.reply = {
+					messageReference: this.message,
+					failIfNotExists: newOptions.failIfNotExists ?? true
+				};
+			}
+		} 
+		return this.send(newOptions);
 	}
 
 	/**
