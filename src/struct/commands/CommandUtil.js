@@ -141,7 +141,7 @@ class CommandUtil {
 		} else {
 			newOptions = options;
 		}
-		
+
 		if (!this.shouldEdit && !(newOptions instanceof APIMessage)) {
 			newOptions.reply = {
 				messageReference: this.message,
