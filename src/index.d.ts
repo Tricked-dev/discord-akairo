@@ -334,6 +334,7 @@ declare module "discord-akairo" {
 		public constructor(id: string, options?: CommandOptions);
 		public slash?: boolean;
 		public slashEphemeral?: boolean;
+		public slashGuilds?: string[];
 		public aliases: string[];
 		public argumentDefaults: DefaultArgumentOptions;
 		public quoted: boolean;
@@ -358,7 +359,7 @@ declare module "discord-akairo" {
 		public superUserOnly: boolean;
 		public prefix?: string | string[] | PrefixSupplier;
 		public ratelimit: number;
-		public slashOptions?: any | any[];
+		public slashOptions?: SlashCommandOptions[];
 		public regex: RegExp | RegexSupplier;
 		public typing: boolean;
 		public userPermissions:
@@ -866,8 +867,33 @@ declare module "discord-akairo" {
 		usedIndices: Set<number>;
 	}
 
+	export interface SlashCommandsChoicesOptions {
+		name: string;
+		value: string | number;
+	}
+
+	export interface SlashCommandOptions {
+		name: string;
+		description: string;
+		type:
+			| "MENTIONABLE"
+			| "ROLE"
+			| "CHANNEL"
+			| "USER"
+			| "BOOLEAN"
+			| "INTEGER"
+			| "STRING"
+			| "SUB_COMMAND_GROUP"
+			| "SUB_COMMAND";
+		options?: SlashCommandOptions[];
+		choices?: SlashCommandsChoicesOptions[];
+		required?: boolean;
+	}
+
 	export interface CommandOptions extends AkairoModuleOptions {
 		slash?: boolean;
+		slashEphemeral?: boolean;
+		slashGuilds?: string[];
 		aliases?: string[];
 		args?: ArgumentOptions[] | ArgumentGenerator;
 		argumentDefaults?: DefaultArgumentOptions;
@@ -886,7 +912,7 @@ declare module "discord-akairo" {
 		ignorePermissions?: Snowflake | Snowflake[] | IgnoreCheckPredicate;
 		lock?: KeySupplier | "guild" | "channel" | "user";
 		optionFlags?: string[];
-		slashOptions?: any | any[];
+		slashOptions?: SlashCommandOptions[];
 		ownerOnly?: boolean;
 		superUserOnly?: boolean;
 		prefix?: string | string[] | PrefixSupplier;
@@ -899,7 +925,6 @@ declare module "discord-akairo" {
 			| PermissionResolvable[]
 			| MissingPermissionSupplier;
 		quoted?: boolean;
-		slashEphemeral?: boolean;
 		onlyNsfw?: boolean;
 	}
 
@@ -921,6 +946,7 @@ declare module "discord-akairo" {
 		storeMessages?: boolean;
 		autoDefer?: boolean;
 		typing?: boolean;
+		autoRegisterSlashCommands?: boolean;
 	}
 
 	export interface ContentParserResult {

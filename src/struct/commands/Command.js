@@ -16,7 +16,6 @@ class Command extends AkairoModule {
 
 		const {
 			onlyNsfw = false,
-			slash = false,
 			aliases = [],
 			args = this.args || [],
 			quoted = true,
@@ -41,10 +40,11 @@ class Command extends AkairoModule {
 			ignorePermissions,
 			flags = [],
 			optionFlags = [],
+			slash = false,
 			slashOptions,
-			slashEphemeral = false
+			slashEphemeral = false,
+			slashGuilds = []
 		} = options;
-		this.slash = slash;
 		/**
 		 * Command names.
 		 * @type {string[]}
@@ -227,6 +227,18 @@ class Command extends AkairoModule {
 		 * @type {boolean}
 		 */
 		this.slashEphemeral = slashEphemeral;
+
+		/**
+		 * Mark command as slash command and set information.
+		 * @type {boolean}
+		 */
+		this.slash = slash;
+
+		/**
+		 * Assign slash commands to Specific guilds. This option will make the commands do not register globally, but only to the chosen servers.
+		 * @type {string[]}
+		 */
+		this.slashGuilds = slashGuilds;
 
 		/**
 		 * The ID of this command.
