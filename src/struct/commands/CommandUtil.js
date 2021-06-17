@@ -135,17 +135,20 @@ class CommandUtil {
 	 * @returns {Promise<Message|Message[]>}
 	 */
 	reply(options) {
+		let newOptions = {};
 		if (typeof options == "string") {
-			options.content = options;
+			newOptions.content = options;
+		} else {
+			newOptions = options;
 		}
 
-		if (!this.shouldEdit && !(options instanceof APIMessage)) {
-			options.reply = {
+		if (!this.shouldEdit && !(newOptions instanceof APIMessage)) {
+			newOptions.reply = {
 				messageReference: this.message,
-				failIfNotExists: options.failIfNotExists ?? true
+				failIfNotExists: newOptions.failIfNotExists ?? true
 			};
 		}
-		return this.send(options);
+		return this.send(newOptions);
 	}
 
 	/**
