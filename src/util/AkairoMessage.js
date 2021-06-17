@@ -14,7 +14,7 @@ class AkairoMessage {
 		this.author = interaction.user;
 		this.replied = replied;
 		this.client = client;
-		this.content = `/${interaction.name}`;
+		this.content = `/${interaction.command.name}`;
 		for (const option of interaction.options.values()) {
 			if (option.member) {
 				this.content += ` ${option.name}: ${option.member}`;
