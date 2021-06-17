@@ -107,8 +107,8 @@ class CommandUtil {
 		const hasFiles =
 			options.files?.length > 0 || options.embed?.files?.length > 0;
 
-		let newOptions = {}
-		if (typeof options === 'string') {
+		let newOptions = {};
+		if (typeof options === "string") {
 			newOptions.content = options;
 		} else {
 			newOptions = options;
@@ -132,14 +132,12 @@ class CommandUtil {
 			return sent;
 		} else {
 			options.reply = undefined;
-
-			if (!this.shouldEdit) {
-				return this.message.interaction.reply(options);
-			} else {
+			if (this.shouldEdit || this.message.interaction.deferred) {
 				return this.message.interaction.editReply(options);
+			} else {
+				return this.message.interaction.reply(options);
 			}
 		}
-		
 	}
 
 	/**
@@ -174,7 +172,7 @@ class CommandUtil {
 					failIfNotExists: newOptions.failIfNotExists ?? true
 				};
 			}
-		} 
+		}
 		return this.send(newOptions);
 	}
 
