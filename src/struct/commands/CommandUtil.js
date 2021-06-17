@@ -15,7 +15,7 @@ class CommandUtil {
 
 		/**
 		 * Message that triggered the command.
-		 * @type {Message|AkairoMessage}
+		 * @type {Message | AkairoMessage}
 		 */
 		this.message = message;
 
@@ -33,7 +33,7 @@ class CommandUtil {
 
 		/**
 		 * The last response sent.
-		 * @type {?Message|?}
+		 * @type {?Message | ?RawMessage | ?}
 		 */
 		this.lastResponse = null;
 
@@ -51,12 +51,12 @@ class CommandUtil {
 		 * Whether or not the command is a slash command.
 		 * @type {boolean}
 		 */
-		this.isSlash = !!message.interaction?.isCommand?.();
+		this.isSlash = !!message.interaction;
 	}
 
 	/**
 	 * Sets the last response.
-	 * @param {Message|Message[]} message - Message to set.
+	 * @param {Message | Message[]} message - Message to set.
 	 * @returns {Message}
 	 */
 	setLastResponse(message) {
@@ -100,7 +100,7 @@ class CommandUtil {
 
 	/**
 	 * Sends a response or edits an old response if available.
-	 * @param {string | APIMessage | MessageOptions|InteractionReplyOptions} options - Options to use.
+	 * @param {string | APIMessage | MessageOptions | InteractionReplyOptions} options - Options to use.
 	 * @returns {Promise<Message|Message[]>|void}
 	 */
 	async send(options) {
@@ -113,29 +113,34 @@ class CommandUtil {
 		} else {
 			newOptions = options;
 		}
-
 		if (!this.isSlash) {
-			options.ephemeral = undefined;
+			delete options.ephemeral;
 			if (
 				this.shouldEdit &&
-				(this.command ? this.command.editable : true) &&
 				!hasFiles &&
 				!this.lastResponse.deleted &&
 				!this.lastResponse.attachments.size
 			) {
 				return this.lastResponse.edit(options);
 			}
-
 			const sent = await this.message.channel.send(options);
 			const lastSent = this.setLastResponse(sent);
 			this.setEditable(!lastSent.attachments.size);
 			return sent;
 		} else {
-			options.reply = undefined;
-			if (this.shouldEdit || this.message.interaction.deferred) {
-				return this.message.interaction.editReply(options);
+			delete options.reply;
+			if (
+				this.lastResponse ||
+				this.message.interaction.deferred ||
+				this.message.interaction.replied
+			) {
+				await this.message.interaction.editReply(options);
+				this.lastResponse = await this.message.interaction.fetchReply();
+				return this.lastResponse;
 			} else {
-				return this.message.interaction.reply(options);
+				this.message.interaction.reply(options);
+				this.lastResponse = await this.message.interaction.fetchReply();
+				return this.lastResponse;
 			}
 		}
 	}
@@ -154,7 +159,7 @@ class CommandUtil {
 
 	/**
 	 * Send an inline reply or respond to a slash command.
-	 * @param {string|ReplyMessageOptions|APIMessage|InteractionReplyOptions} options - Options to use.
+	 * @param {string | ReplyMessageOptions | APIMessage | InteractionReplyOptions} options - Options to use.
 	 * @returns {Promise<Message|Message[]|void>}
 	 */
 	reply(options) {
@@ -182,7 +187,23 @@ class CommandUtil {
 	 * @returns {Promise<Message>}
 	 */
 	edit(options) {
-		return this.lastResponse.edit(options);
+		if (this.isSlash) {
+			return this.lastResponse.editReply(options);
+		} else {
+			return this.lastResponse.edit(options);
+		}
+	}
+
+	/**
+	 * Deletes the last response.
+	 * @returns {Promise<Message | void>}
+	 */
+	delete() {
+		if (this.isSlash) {
+			return this.message.deleteReply();
+		} else {
+			return this.lastResponse?.delete();
+		}
 	}
 }
 

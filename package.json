@@ -20,6 +20,7 @@
 	"dependencies": {},
 	"devDependencies": {
 		"@types/node": "^10.14.4",
+		"discord-api-types": "^0.18.1",
 		"discord.js": "discordjs/discord.js",
 		"discord.js-docgen": "github:discordjs/docgen",
 		"eslint": "^7.27.0",
