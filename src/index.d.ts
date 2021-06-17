@@ -318,6 +318,7 @@ declare module "discord-akairo" {
 			interaction: CommandInteraction,
 			{ slash, replied }: { slash?: boolean; replied?: boolean }
 		);
+		public util: CommandUtil;
 		public interaction: CommandInteraction;
 		public _message: Message | null;
 		public channel: TextChannel;
