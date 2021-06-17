@@ -573,6 +573,7 @@ declare module "discord-akairo" {
 	export class CommandUtil {
 		public constructor(handler: CommandHandler, message: Message);
 
+		public isSlash: boolean;
 		public handler: CommandHandler;
 		public lastResponse?: Message;
 		public message: Message;
