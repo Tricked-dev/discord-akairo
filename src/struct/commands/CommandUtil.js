@@ -170,13 +170,16 @@ class CommandUtil {
 			newOptions = options;
 		}
 
-		if (!this.isSlash) {
-			if (!this.shouldEdit && !(newOptions instanceof APIMessage)) {
-				newOptions.reply = {
-					messageReference: this.message,
-					failIfNotExists: newOptions.failIfNotExists ?? true
-				};
-			}
+		if (
+			!this.isSlash &&
+			!this.shouldEdit &&
+			!(newOptions instanceof APIMessage) &&
+			!this.message.deleted
+		) {
+			newOptions.reply = {
+				messageReference: this.message,
+				failIfNotExists: newOptions.failIfNotExists ?? true
+			};
 		}
 		return this.send(newOptions);
 	}
