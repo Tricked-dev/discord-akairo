@@ -532,6 +532,8 @@ class CommandHandler extends AkairoHandler {
 			this.emit("slashGuildOnly", interaction);
 			return false;
 		}
+		const before = command.before(message);
+		if (isPromise(before)) await before;
 
 		const command = this.findCommand(interaction.commandName);
 
@@ -640,6 +642,7 @@ class CommandHandler extends AkairoHandler {
 				else convertedOptions[option.name] = option.value;
 			}
 			this.emit("slashStarted", interaction, command);
+
 			if (command.execSlash || this.execSlash)
 				await command.execSlash(message, convertedOptions);
 			else await command.exec(message, convertedOptions);
