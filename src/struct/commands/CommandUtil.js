@@ -101,8 +101,9 @@ class CommandUtil {
 	/**
 	 * Sends a response or edits an old response if available.
 	 * @param {string | APIMessage | MessageOptions | InteractionReplyOptions} options - Options to use.
-	 * @returns {Promise<Message|Message[]>|void}
+	 * @returns {Promise<Message|Message[]|void>}
 	 */
+	// eslint-disable-next-line consistent-return
 	async send(options) {
 		const hasFiles =
 			options.files?.length > 0 || options.embed?.files?.length > 0;
@@ -139,8 +140,10 @@ class CommandUtil {
 				return this.lastResponse;
 			} else {
 				this.message.interaction.reply(options);
-				this.lastResponse = await this.message.interaction.fetchReply();
-				return this.lastResponse;
+				if (!options.ephemeral) {
+					this.lastResponse = await this.message.interaction.fetchReply();
+					return this.lastResponse;
+				}
 			}
 		}
 	}
