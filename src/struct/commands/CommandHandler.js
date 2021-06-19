@@ -532,10 +532,11 @@ class CommandHandler extends AkairoHandler {
 			this.emit("slashGuildOnly", interaction);
 			return false;
 		}
-		const before = command.before(message);
-		if (isPromise(before)) await before;
 
 		const command = this.findCommand(interaction.commandName);
+		
+		const before = command.before(message);
+		if (isPromise(before)) await before;
 
 		if (!command) {
 			this.emit("slashNotFound", interaction);
