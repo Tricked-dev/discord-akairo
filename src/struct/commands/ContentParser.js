@@ -54,10 +54,7 @@ const { ArgumentMatches } = require("../../util/Constants");
  */
 
 class Tokenizer {
-	constructor(
-		content,
-		{ flagWords = [], optionFlagWords = [], quoted = true, separator } = {}
-	) {
+	constructor(content, { flagWords = [], optionFlagWords = [], quoted = true, separator } = {}) {
 		this.content = content;
 		this.flagWords = flagWords;
 		this.optionFlagWords = optionFlagWords;
@@ -70,11 +67,7 @@ class Tokenizer {
 	}
 
 	startsWith(str) {
-		return (
-			this.content
-				.slice(this.position, this.position + str.length)
-				.toLowerCase() === str.toLowerCase()
-		);
+		return this.content.slice(this.position, this.position + str.length).toLowerCase() === str.toLowerCase();
 	}
 
 	match(regex) {
@@ -206,8 +199,7 @@ class Tokenizer {
 	}
 
 	runWord() {
-		const wordRegex =
-			this.state === 0 ? /^\S+/ : this.state === 1 ? /^[^\s"]+/ : /^[^\s”]+/;
+		const wordRegex = this.state === 0 ? /^\S+/ : this.state === 1 ? /^[^\s"]+/ : /^[^\s”]+/;
 
 		const wordMatch = this.match(wordRegex);
 		if (wordMatch) {
@@ -273,10 +265,7 @@ class Parser {
 	}
 
 	lookaheadN(n, ...types) {
-		return (
-			this.tokens[this.position + n] != null &&
-			types.includes(this.tokens[this.position + n].type)
-		);
+		return this.tokens[this.position + n] != null && types.includes(this.tokens[this.position + n].type);
 	}
 
 	lookahead(...types) {
@@ -311,9 +300,7 @@ class Parser {
 		if (this.lookahead("FlagWord", "OptionFlagWord")) {
 			const parsed = this.parseFlag();
 			const trailing = this.lookahead("WS") ? this.match("WS").value : "";
-			const separator = this.lookahead("Separator")
-				? this.match("Separator").value
-				: "";
+			const separator = this.lookahead("Separator") ? this.match("Separator").value : "";
 			parsed.raw = `${leading}${parsed.raw}${trailing}${separator}`;
 			this.results.all.push(parsed);
 			if (parsed.type === "Flag") {
@@ -327,9 +314,7 @@ class Parser {
 
 		const parsed = this.parsePhrase();
 		const trailing = this.lookahead("WS") ? this.match("WS").value : "";
-		const separator = this.lookahead("Separator")
-			? this.match("Separator").value
-			: "";
+		const separator = this.lookahead("Separator") ? this.match("Separator").value : "";
 		parsed.raw = `${leading}${parsed.raw}${trailing}${separator}`;
 		this.results.all.push(parsed);
 		this.results.phrases.push(parsed);
@@ -355,9 +340,7 @@ class Parser {
 			parsed.raw += ws.value;
 		}
 
-		const phrase = this.lookahead("Quote", "OpenQuote", "EndQuote", "Word")
-			? this.parsePhrase()
-			: null;
+		const phrase = this.lookahead("Quote", "OpenQuote", "EndQuote", "Word") ? this.parsePhrase() : null;
 
 		if (phrase != null) {
 			parsed.value = phrase.value;
@@ -401,9 +384,7 @@ class Parser {
 					}
 				}
 
-				const endQuote = this.lookahead("EndQuote")
-					? this.match("EndQuote")
-					: null;
+				const endQuote = this.lookahead("EndQuote") ? this.match("EndQuote") : null;
 				if (endQuote != null) {
 					parsed.raw += endQuote.value;
 				}
@@ -447,12 +428,7 @@ class Parser {
  * @private
  */
 class ContentParser {
-	constructor({
-		flagWords = [],
-		optionFlagWords = [],
-		quoted = true,
-		separator
-	} = {}) {
+	constructor({ flagWords = [], optionFlagWords = [], quoted = true, separator } = {}) {
 		this.flagWords = flagWords;
 		this.flagWords.sort((a, b) => b.length - a.length);
 
@@ -491,14 +467,8 @@ class ContentParser {
 		};
 
 		for (const arg of args) {
-			const arr =
-				res[
-					arg.match === ArgumentMatches.FLAG ? "flagWords" : "optionFlagWords"
-				];
-			if (
-				arg.match === ArgumentMatches.FLAG ||
-				arg.match === ArgumentMatches.OPTION
-			) {
+			const arr = res[arg.match === ArgumentMatches.FLAG ? "flagWords" : "optionFlagWords"];
+			if (arg.match === ArgumentMatches.FLAG || arg.match === ArgumentMatches.OPTION) {
 				if (Array.isArray(arg.flag)) {
 					arr.push(...arg.flag);
 				} else {

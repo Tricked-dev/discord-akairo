@@ -82,17 +82,13 @@ class Argument {
 		 * The default value of the argument or a function supplying the default value.
 		 * @type {DefaultValueSupplier|any}
 		 */
-		this.default =
-			typeof defaultValue === "function"
-				? defaultValue.bind(this)
-				: defaultValue;
+		this.default = typeof defaultValue === "function" ? defaultValue.bind(this) : defaultValue;
 
 		/**
 		 * The content or function supplying the content sent when argument parsing fails.
 		 * @type {?string|MessageOptions|MessageAdditions|OtherwiseContentSupplier}
 		 */
-		this.otherwise =
-			typeof otherwise === "function" ? otherwise.bind(this) : otherwise;
+		this.otherwise = typeof otherwise === "function" ? otherwise.bind(this) : otherwise;
 
 		/**
 		 * Function to modify otherwise content.
@@ -133,17 +129,9 @@ class Argument {
 		);
 
 		const doOtherwise = async failure => {
-			const otherwise = choice(
-				this.otherwise,
-				commandDefs.otherwise,
-				handlerDefs.otherwise
-			);
+			const otherwise = choice(this.otherwise, commandDefs.otherwise, handlerDefs.otherwise);
 
-			const modifyOtherwise = choice(
-				this.modifyOtherwise,
-				commandDefs.modifyOtherwise,
-				handlerDefs.modifyOtherwise
-			);
+			const modifyOtherwise = choice(this.modifyOtherwise, commandDefs.modifyOtherwise, handlerDefs.modifyOtherwise);
 
 			let text = await intoCallable(otherwise).call(this, message, {
 				phrase,
@@ -189,9 +177,7 @@ class Argument {
 				return this.collect(message, phrase, res);
 			}
 
-			return this.default == null
-				? res
-				: intoCallable(this.default)(message, { phrase, failure: res });
+			return this.default == null ? res : intoCallable(this.default)(message, { phrase, failure: res });
 		}
 
 		return res;
@@ -220,20 +206,11 @@ class Argument {
 		Object.assign(promptOptions, this.command.argumentDefaults.prompt);
 		Object.assign(promptOptions, this.prompt || {});
 
-		const isInfinite =
-			promptOptions.infinite ||
-			(this.match === ArgumentMatches.SEPARATE && !commandInput);
+		const isInfinite = promptOptions.infinite || (this.match === ArgumentMatches.SEPARATE && !commandInput);
 		const additionalRetry = Number(Boolean(commandInput));
 		const values = isInfinite ? [] : null;
 
-		const getText = async (
-			promptType,
-			prompter,
-			retryCount,
-			inputMessage,
-			inputPhrase,
-			inputParsed
-		) => {
+		const getText = async (promptType, prompter, retryCount, inputMessage, inputPhrase, inputParsed) => {
 			let text = await intoCallable(prompter).call(this, message, {
 				retries: retryCount,
 				infinite: isInfinite,
@@ -272,26 +249,13 @@ class Argument {
 		};
 
 		// eslint-disable-next-line complexity
-		const promptOne = async (
-			prevMessage,
-			prevInput,
-			prevParsed,
-			retryCount
-		) => {
+		const promptOne = async (prevMessage, prevInput, prevParsed, retryCount) => {
 			let sentStart;
 			// This is either a retry prompt, the start of a non-infinite, or the start of an infinite.
 			if (retryCount !== 1 || !isInfinite || !values.length) {
 				const promptType = retryCount === 1 ? "start" : "retry";
-				const prompter =
-					retryCount === 1 ? promptOptions.start : promptOptions.retry;
-				const startText = await getText(
-					promptType,
-					prompter,
-					retryCount,
-					prevMessage,
-					prevInput,
-					prevParsed
-				);
+				const prompter = retryCount === 1 ? promptOptions.start : promptOptions.retry;
+				const startText = await getText(promptType, prompter, retryCount, prevMessage, prevInput, prevParsed);
 
 				if (startText) {
 					sentStart = await (message.util || message.channel).send(startText);
@@ -306,26 +270,16 @@ class Argument {
 			let input;
 			try {
 				input = (
-					await message.channel.awaitMessages(
-						m => m.author.id === message.author.id,
-						{
-							max: 1,
-							time: promptOptions.time,
-							errors: ["time"]
-						}
-					)
+					await message.channel.awaitMessages(m => m.author.id === message.author.id, {
+						max: 1,
+						time: promptOptions.time,
+						errors: ["time"]
+					})
 				).first();
 
 				if (message.util) message.util.addMessage(input);
 			} catch (err) {
-				const timeoutText = await getText(
-					"timeout",
-					promptOptions.timeout,
-					retryCount,
-					prevMessage,
-					prevInput,
-					""
-				);
+				const timeoutText = await getText("timeout", promptOptions.timeout, retryCount, prevMessage, prevInput, "");
 				if (timeoutText) {
 					const sentTimeout = await message.channel.send(timeoutText);
 					if (message.util) message.util.addMessage(sentTimeout);
@@ -339,17 +293,8 @@ class Argument {
 				if (looksLike && looksLike.command) return Flag.retry(input);
 			}
 
-			if (
-				input.content.toLowerCase() === promptOptions.cancelWord.toLowerCase()
-			) {
-				const cancelText = await getText(
-					"cancel",
-					promptOptions.cancel,
-					retryCount,
-					input,
-					input.content,
-					"cancel"
-				);
+			if (input.content.toLowerCase() === promptOptions.cancelWord.toLowerCase()) {
+				const cancelText = await getText("cancel", promptOptions.cancel, retryCount, input, input.content, "cancel");
 				if (cancelText) {
 					const sentCancel = await message.channel.send(cancelText);
 					if (message.util) message.util.addMessage(sentCancel);
@@ -358,12 +303,8 @@ class Argument {
 				return Flag.cancel();
 			}
 
-			if (
-				isInfinite &&
-				input.content.toLowerCase() === promptOptions.stopWord.toLowerCase()
-			) {
-				if (!values.length)
-					return promptOne(input, input.content, null, retryCount + 1);
+			if (isInfinite && input.content.toLowerCase() === promptOptions.stopWord.toLowerCase()) {
+				if (!values.length) return promptOne(input, input.content, null, retryCount + 1);
 				return values;
 			}
 
@@ -373,14 +314,7 @@ class Argument {
 					return promptOne(input, input.content, parsedValue, retryCount + 1);
 				}
 
-				const endedText = await getText(
-					"ended",
-					promptOptions.ended,
-					retryCount,
-					input,
-					input.content,
-					"stop"
-				);
+				const endedText = await getText("ended", promptOptions.ended, retryCount, input, input.content, "stop");
 				if (endedText) {
 					const sentEnded = await message.channel.send(endedText);
 					if (message.util) message.util.addMessage(sentEnded);
@@ -392,8 +326,7 @@ class Argument {
 			if (isInfinite) {
 				values.push(parsedValue);
 				const limit = promptOptions.limit;
-				if (values.length < limit)
-					return promptOne(message, input.content, parsedValue, 1);
+				if (values.length < limit) return promptOne(message, input.content, parsedValue, 1);
 
 				return values;
 			}
@@ -402,12 +335,7 @@ class Argument {
 		};
 
 		this.handler.addPrompt(message.channel, message.author);
-		const returnValue = await promptOne(
-			message,
-			commandInput,
-			parsedInput,
-			1 + additionalRetry
-		);
+		const returnValue = await promptOne(message, commandInput, parsedInput, 1 + additionalRetry);
 		if (this.handler.commandUtil) {
 			message.util.setEditable(false);
 		}
@@ -482,12 +410,7 @@ class Argument {
 		return async function typeFn(message, phrase) {
 			for (let entry of types) {
 				if (typeof entry === "function") entry = entry.bind(this);
-				const res = await Argument.cast(
-					entry,
-					this.handler.resolver,
-					message,
-					phrase
-				);
+				const res = await Argument.cast(entry, this.handler.resolver, message, phrase);
 				if (!Argument.isFailure(res)) return res;
 			}
 
@@ -506,12 +429,7 @@ class Argument {
 			const results = [];
 			for (let entry of types) {
 				if (typeof entry === "function") entry = entry.bind(this);
-				const res = await Argument.cast(
-					entry,
-					this.handler.resolver,
-					message,
-					phrase
-				);
+				const res = await Argument.cast(entry, this.handler.resolver, message, phrase);
 				if (Argument.isFailure(res)) return res;
 				results.push(res);
 			}
@@ -530,12 +448,7 @@ class Argument {
 	static validate(type, predicate) {
 		return async function typeFn(message, phrase) {
 			if (typeof type === "function") type = type.bind(this);
-			const res = await Argument.cast(
-				type,
-				this.handler.resolver,
-				message,
-				phrase
-			);
+			const res = await Argument.cast(type, this.handler.resolver, message, phrase);
 			if (Argument.isFailure(res)) return res;
 			if (!predicate.call(this, message, phrase, res)) return null;
 			return res;
@@ -556,13 +469,7 @@ class Argument {
 			const o =
 				// See src/struct/ClientUtil.js:345:4
 				// eslint-disable-next-line
-				typeof x === "number" || typeof x === "bigint"
-					? x
-					: x.length != null
-					? x.length
-					: x.size != null
-					? x.size
-					: x;
+				typeof x === "number" || typeof x === "bigint" ? x : x.length != null ? x.length : x.size != null ? x.size : x;
 
 			return o >= min && (inclusive ? o <= max : o < max);
 		});
@@ -614,12 +521,7 @@ class Argument {
 	static withInput(type) {
 		return async function typeFn(message, phrase) {
 			if (typeof type === "function") type = type.bind(this);
-			const res = await Argument.cast(
-				type,
-				this.handler.resolver,
-				message,
-				phrase
-			);
+			const res = await Argument.cast(type, this.handler.resolver, message, phrase);
 			if (Argument.isFailure(res)) {
 				return Flag.fail({ input: phrase, value: res });
 			}
@@ -639,12 +541,7 @@ class Argument {
 	static tagged(type, tag = type) {
 		return async function typeFn(message, phrase) {
 			if (typeof type === "function") type = type.bind(this);
-			const res = await Argument.cast(
-				type,
-				this.handler.resolver,
-				message,
-				phrase
-			);
+			const res = await Argument.cast(type, this.handler.resolver, message, phrase);
 			if (Argument.isFailure(res)) {
 				return Flag.fail({ tag, value: res });
 			}
@@ -664,12 +561,7 @@ class Argument {
 	static taggedWithInput(type, tag = type) {
 		return async function typeFn(message, phrase) {
 			if (typeof type === "function") type = type.bind(this);
-			const res = await Argument.cast(
-				type,
-				this.handler.resolver,
-				message,
-				phrase
-			);
+			const res = await Argument.cast(type, this.handler.resolver, message, phrase);
 			if (Argument.isFailure(res)) {
 				return Flag.fail({ tag, input: phrase, value: res });
 			}
@@ -689,12 +581,7 @@ class Argument {
 		return async function typeFn(message, phrase) {
 			for (let entry of types) {
 				entry = Argument.tagged(entry);
-				const res = await Argument.cast(
-					entry,
-					this.handler.resolver,
-					message,
-					phrase
-				);
+				const res = await Argument.cast(entry, this.handler.resolver, message, phrase);
 				if (!Argument.isFailure(res)) return res;
 			}
 

@@ -12,25 +12,10 @@ const { isPromise } = require("../../util/Util");
 class InhibitorHandler extends AkairoHandler {
 	constructor(
 		client,
-		{
-			directory,
-			classToHandle = Inhibitor,
-			extensions = [".js", ".ts"],
-			automateCategories,
-			loadFilter
-		} = {}
+		{ directory, classToHandle = Inhibitor, extensions = [".js", ".ts"], automateCategories, loadFilter } = {}
 	) {
-		if (
-			!(
-				classToHandle.prototype instanceof Inhibitor ||
-				classToHandle === Inhibitor
-			)
-		) {
-			throw new AkairoError(
-				"INVALID_CLASS_TO_HANDLE",
-				classToHandle.name,
-				Inhibitor.name
-			);
+		if (!(classToHandle.prototype instanceof Inhibitor || classToHandle === Inhibitor)) {
+			throw new AkairoError("INVALID_CLASS_TO_HANDLE", classToHandle.name, Inhibitor.name);
 		}
 
 		super(client, {

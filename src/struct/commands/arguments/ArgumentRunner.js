@@ -61,12 +61,7 @@ class ArgumentRunner {
 				return value;
 			}
 
-			const res = await this.runOne(
-				message,
-				parsed,
-				state,
-				new Argument(this.command, value)
-			);
+			const res = await this.runOne(message, parsed, state, new Argument(this.command, value));
 			if (ArgumentRunner.isShortCircuit(res)) {
 				augmentRest(res);
 				return res;
@@ -144,10 +139,7 @@ class ArgumentRunner {
 		}
 
 		const index = arg.index == null ? state.phraseIndex : arg.index;
-		const ret = arg.process(
-			message,
-			parsed.phrases[index] ? parsed.phrases[index].value : ""
-		);
+		const ret = arg.process(message, parsed.phrases[index] ? parsed.phrases[index].value : "");
 		if (arg.index == null) {
 			ArgumentRunner.increaseIndex(parsed, state);
 		}
@@ -234,9 +226,7 @@ class ArgumentRunner {
 			return amount;
 		}
 
-		const flagFound = parsed.flags.some(flag =>
-			names.some(name => name.toLowerCase() === flag.key.toLowerCase())
-		);
+		const flagFound = parsed.flags.some(flag => names.some(name => name.toLowerCase() === flag.key.toLowerCase()));
 
 		return arg.default == null ? flagFound : !flagFound;
 	}
@@ -253,9 +243,7 @@ class ArgumentRunner {
 		const names = Array.isArray(arg.flag) ? arg.flag : [arg.flag];
 		if (arg.multipleFlags) {
 			const values = parsed.optionFlags
-				.filter(flag =>
-					names.some(name => name.toLowerCase() === flag.key.toLowerCase())
-				)
+				.filter(flag => names.some(name => name.toLowerCase() === flag.key.toLowerCase()))
 				.map(x => x.value)
 				.slice(0, arg.limit);
 
@@ -357,10 +345,7 @@ class ArgumentRunner {
 		while (n > 0) {
 			do {
 				state.index++;
-			} while (
-				parsed.all[state.index] &&
-				parsed.all[state.index].type !== "Phrase"
-			);
+			} while (parsed.all[state.index] && parsed.all[state.index].type !== "Phrase");
 			n--;
 		}
 	}
@@ -371,11 +356,7 @@ class ArgumentRunner {
 	 * @returns {boolean}
 	 */
 	static isShortCircuit(value) {
-		return (
-			Flag.is(value, "cancel") ||
-			Flag.is(value, "retry") ||
-			Flag.is(value, "continue")
-		);
+		return Flag.is(value, "cancel") || Flag.is(value, "retry") || Flag.is(value, "continue");
 	}
 
 	/**

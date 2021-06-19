@@ -42,9 +42,7 @@ class AkairoClient extends Client {
 	 */
 	isOwner(user) {
 		const id = this.users.resolveID(user);
-		return Array.isArray(this.ownerID)
-			? this.ownerID.includes(id)
-			: id === this.ownerID;
+		return Array.isArray(this.ownerID) ? this.ownerID.includes(id) : id === this.ownerID;
 	}
 	/**
 	 * Checks if a user is the owner of this bot.
@@ -53,9 +51,7 @@ class AkairoClient extends Client {
 	 */
 	isSuperUser(user) {
 		const id = this.users.resolveID(user);
-		return Array.isArray(this.superUserID)
-			? this.superUserID.includes(id)
-			: id === this.superUserID;
+		return Array.isArray(this.superUserID) ? this.superUserID.includes(id) : id === this.superUserID;
 	}
 }
 

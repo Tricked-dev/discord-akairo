@@ -6,15 +6,19 @@ class AkairoMessage {
 	 * @param {boolean} param2 - any
 	 */
 	constructor(client, interaction, { slash, replied }) {
-		this.interaction = interaction;
 		this._message = null;
-		this.channel = interaction.channel;
-		this.guild = interaction.guild;
-		this.member = interaction.member;
 		this.author = interaction.user;
-		this.replied = replied;
+		this.channel = interaction.channel;
 		this.client = client;
 		this.content = `/${interaction.commandName}`;
+		this.createdAt = interaction.createdAt;
+		this.createdTimestamp = interaction.createdTimestamp;
+		this.guild = interaction.guild;
+		this.id = interaction.id;
+		this.interaction = interaction;
+		this.member = interaction.member;
+		this.replied = replied;
+		this.util = { parsed: { slash } };
 		for (const option of interaction.options.values()) {
 			if (option.member) {
 				this.content += ` ${option.name}: ${option.member}`;
@@ -26,34 +30,15 @@ class AkairoMessage {
 				this.content += ` ${option.name}: ${option.value}`;
 			}
 		}
-		this.util = { parsed: { slash } };
-		this.id = interaction.id;
-		this.createdAt = interaction.createdAt;
-		this.createdTimestamp = interaction.createdTimestamp;
 	}
 
 	/**
 	 * Replies or edits the reply of the slash command.
-	 * @param {...any} options a
-	 * @returns {Promise<void>} a
+	 * @param {string | APIMessage | InteractionReplyOptions} options The options to edit the reply.
+	 * @returns {Promise<void>}
 	 */
-	async reply(...options) {
-		if (options[0].embed) {
-			options[0].embeds = [options[0].embed];
-			delete options[0].embed;
-			delete options[0].allowedMentions;
-		}
-		if (this._message) {
-			return this._message.edit(...options);
-		}
-		if (this.replied) {
-			await this.interaction.editReply(options[0], options[1]);
-			this._message = await this.interaction.fetchReply();
-			return this._message;
-		}
-		this.interaction.reply(...options);
-		this._message = await this.interaction.fetchReply();
-		return this._message;
+	reply(options) {
+		return this.util.reply(options);
 	}
 
 	/**

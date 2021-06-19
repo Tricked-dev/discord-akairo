@@ -25,7 +25,6 @@ declare module "discord-akairo" {
 		UserResolvable,
 		InteractionReplyOptions
 	} from "discord.js";
-	import { APIMessage as RawMessage } from "discord-api-types/v8";
 	import { EventEmitter } from "events";
 	import { Stream } from "stream";
 
@@ -40,10 +39,7 @@ declare module "discord-akairo" {
 	}
 
 	export class AkairoClient extends Client {
-		public constructor(
-			options?: AkairoOptions & ClientOptions,
-			clientOptions?: ClientOptions
-		);
+		public constructor(options?: AkairoOptions & ClientOptions, clientOptions?: ClientOptions);
 
 		public ownerID: Snowflake | Snowflake[];
 		public superUserID: Snowflake | Snowflake[];
@@ -57,11 +53,11 @@ declare module "discord-akairo" {
 		public constructor(client: AkairoClient, options: AkairoHandlerOptions);
 
 		public automateCategories: boolean;
-		public extensions: Set<string>;
 		public categories: Collection<string, Category<string, AkairoModule>>;
 		public classToHandle: Function;
 		public client: AkairoClient;
 		public directory: string;
+		public extensions: Set<string>;
 		public loadFilter: LoadPredicate;
 		public modules: Collection<string, AkairoModule>;
 
@@ -69,16 +65,13 @@ declare module "discord-akairo" {
 		public findCategory(name: string): Category<string, AkairoModule>;
 		public load(thing: string | Function, isReload?: boolean): AkairoModule;
 		public loadAll(directory?: string, filter?: LoadPredicate): this;
+		public on(event: "load", listener: (mod: AkairoModule, isReload: boolean) => any): this;
+		public on(event: "remove", listener: (mod: AkairoModule) => any): this;
 		public register(mod: AkairoModule, filepath?: string): void;
 		public reload(id: string): AkairoModule;
 		public reloadAll(): this;
 		public remove(id: string): AkairoModule;
 		public removeAll(): this;
-		public on(event: "remove", listener: (mod: AkairoModule) => any): this;
-		public on(
-			event: "load",
-			listener: (mod: AkairoModule, isReload: boolean) => any
-		): this;
 
 		public static readdirRecursive(directory: string): string[];
 	}
@@ -104,74 +97,46 @@ declare module "discord-akairo" {
 		public command: Command;
 		public default: DefaultValueSupplier | any;
 		public description: string | any;
+		public flag?: string | string[];
 		public readonly handler: CommandHandler;
 		public index?: number;
 		public limit: number;
 		public match: ArgumentMatch;
 		public multipleFlags: boolean;
-		public flag?: string | string[];
-		public otherwise?:
-			| string
-			| APIMessage
-			| MessageOptions
-			| OtherwiseContentSupplier;
+		public otherwise?: string | APIMessage | MessageOptions | OtherwiseContentSupplier;
 		public prompt?: ArgumentPromptOptions | boolean;
 		public type: ArgumentType | ArgumentTypeCaster;
 		public unordered: boolean | number | number[];
 
 		public allow(message: Message): boolean;
 		public cast(message: Message, phrase: string): Promise<any>;
-		public collect(
-			message: Message,
-			commandInput?: string
-		): Promise<Flag | any>;
+		public collect(message: Message, commandInput?: string): Promise<Flag | any>;
 		public process(message: Message, phrase: string): Promise<any>;
-
 		public static cast(
 			type: ArgumentType | ArgumentTypeCaster,
 			resolver: TypeResolver,
 			message: Message,
 			phrase: string
 		): Promise<any>;
-		public static compose(
-			...types: (ArgumentType | ArgumentTypeCaster)[]
-		): ArgumentTypeCaster;
-		public static composeWithFailure(
-			...types: (ArgumentType | ArgumentTypeCaster)[]
-		): ArgumentTypeCaster;
-		public static isFailure(
-			value: any
-		): value is null | undefined | (Flag & { value: any });
-		public static product(
-			...types: (ArgumentType | ArgumentTypeCaster)[]
-		): ArgumentTypeCaster;
+		public static compose(...types: (ArgumentType | ArgumentTypeCaster)[]): ArgumentTypeCaster;
+		public static composeWithFailure(...types: (ArgumentType | ArgumentTypeCaster)[]): ArgumentTypeCaster;
+		public static isFailure(value: any): value is null | undefined | (Flag & { value: any });
+		public static product(...types: (ArgumentType | ArgumentTypeCaster)[]): ArgumentTypeCaster;
 		public static range(
 			type: ArgumentType | ArgumentTypeCaster,
 			min: number,
 			max: number,
 			inclusive?: boolean
 		): ArgumentTypeCaster;
-		public static tagged(
-			type: ArgumentType | ArgumentTypeCaster,
-			tag?: any
-		): ArgumentTypeCaster;
-		public static taggedUnion(
-			...types: (ArgumentType | ArgumentTypeCaster)[]
-		): ArgumentTypeCaster;
-		public static taggedWithInput(
-			type: ArgumentType | ArgumentTypeCaster,
-			tag?: any
-		): ArgumentTypeCaster;
-		public static union(
-			...types: (ArgumentType | ArgumentTypeCaster)[]
-		): ArgumentTypeCaster;
+		public static tagged(type: ArgumentType | ArgumentTypeCaster, tag?: any): ArgumentTypeCaster;
+		public static taggedUnion(...types: (ArgumentType | ArgumentTypeCaster)[]): ArgumentTypeCaster;
+		public static taggedWithInput(type: ArgumentType | ArgumentTypeCaster, tag?: any): ArgumentTypeCaster;
+		public static union(...types: (ArgumentType | ArgumentTypeCaster)[]): ArgumentTypeCaster;
 		public static validate(
 			type: ArgumentType | ArgumentTypeCaster,
 			predicate: ParsedValuePredicate
 		): ArgumentTypeCaster;
-		public static withInput(
-			type: ArgumentType | ArgumentTypeCaster
-		): ArgumentTypeCaster;
+		public static withInput(type: ArgumentType | ArgumentTypeCaster): ArgumentTypeCaster;
 	}
 
 	export class Category<K, V> extends Collection<K, V> {
@@ -188,57 +153,17 @@ declare module "discord-akairo" {
 
 		public readonly client: AkairoClient;
 
-		public attachment(
-			file: BufferResolvable | Stream,
-			name?: string
-		): MessageAttachment;
-		public checkChannel(
-			text: string,
-			channel: Channel,
-			caseSensitive?: boolean,
-			wholeWord?: boolean
-		): boolean;
-		public checkEmoji(
-			text: string,
-			emoji: Emoji,
-			caseSensitive?: boolean,
-			wholeWord?: boolean
-		): boolean;
-		public checkGuild(
-			text: string,
-			guild: Guild,
-			caseSensitive?: boolean,
-			wholeWord?: boolean
-		): boolean;
-		public checkMember(
-			text: string,
-			member: GuildMember,
-			caseSensitive?: boolean,
-			wholeWord?: boolean
-		): boolean;
-		public checkRole(
-			text: string,
-			role: Role,
-			caseSensitive?: boolean,
-			wholeWord?: boolean
-		): boolean;
-		public checkUser(
-			text: string,
-			user: User,
-			caseSensitive?: boolean,
-			wholeWord?: boolean
-		): boolean;
+		public attachment(file: BufferResolvable | Stream, name?: string): MessageAttachment;
+		public checkChannel(text: string, channel: Channel, caseSensitive?: boolean, wholeWord?: boolean): boolean;
+		public checkEmoji(text: string, emoji: Emoji, caseSensitive?: boolean, wholeWord?: boolean): boolean;
+		public checkGuild(text: string, guild: Guild, caseSensitive?: boolean, wholeWord?: boolean): boolean;
+		public checkMember(text: string, member: GuildMember, caseSensitive?: boolean, wholeWord?: boolean): boolean;
+		public checkRole(text: string, role: Role, caseSensitive?: boolean, wholeWord?: boolean): boolean;
+		public checkUser(text: string, user: User, caseSensitive?: boolean, wholeWord?: boolean): boolean;
 		public collection<K, V>(iterable?: Iterable<[K, V][]>): Collection<K, V>;
-		public compareStreaming(
-			oldMember: GuildMember,
-			newMember: GuildMember
-		): number;
+		public compareStreaming(oldMember: GuildMember, newMember: GuildMember): number;
 		public embed(data?: object): MessageEmbed;
-		public fetchMember(
-			guild: Guild,
-			id: string,
-			cache?: boolean
-		): Promise<GuildMember>;
+		public fetchMember(guild: Guild, id: string, cache?: boolean): Promise<GuildMember>;
 		public resolveChannel(
 			text: string,
 			channels: Collection<Snowflake, Channel>,
@@ -319,58 +244,57 @@ declare module "discord-akairo" {
 			interaction: CommandInteraction,
 			{ slash, replied }: { slash?: boolean; replied?: boolean }
 		);
-		public util: CommandUtil;
-		public interaction: CommandInteraction;
+
 		public _message: Message | null;
-		public channel: TextChannel;
-		public guild: Guild;
-		public member: GuildMember;
-		public client: AkairoClient;
-		public replied: boolean;
 		public author: User;
-		public id: string;
+		public channel: TextChannel;
+		public client: AkairoClient;
 		public content: string;
-		public send(...options: any): Promise<Message>;
-		public reply(...options: any): Promise<Message>;
-		public delete(): Promise<void>
+		public createdAt: Date;
+		public createdTimestamp: number;
+		public guild: Guild;
+		public id: string;
+		public interaction: CommandInteraction;
+		public member: GuildMember;
+		public replied: boolean;
+		public util: CommandUtil;
+
+		public delete(): Promise<void>;
+		public reply(options: string | APIMessage | InteractionReplyOptions): Promise<void>;
 	}
 	export class Command extends AkairoModule {
 		public constructor(id: string, options?: CommandOptions);
-		public slash?: boolean;
-		public slashEphemeral?: boolean;
-		public slashGuilds?: string[];
+
 		public aliases: string[];
 		public argumentDefaults: DefaultArgumentOptions;
-		public quoted: boolean;
 		public category: Category<string, Command>;
 		public channel?: string;
 		public client: AkairoClient;
-		public clientPermissions:
-			| PermissionResolvable
-			| PermissionResolvable[]
-			| MissingPermissionSupplier;
+		public clientPermissions: PermissionResolvable | PermissionResolvable[] | MissingPermissionSupplier;
 		public cooldown?: number;
 		public description: any;
 		public editable: boolean;
 		public filepath: string;
 		public handler: CommandHandler;
 		public id: string;
-		public lock?: KeySupplier;
-		public locker?: Set<string>;
 		public ignoreCooldown?: Snowflake | Snowflake[] | IgnoreCheckPredicate;
 		public ignorePermissions?: Snowflake | Snowflake[] | IgnoreCheckPredicate;
-		public ownerOnly: boolean;
-		public superUserOnly: boolean;
-		public prefix?: string | string[] | PrefixSupplier;
-		public ratelimit: number;
-		public slashOptions?: SlashCommandOptions[];
-		public regex: RegExp | RegexSupplier;
-		public typing: boolean;
-		public userPermissions:
-			| PermissionResolvable
-			| PermissionResolvable[]
-			| MissingPermissionSupplier;
+		public lock?: KeySupplier;
+		public locker?: Set<string>;
 		public onlyNsfw: boolean;
+		public ownerOnly: boolean;
+		public prefix?: string | string[] | PrefixSupplier;
+		public quoted: boolean;
+		public ratelimit: number;
+		public regex: RegExp | RegexSupplier;
+		public slash?: boolean;
+		public slashEphemeral?: boolean;
+		public slashGuilds?: string[];
+		public slashOptions?: SlashCommandOptions[];
+		public superUserOnly: boolean;
+		public typing: boolean;
+		public userPermissions: PermissionResolvable | PermissionResolvable[] | MissingPermissionSupplier;
+
 		public before(message: Message): any;
 		public condition(message: Message): boolean;
 		public exec(message: Message, args: any): any;
@@ -383,10 +307,11 @@ declare module "discord-akairo" {
 	export class CommandHandler extends AkairoHandler {
 		public constructor(client: AkairoClient, options: CommandHandlerOptions);
 
-		public aliasReplacement?: RegExp;
 		public aliases: Collection<string, string>;
+		public aliasReplacement?: RegExp;
 		public allowMention: boolean | MentionPrefixPredicate;
 		public argumentDefaults: DefaultArgumentOptions;
+		public autoDefer: boolean;
 		public blockBots: boolean;
 		public blockClient: boolean;
 		public categories: Collection<string, Category<string, Command>>;
@@ -399,6 +324,7 @@ declare module "discord-akairo" {
 		public cooldowns: Collection<string, { [id: string]: CooldownData }>;
 		public defaultCooldown: number;
 		public directory: string;
+		public execSlash: boolean;
 		public fetchMembers: boolean;
 		public handleEdits: boolean;
 		public ignoreCooldown: Snowflake | Snowflake[] | IgnoreCheckPredicate;
@@ -410,8 +336,6 @@ declare module "discord-akairo" {
 		public prompts: Collection<string, Set<string>>;
 		public resolver: TypeResolver;
 		public storeMessage: boolean;
-		public autoDefer: boolean;
-		public execSlash: boolean;
 
 		public add(filename: string): Command;
 		public addPrompt(channel: Channel, user: User): void;
@@ -420,33 +344,22 @@ declare module "discord-akairo" {
 		public findCategory(name: string): Category<string, Command>;
 		public findCommand(name: string): Command;
 		public handle(message: Message): Promise<boolean | null>;
+		public handleConditionalCommands(message: Message): Promise<boolean>;
 		public handleDirectCommand(
 			message: Message,
 			content: string,
 			command: Command,
 			ignore?: boolean
 		): Promise<boolean | null>;
-		public handleRegexAndConditionalCommands(
-			message: Message
-		): Promise<boolean>;
+		public handleRegexAndConditionalCommands(message: Message): Promise<boolean>;
 		public handleRegexCommands(message: Message): Promise<boolean>;
-		public handleConditionalCommands(message: Message): Promise<boolean>;
 		public hasPrompt(channel: Channel, user: User): boolean;
 		public load(thing: string | Function, isReload?: boolean): Command;
 		public loadAll(directory?: string, filter?: LoadPredicate): this;
 		public parseCommand(message: Message): Promise<ParsedComponentData>;
-		public parseCommandOverwrittenPrefixes(
-			message: Message
-		): Promise<ParsedComponentData>;
-		public parseMultiplePrefixes(
-			message: Message,
-			prefixes: [string, Set<string> | null]
-		): ParsedComponentData;
-		public parseWithPrefix(
-			message: Message,
-			prefix: string,
-			associatedCommands?: Set<string>
-		): ParsedComponentData;
+		public parseCommandOverwrittenPrefixes(message: Message): Promise<ParsedComponentData>;
+		public parseMultiplePrefixes(message: Message, prefixes: [string, Set<string> | null]): ParsedComponentData;
+		public parseWithPrefix(message: Message, prefix: string, associatedCommands?: Set<string>): ParsedComponentData;
 		public register(command: Command, filepath?: string): void;
 		public reload(id: string): Command;
 		public reloadAll(): this;
@@ -454,130 +367,57 @@ declare module "discord-akairo" {
 		public removeAll(): this;
 		public removePrompt(channel: Channel, user: User): void;
 		public runAllTypeInhibitors(message: Message): Promise<boolean>;
-		public runPermissionChecks(
-			message: Message,
-			command: Command
-		): Promise<boolean>;
-		public runPreTypeInhibitors(message: Message): Promise<boolean>;
-		public runPostTypeInhibitors(
-			message: Message,
-			command: Command
-		): Promise<boolean>;
+		public runCommand(message: Message, command: Command, args: any): Promise<void>;
 		public runCooldowns(message: Message, command: Command): boolean;
-		public runCommand(
-			message: Message,
-			command: Command,
-			args: any
-		): Promise<void>;
+		public runPermissionChecks(message: Message, command: Command): Promise<boolean>;
+		public runPostTypeInhibitors(message: Message, command: Command): Promise<boolean>;
+		public runPreTypeInhibitors(message: Message): Promise<boolean>;
 		public useInhibitorHandler(inhibitorHandler: InhibitorHandler): this;
 		public useListenerHandler(ListenerHandler: ListenerHandler): this;
-		public on(event: "remove", listener: (command: Command) => any): this;
-		public on(
-			event: "load",
-			listener: (command: Command, isReload: boolean) => any
-		): this;
-		public on(
-			event: "commandBlocked",
-			listener: (message: Message, command: Command, reason: string) => any
-		): this;
+		public on(event: "commandBlocked", listener: (message: Message, command: Command, reason: string) => any): this;
 		public on(
 			event: "commandBreakout",
-			listener: (
-				message: Message,
-				command: Command,
-				breakMessage: Message
-			) => any
+			listener: (message: Message, command: Command, breakMessage: Message) => any
 		): this;
 		public on(
 			event: "commandCancelled",
-			listener: (
-				message: Message,
-				command: Command,
-				retryMessage?: Message
-			) => any
+			listener: (message: Message, command: Command, retryMessage?: Message) => any
 		): this;
 		public on(
 			event: "commandFinished",
-			listener: (
-				message: Message,
-				command: Command,
-				args: any,
-				returnValue: any
-			) => any
+			listener: (message: Message, command: Command, args: any, returnValue: any) => any
 		): this;
-		public on(
-			event: "commandLocked",
-			listener: (message: Message, command: Command) => any
-		): this;
-		public on(
-			event: "commandStarted",
-			listener: (message: Message, command: Command, args: any) => any
-		): this;
-		public on(
-			event: "cooldown",
-			listener: (message: Message, command: Command, remaining: number) => any
-		): this;
-		public on(
-			event: "error",
-			listener: (error: Error, message: Message, command?: Command) => any
-		): this;
-		public on(
-			event: "inPrompt" | "messageInvalid",
-			listener: (message: Message) => any
-		): this;
-		public on(
-			event: "messageBlocked",
-			listener: (message: Message, reason: string) => any
-		): this;
+		public on(event: "commandLocked", listener: (message: Message, command: Command) => any): this;
+		public on(event: "commandStarted", listener: (message: Message, command: Command, args: any) => any): this;
+		public on(event: "cooldown", listener: (message: Message, command: Command, remaining: number) => any): this;
+		public on(event: "error", listener: (error: Error, message: Message, command?: Command) => any): this;
+		public on(event: "inPrompt" | "messageInvalid", listener: (message: Message) => any): this;
+		public on(event: "load", listener: (command: Command, isReload: boolean) => any): this;
+		public on(event: "messageBlocked", listener: (message: Message, reason: string) => any): this;
 		public on(
 			event: "missingPermissions",
-			listener: (
-				message: Message,
-				command: Command,
-				type: "client" | "user",
-				missing?: any
-			) => any
+			listener: (message: Message, command: Command, type: "client" | "user", missing?: any) => any
 		): this;
-		public on(
-			event: "slashError",
-			listener: (error: Error, message: AkairoMessage, command: Command) => any
-		): this;
+		public on(event: "remove", listener: (command: Command) => any): this;
 		public on(
 			event: "slashBlocked",
-			listener: (
-				interaction: CommandInteraction,
-				command: Command,
-				type: "owner" | "superuser"
-			) => any
+			listener: (interaction: CommandInteraction, command: Command, type: "owner" | "superuser") => any
 		): this;
-		public on(
-			event: "slashStarted",
-			listener: (interaction: CommandInteraction, command: Command) => any
-		): this;
-		public on(
-			event: "slashNotFound",
-			listener: (interaction: CommandInteraction) => any
-		): this;
-		public on(
-			event: "slashGuildOnly",
-			listener: (interaction: CommandInteraction) => any
-		): this;
+		public on(event: "slashError", listener: (error: Error, message: AkairoMessage, command: Command) => any): this;
+		public on(event: "slashGuildOnly", listener: (interaction: CommandInteraction) => any): this;
 		public on(
 			event: "slashMissingPermissions",
-			listener: (
-				interaction: CommandInteraction,
-				command: Command,
-				type: "user" | "client",
-				missing?: any
-			) => any
+			listener: (interaction: CommandInteraction, command: Command, type: "user" | "client", missing?: any) => any
 		): this;
+		public on(event: "slashNotFound", listener: (interaction: CommandInteraction) => any): this;
+		public on(event: "slashStarted", listener: (interaction: CommandInteraction, command: Command) => any): this;
 	}
 
 	export class CommandUtil {
 		public constructor(handler: CommandHandler, message: Message);
 
-		public isSlash: boolean;
 		public handler: CommandHandler;
+		public isSlash: boolean;
 		public lastResponse?: Message;
 		public message: Message;
 		public messages?: Collection<Snowflake, Message>;
@@ -585,41 +425,21 @@ declare module "discord-akairo" {
 		public shouldEdit: boolean;
 
 		public addMessage(message: Message | Message[]): Message | Message[];
-		public edit(
-			content: string | MessageEditOptions | APIMessage
-		): Promise<Message>;
+		public edit(content: string | MessageEditOptions | APIMessage): Promise<Message>;
 		public reply(
-			options:
-				| string
-				| APIMessage
-				| (ReplyMessageOptions & { split?: false })
-				| InteractionReplyOptions
-		): Promise<Message>;
-		public reply(
-			options:
-				| APIMessage
-				| (ReplyMessageOptions & { split: true | SplitOptions })
-				| InteractionReplyOptions
+			options: APIMessage | (ReplyMessageOptions & { split: true | SplitOptions }) | InteractionReplyOptions
 		): Promise<Message[]>;
-		public send(
-			options:
-				| string
-				| APIMessage
-				| (MessageOptions & { split?: false })
-				| InteractionReplyOptions
+		public reply(
+			options: string | APIMessage | (ReplyMessageOptions & { split?: false }) | InteractionReplyOptions
 		): Promise<Message>;
 		public send(
-			options:
-				| APIMessage
-				| (MessageOptions & { split: true | SplitOptions })
-				| InteractionReplyOptions
+			options: APIMessage | (MessageOptions & { split: true | SplitOptions }) | InteractionReplyOptions
 		): Promise<Message[]>;
-		public sendNew(
-			options: string | APIMessage | (MessageOptions & { split?: false })
+		public send(
+			options: string | APIMessage | (MessageOptions & { split?: false }) | InteractionReplyOptions
 		): Promise<Message>;
-		public sendNew(
-			options: APIMessage | (MessageOptions & { split: true | SplitOptions })
-		): Promise<Message[]>;
+		public sendNew(options: APIMessage | (MessageOptions & { split: true | SplitOptions })): Promise<Message[]>;
+		public sendNew(options: string | APIMessage | (MessageOptions & { split?: false })): Promise<Message>;
 		public setEditable(state: boolean): this;
 		public setLastResponse(message: Message | Message[]): Message;
 	}
@@ -635,18 +455,12 @@ declare module "discord-akairo" {
 			ignore?: boolean,
 			rest?: string
 		): Flag & { command: string; ignore: boolean; rest: string };
-		public static retry(message: Message): Flag & { message: Message };
 		public static fail(value: any): Flag & { value: any };
+		public static retry(message: Message): Flag & { message: Message };
 		public static is(value: any, type: "cancel"): value is Flag;
-		public static is(
-			value: any,
-			type: "continue"
-		): value is Flag & { command: string; ignore: boolean; rest: string };
-		public static is(
-			value: any,
-			type: "retry"
-		): value is Flag & { message: Message };
+		public static is(value: any, type: "continue"): value is Flag & { command: string; ignore: boolean; rest: string };
 		public static is(value: any, type: "fail"): value is Flag & { value: any };
+		public static is(value: any, type: "retry"): value is Flag & { message: Message };
 		public static is(value: any, type: string): value is Flag;
 	}
 
@@ -661,10 +475,7 @@ declare module "discord-akairo" {
 		public reason: string;
 		public type: string;
 
-		public exec(
-			message: Message,
-			command?: Command
-		): boolean | Promise<boolean>;
+		public exec(message: Message, command?: Command): boolean | Promise<boolean>;
 		public reload(): this;
 		public remove(): this;
 	}
@@ -687,16 +498,9 @@ declare module "discord-akairo" {
 		public reloadAll(): this;
 		public remove(id: string): Inhibitor;
 		public removeAll(): this;
-		public test(
-			type: "all" | "pre" | "post",
-			message: Message,
-			command?: Command
-		): Promise<string | void>;
+		public test(type: "all" | "pre" | "post", message: Message, command?: Command): Promise<string | void>;
 		public on(event: "remove", listener: (inhibitor: Inhibitor) => any): this;
-		public on(
-			event: "load",
-			listener: (inhibitor: Inhibitor, isReload: boolean) => any
-		): this;
+		public on(event: "load", listener: (inhibitor: Inhibitor, isReload: boolean) => any): this;
 	}
 
 	export class Listener extends AkairoModule {
@@ -739,10 +543,7 @@ declare module "discord-akairo" {
 		public removeFromEmitter(id: string): Listener;
 		public setEmitters(emitters: { [x: string]: EventEmitter }): void;
 		public on(event: "remove", listener: (listener: Listener) => any): this;
-		public on(
-			event: "load",
-			listener: (listener: Listener, isReload: boolean) => any
-		): this;
+		public on(event: "load", listener: (listener: Listener, isReload: boolean) => any): this;
 	}
 
 	export class Task extends AkairoModule {
@@ -781,13 +582,10 @@ declare module "discord-akairo" {
 		public reload(id: string): Task;
 		public reloadAll(): this;
 		public remove(id: string): Task;
-		public startAll(): void;
 		public removeAll(): this;
+		public startAll(): void;
+		public on(event: "load", task: (task: Task, isReload: boolean) => any): this;
 		public on(event: "remove", task: (task: Task) => any): this;
-		public on(
-			event: "load",
-			task: (task: Task, isReload: boolean) => any
-		): this;
 	}
 
 	export class TypeResolver {
@@ -836,13 +634,13 @@ declare module "discord-akairo" {
 	export interface ArgumentOptions {
 		default?: DefaultValueSupplier | any;
 		description?: string | any | any[];
+		flag?: string | string[];
 		id?: string;
 		index?: number;
 		limit?: number;
 		match?: ArgumentMatch;
 		modifyOtherwise?: OtherwiseContentModifier;
 		multipleFlags?: boolean;
-		flag?: string | string[];
 		otherwise?: string | APIMessage | MessageOptions | OtherwiseContentSupplier;
 		prompt?: ArgumentPromptOptions | boolean;
 		type?: ArgumentType | ArgumentTypeCaster;
@@ -890,8 +688,11 @@ declare module "discord-akairo" {
 	}
 
 	export interface SlashCommandOptions {
-		name: string;
+		choices?: SlashCommandsChoicesOptions[];
 		description: string;
+		name: string;
+		options?: SlashCommandOptions[];
+		required?: boolean;
 		type:
 			| "MENTIONABLE"
 			| "ROLE"
@@ -902,24 +703,15 @@ declare module "discord-akairo" {
 			| "STRING"
 			| "SUB_COMMAND_GROUP"
 			| "SUB_COMMAND";
-		options?: SlashCommandOptions[];
-		choices?: SlashCommandsChoicesOptions[];
-		required?: boolean;
 	}
 
 	export interface CommandOptions extends AkairoModuleOptions {
-		slash?: boolean;
-		slashEphemeral?: boolean;
-		slashGuilds?: string[];
 		aliases?: string[];
 		args?: ArgumentOptions[] | ArgumentGenerator;
 		argumentDefaults?: DefaultArgumentOptions;
 		before?: BeforeAction;
 		channel?: "guild" | "dm";
-		clientPermissions?:
-			| PermissionResolvable
-			| PermissionResolvable[]
-			| MissingPermissionSupplier;
+		clientPermissions?: PermissionResolvable | PermissionResolvable[] | MissingPermissionSupplier;
 		condition?: ExecutionPredicate;
 		cooldown?: number;
 		description?: string | any | any[];
@@ -928,27 +720,29 @@ declare module "discord-akairo" {
 		ignoreCooldown?: Snowflake | Snowflake[] | IgnoreCheckPredicate;
 		ignorePermissions?: Snowflake | Snowflake[] | IgnoreCheckPredicate;
 		lock?: KeySupplier | "guild" | "channel" | "user";
+		onlyNsfw?: boolean;
 		optionFlags?: string[];
-		slashOptions?: SlashCommandOptions[];
 		ownerOnly?: boolean;
-		superUserOnly?: boolean;
 		prefix?: string | string[] | PrefixSupplier;
+		quoted?: boolean;
 		ratelimit?: number;
 		regex?: RegExp | RegexSupplier;
 		separator?: string;
+		slash?: boolean;
+		slashEphemeral?: boolean;
+		slashGuilds?: string[];
+		slashOptions?: SlashCommandOptions[];
+		superUserOnly?: boolean;
 		typing?: boolean;
-		userPermissions?:
-			| PermissionResolvable
-			| PermissionResolvable[]
-			| MissingPermissionSupplier;
-		quoted?: boolean;
-		onlyNsfw?: boolean;
+		userPermissions?: PermissionResolvable | PermissionResolvable[] | MissingPermissionSupplier;
 	}
 
 	export interface CommandHandlerOptions extends AkairoHandlerOptions {
 		aliasReplacement?: RegExp;
 		allowMention?: boolean | MentionPrefixPredicate;
 		argumentDefaults?: DefaultArgumentOptions;
+		autoDefer?: boolean;
+		autoRegisterSlashCommands?: boolean;
 		blockBots?: boolean;
 		blockClient?: boolean;
 		commandUtil?: boolean;
@@ -961,9 +755,7 @@ declare module "discord-akairo" {
 		ignorePermissions?: Snowflake | Snowflake[] | IgnoreCheckPredicate;
 		prefix?: string | string[] | PrefixSupplier;
 		storeMessages?: boolean;
-		autoDefer?: boolean;
 		typing?: boolean;
-		autoRegisterSlashCommands?: boolean;
 	}
 
 	export interface ContentParserResult {
@@ -1101,77 +893,45 @@ declare module "discord-akairo" {
 
 	export type BeforeAction = (message: Message) => any;
 
-	export type DefaultValueSupplier = (
-		message: Message,
-		data: FailureData
-	) => any;
+	export type DefaultValueSupplier = (message: Message, data: FailureData) => any;
 
 	export type ExecutionPredicate = (message: Message) => boolean;
 
-	export type IgnoreCheckPredicate = (
-		message: Message,
-		command: Command
-	) => boolean;
+	export type IgnoreCheckPredicate = (message: Message, command: Command) => boolean;
 
 	export type KeySupplier = (message: Message, args: any) => string;
 
 	export type LoadPredicate = (filepath: string) => boolean;
 
-	export type MentionPrefixPredicate = (
-		message: Message
-	) => boolean | Promise<boolean>;
+	export type MentionPrefixPredicate = (message: Message) => boolean | Promise<boolean>;
 
-	export type MissingPermissionSupplier = (
-		message: Message
-	) => Promise<any> | any;
+	export type MissingPermissionSupplier = (message: Message) => Promise<any> | any;
 
 	export type OtherwiseContentModifier = (
 		message: Message,
 		text: string,
 		data: FailureData
-	) =>
-		| string
-		| MessageOptions
-		| APIMessage
-		| Promise<string | MessageOptions | APIMessage>;
+	) => string | MessageOptions | APIMessage | Promise<string | MessageOptions | APIMessage>;
 
 	export type OtherwiseContentSupplier = (
 		message: Message,
 		data: FailureData
-	) =>
-		| string
-		| MessageOptions
-		| APIMessage
-		| Promise<string | MessageOptions | APIMessage>;
+	) => string | MessageOptions | APIMessage | Promise<string | MessageOptions | APIMessage>;
 
-	export type ParsedValuePredicate = (
-		message: Message,
-		phrase: string,
-		value: any
-	) => boolean;
+	export type ParsedValuePredicate = (message: Message, phrase: string, value: any) => boolean;
 
-	export type PrefixSupplier = (
-		message: Message
-	) => string | string[] | Promise<string | string[]>;
+	export type PrefixSupplier = (message: Message) => string | string[] | Promise<string | string[]>;
 
 	export type PromptContentModifier = (
 		message: Message,
 		text: string,
 		data: ArgumentPromptData
-	) =>
-		| string
-		| MessageOptions
-		| APIMessage
-		| Promise<string | MessageOptions | APIMessage>;
+	) => string | MessageOptions | APIMessage | Promise<string | MessageOptions | APIMessage>;
 
 	export type PromptContentSupplier = (
 		message: Message,
 		data: ArgumentPromptData
-	) =>
-		| string
-		| MessageOptions
-		| APIMessage
-		| Promise<string | MessageOptions | APIMessage>;
+	) => string | MessageOptions | APIMessage | Promise<string | MessageOptions | APIMessage>;
 
 	export type RegexSupplier = (message: Message) => RegExp;
 

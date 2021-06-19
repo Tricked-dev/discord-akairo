@@ -4,20 +4,10 @@ const Task = require("./Task");
 class TaskHandler extends AkairoHandler {
 	constructor(
 		client,
-		{
-			directory,
-			classToHandle = Task,
-			extensions = [".js", ".ts"],
-			automateCategories,
-			loadFilter
-		} = {}
+		{ directory, classToHandle = Task, extensions = [".js", ".ts"], automateCategories, loadFilter } = {}
 	) {
 		if (!(classToHandle.prototype instanceof Task || classToHandle === Task)) {
-			throw new AkairoError(
-				"INVALID_CLASS_TO_HANDLE",
-				classToHandle.name,
-				Task.name
-			);
+			throw new AkairoError("INVALID_CLASS_TO_HANDLE", classToHandle.name, Task.name);
 		}
 
 		super(client, {

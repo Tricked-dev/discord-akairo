@@ -64,9 +64,7 @@ class Command extends AkairoModule {
 
 		this.argumentRunner = new ArgumentRunner(this);
 		this.argumentGenerator = Array.isArray(args)
-			? ArgumentRunner.fromArguments(
-					args.map(arg => [arg.id, new Argument(this, arg)])
-			  )
+			? ArgumentRunner.fromArguments(args.map(arg => [arg.id, new Argument(this, arg)]))
 			: args.bind(this);
 
 		/**
@@ -127,9 +125,7 @@ class Command extends AkairoModule {
 		 * Description of the command.
 		 * @type {string|any}
 		 */
-		this.description = Array.isArray(description)
-			? description.join("\n")
-			: description;
+		this.description = Array.isArray(description) ? description.join("\n") : description;
 
 		/**
 		 * Command prefix overwrite.
@@ -141,19 +137,13 @@ class Command extends AkairoModule {
 		 * Permissions required to run command by the client.
 		 * @type {PermissionResolvable|PermissionResolvable[]|MissingPermissionSupplier}
 		 */
-		this.clientPermissions =
-			typeof clientPermissions === "function"
-				? clientPermissions.bind(this)
-				: clientPermissions;
+		this.clientPermissions = typeof clientPermissions === "function" ? clientPermissions.bind(this) : clientPermissions;
 
 		/**
 		 * Permissions required to run command by the user.
 		 * @type {PermissionResolvable|PermissionResolvable[]|MissingPermissionSupplier}
 		 */
-		this.userPermissions =
-			typeof userPermissions === "function"
-				? userPermissions.bind(this)
-				: userPermissions;
+		this.userPermissions = typeof userPermissions === "function" ? userPermissions.bind(this) : userPermissions;
 
 		/**
 		 * The regex trigger for this command.
@@ -203,19 +193,13 @@ class Command extends AkairoModule {
 		 * ID of user(s) to ignore cooldown or a function to ignore.
 		 * @type {?Snowflake|Snowflake[]|IgnoreCheckPredicate}
 		 */
-		this.ignoreCooldown =
-			typeof ignoreCooldown === "function"
-				? ignoreCooldown.bind(this)
-				: ignoreCooldown;
+		this.ignoreCooldown = typeof ignoreCooldown === "function" ? ignoreCooldown.bind(this) : ignoreCooldown;
 
 		/**
 		 * ID of user(s) to ignore `userPermissions` checks or a function to ignore.
 		 * @type {?Snowflake|Snowflake[]|IgnoreCheckPredicate}
 		 */
-		this.ignorePermissions =
-			typeof ignorePermissions === "function"
-				? ignorePermissions.bind(this)
-				: ignorePermissions;
+		this.ignorePermissions = typeof ignorePermissions === "function" ? ignorePermissions.bind(this) : ignorePermissions;
 
 		/**
 		 * Option for using slash command

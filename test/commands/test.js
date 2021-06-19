@@ -16,10 +16,7 @@ class TestCommand extends Command {
 				{
 					id: "x",
 					match: "rest",
-					type: compose(
-						(m, s) => s.replace(/\s/g, ""),
-						range(union("integer", "emojint"), 0, 50)
-					)
+					type: compose((m, s) => s.replace(/\s/g, ""), range(union("integer", "emojint"), 0, 50))
 				}
 			]
 		});

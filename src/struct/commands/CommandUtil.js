@@ -105,8 +105,7 @@ class CommandUtil {
 	 */
 	// eslint-disable-next-line consistent-return
 	async send(options) {
-		const hasFiles =
-			options.files?.length > 0 || options.embed?.files?.length > 0;
+		const hasFiles = options.files?.length > 0 || options.embed?.files?.length > 0;
 
 		let newOptions = {};
 		if (typeof options === "string") {
@@ -116,12 +115,7 @@ class CommandUtil {
 		}
 		if (!this.isSlash) {
 			delete options.ephemeral;
-			if (
-				this.shouldEdit &&
-				!hasFiles &&
-				!this.lastResponse.deleted &&
-				!this.lastResponse.attachments.size
-			) {
+			if (this.shouldEdit && !hasFiles && !this.lastResponse.deleted && !this.lastResponse.attachments.size) {
 				return this.lastResponse.edit(options);
 			}
 			const sent = await this.message.channel.send(options);
@@ -130,11 +124,7 @@ class CommandUtil {
 			return sent;
 		} else {
 			delete options.reply;
-			if (
-				this.lastResponse ||
-				this.message.interaction.deferred ||
-				this.message.interaction.replied
-			) {
+			if (this.lastResponse || this.message.interaction.deferred || this.message.interaction.replied) {
 				await this.message.interaction.editReply(options);
 				this.lastResponse = await this.message.interaction.fetchReply();
 				return this.lastResponse;
@@ -173,12 +163,7 @@ class CommandUtil {
 			newOptions = options;
 		}
 
-		if (
-			!this.isSlash &&
-			!this.shouldEdit &&
-			!(newOptions instanceof APIMessage) &&
-			!this.message.deleted
-		) {
+		if (!this.isSlash && !this.shouldEdit && !(newOptions instanceof APIMessage) && !this.message.deleted) {
 			newOptions.reply = {
 				messageReference: this.message,
 				failIfNotExists: newOptions.failIfNotExists ?? true

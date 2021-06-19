@@ -81,7 +81,7 @@ module.exports = {
 		SLASH_ERROR: "slashError",
 		SLASH_MISSING_PERMISSIONS: "slashMissingPermissions",
 		SLASH_STARTED: "slashStarted",
-		SLASH_NOT_FOUND: "slashNotFound",
+		SLASH_NOT_FOUND: "slashNotFound"
 	},
 	BuiltInReasons: {
 		CLIENT: "client",
