@@ -47,8 +47,8 @@ const { ArgumentMatches } = require("../../util/Constants");
  *
  * FlagWord = Given
  * OptionFlagWord = Given
- * Seperator = Given
- * Word = /^\S+/ (and not in FlagWord or OptionFlagWord or equal to Seperator)
+ * Separator = Given
+ * Word = /^\S+/ (and not in FlagWord or OptionFlagWord or equal to Separator)
  * WS = /^\s+/
  * EOF = /^$/
  */
