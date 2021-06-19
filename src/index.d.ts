@@ -586,33 +586,33 @@ declare module "discord-akairo" {
 		public addMessage(message: Message | Message[]): Message | Message[];
 		public edit(
 			content: string | MessageEditOptions | APIMessage
-		): Promise<Message | RawMessage>;
+		): Promise<Message>;
 		public reply(
 			options:
 				| string
 				| APIMessage
 				| (ReplyMessageOptions & { split?: false })
 				| InteractionReplyOptions
-		): Promise<Message | RawMessage>;
+		): Promise<Message>;
 		public reply(
 			options:
 				| APIMessage
 				| (ReplyMessageOptions & { split: true | SplitOptions })
 				| InteractionReplyOptions
-		): Promise<Message[] | RawMessage[]>;
+		): Promise<Message[]>;
 		public send(
 			options:
 				| string
 				| APIMessage
 				| (MessageOptions & { split?: false })
 				| InteractionReplyOptions
-		): Promise<Message | RawMessage>;
+		): Promise<Message>;
 		public send(
 			options:
 				| APIMessage
 				| (MessageOptions & { split: true | SplitOptions })
 				| InteractionReplyOptions
-		): Promise<Message[] | RawMessage[]>;
+		): Promise<Message[]>;
 		public sendNew(
 			options: string | APIMessage | (MessageOptions & { split?: false })
 		): Promise<Message>;
