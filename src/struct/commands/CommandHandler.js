@@ -612,7 +612,7 @@ class CommandHandler extends AkairoHandler {
 				this.commandUtils.set(message.id, message.util);
 			}
 		}
-		
+
 		const before = command.before(message);
 		if (isPromise(before)) await before;
 
