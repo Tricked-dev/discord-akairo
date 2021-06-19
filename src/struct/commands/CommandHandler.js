@@ -535,9 +535,6 @@ class CommandHandler extends AkairoHandler {
 
 		const command = this.findCommand(interaction.commandName);
 
-		const before = command.before(message);
-		if (isPromise(before)) await before;
-
 		if (!command) {
 			this.emit("slashNotFound", interaction);
 			return false;
@@ -615,6 +612,9 @@ class CommandHandler extends AkairoHandler {
 				this.commandUtils.set(message.id, message.util);
 			}
 		}
+		
+		const before = command.before(message);
+		if (isPromise(before)) await before;
 
 		let parsed = await this.parseCommand(message);
 		if (!parsed.command) {
