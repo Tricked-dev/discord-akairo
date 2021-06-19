@@ -76,12 +76,18 @@ module.exports = {
 		MISSING_PERMISSIONS: "missingPermissions",
 		COOLDOWN: "cooldown",
 		IN_PROMPT: "inPrompt",
-		ERROR: "error"
+		ERROR: "error",
+		SLASH_BLOCKED: "slashCommandBlocked",
+		SLASH_ERROR: "slashError",
+		SLASH_MISSING_PERMISSIONS: "slashMissingPermissions",
+		SLASH_STARTED: "slashStarted",
+		SLASH_NOT_FOUND: "slashNotFound",
 	},
 	BuiltInReasons: {
 		CLIENT: "client",
 		BOT: "bot",
 		OWNER: "owner",
+		SUPER_USER: "superUser",
 		GUILD: "guild",
 		DM: "dm",
 		AUTHOR_NOT_FOUND: "authorNotFound"

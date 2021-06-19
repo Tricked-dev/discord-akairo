@@ -31,6 +31,12 @@ class AkairoMessage {
 		this.createdAt = interaction.createdAt;
 		this.createdTimestamp = interaction.createdTimestamp;
 	}
+
+	/**
+	 * Replies or edits the reply of the slash command.
+	 * @param {...any} options a
+	 * @returns {Promise<void>} a
+	 */
 	async reply(...options) {
 		if (options[0].embed) {
 			options[0].embeds = [options[0].embed];
@@ -49,6 +55,11 @@ class AkairoMessage {
 		this._message = await this.interaction.fetchReply();
 		return this._message;
 	}
+
+	/**
+	 * Deletes the reply to the command.
+	 * @returns {Promise<void>}
+	 */
 	delete() {
 		return this.interaction.deleteReply();
 	}

@@ -332,6 +332,7 @@ declare module "discord-akairo" {
 		public content: string;
 		public send(...options: any): Promise<Message>;
 		public reply(...options: any): Promise<Message>;
+		public delete(): Promise<void>
 	}
 	export class Command extends AkairoModule {
 		public constructor(id: string, options?: CommandOptions);

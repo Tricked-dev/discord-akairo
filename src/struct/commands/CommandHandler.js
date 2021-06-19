@@ -528,83 +528,66 @@ class CommandHandler extends AkairoHandler {
 	async handleSlash(interaction) {
 		if (!interaction.isCommand()) return false;
 
-		if (!interaction.guildID) {
-			this.emit("slashGuildOnly", interaction);
-			return false;
-		}
 		const before = command.before(message);
 		if (isPromise(before)) await before;
 
 		const command = this.findCommand(interaction.commandName);
 
 		if (!command) {
-			this.emit("slashNotFound", interaction);
+			this.emit(CommandHandlerEvents.SLASH_NOT_FOUND, interaction);
+			return false;
+		}
+
+		const message = new AkairoMessage(this.client, interaction, {
+			slash: true,
+			replied: this.autoDefer || command.slashEphemeral
+		});
+
+		if (
+			this.fetchMembers &&
+			message.guild &&
+			!message.member &&
+			!message.webhookID
+		) {
+			await message.guild.members.fetch(message.author);
+		}
+
+		if (command.channel === "guild" && !interaction.guildID) {
+			this.emit(
+				CommandHandlerEvents.SLASH_BLOCKED,
+				message,
+				command,
+				BuiltInReasons.GUILD
+			);
 			return false;
 		}
 
 		if (command.ownerOnly && !this.client.isOwner(interaction.user)) {
-			this.emit("slashBlocked", interaction, command, "owner");
+			this.emit(
+				CommandHandlerEvents.SLASH_BLOCKED,
+				message,
+				command,
+				BuiltInReasons.OWNER
+			);
 			return false;
 		}
 		if (command.superUserOnly && !this.client.isSuperUser(interaction.user)) {
-			this.emit("slashBlocked", interaction, command, "superuser");
+			this.emit(
+				CommandHandlerEvents.SLASH_BLOCKED,
+				message,
+				command,
+				BuiltInReasons.SUPER_USER
+			);
 			return false;
 		}
-		const userPermissions = interaction.channel
-			.permissionsFor(interaction.member)
-			.toArray();
 
-		if (command.userPermissions) {
-			const userMissingPermissions = command.userPermissions.filter(
-				p => !userPermissions.includes(p)
-			);
-			if (
-				command.userPermissions &&
-				command.userPermissions.length > 0 &&
-				userMissingPermissions.length > 0
-			) {
-				this.emit(
-					"slashMissingPermissions",
-					interaction,
-					command,
-					"user",
-					userMissingPermissions
-				);
-				return false;
-			}
-		}
-
-		const clientPermissions = interaction.channel
-			.permissionsFor(interaction.guild.me)
-			.toArray();
-
-		if (command.clientPermissions) {
-			const clientMissingPermissions = command.clientPermissions.filter(
-				p => !clientPermissions.includes(p)
-			);
-			if (
-				command.clientPermissions &&
-				command.clientPermissions.length > 0 &&
-				clientMissingPermissions.length > 0
-			) {
-				this.emit(
-					"slashMissingPermissions",
-					interaction,
-					command,
-					"client",
-					clientMissingPermissions
-				);
-				return false;
-			}
+		if (await this.runPermissionChecks(message, command, true)) {
+			return true;
 		}
 
 		if (this.runCooldowns(interaction, command)) {
 			return true;
 		}
-		const message = new AkairoMessage(this.client, interaction, {
-			slash: true,
-			replied: this.autoDefer || command.slashEphemeral
-		});
 
 		if (this.commandUtil) {
 			if (this.commandUtils.has(message.id)) {
@@ -968,9 +951,10 @@ class CommandHandler extends AkairoHandler {
 	 * Runs permission checks.
 	 * @param {Message} message - Message that called the command.
 	 * @param {Command} command - Command to cooldown.
+	 * @param {boolean} slash - Whether or not the command is a slash command.
 	 * @returns {Promise<boolean>}
 	 */
-	async runPermissionChecks(message, command) {
+	async runPermissionChecks(message, command, slash = false) {
 		if (command.clientPermissions) {
 			if (typeof command.clientPermissions === "function") {
 				let missing = command.clientPermissions(message);
@@ -978,7 +962,9 @@ class CommandHandler extends AkairoHandler {
 
 				if (missing != null) {
 					this.emit(
-						CommandHandlerEvents.MISSING_PERMISSIONS,
+						slash
+							? CommandHandlerEvents.SLASH_MISSING_PERMISSIONS
+							: CommandHandlerEvents.MISSING_PERMISSIONS,
 						message,
 						command,
 						"client",
@@ -992,7 +978,9 @@ class CommandHandler extends AkairoHandler {
 					.missing(command.clientPermissions);
 				if (missing.length) {
 					this.emit(
-						CommandHandlerEvents.MISSING_PERMISSIONS,
+						slash
+							? CommandHandlerEvents.SLASH_MISSING_PERMISSIONS
+							: CommandHandlerEvents.MISSING_PERMISSIONS,
 						message,
 						command,
 						"client",
@@ -1018,7 +1006,9 @@ class CommandHandler extends AkairoHandler {
 
 					if (missing != null) {
 						this.emit(
-							CommandHandlerEvents.MISSING_PERMISSIONS,
+							slash
+								? CommandHandlerEvents.SLASH_MISSING_PERMISSIONS
+								: CommandHandlerEvents.MISSING_PERMISSIONS,
 							message,
 							command,
 							"user",
@@ -1032,7 +1022,9 @@ class CommandHandler extends AkairoHandler {
 						.missing(command.userPermissions);
 					if (missing.length) {
 						this.emit(
-							CommandHandlerEvents.MISSING_PERMISSIONS,
+							slash
+								? CommandHandlerEvents.SLASH_MISSING_PERMISSIONS
+								: CommandHandlerEvents.MISSING_PERMISSIONS,
 							message,
 							command,
 							"user",
