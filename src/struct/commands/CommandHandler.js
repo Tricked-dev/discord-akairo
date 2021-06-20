@@ -1,7 +1,7 @@
 const AkairoError = require("../../util/AkairoError");
 const AkairoHandler = require("../AkairoHandler");
 const { BuiltInReasons, CommandHandlerEvents } = require("../../util/Constants");
-const { Collection, Message } = require("discord.js");
+const { Collection } = require("discord.js");
 const Command = require("./Command");
 const CommandUtil = require("./CommandUtil");
 const Flag = require("./Flag");
@@ -948,7 +948,7 @@ class CommandHandler extends AkairoHandler {
 	 * @returns {boolean}
 	 */
 	runCooldowns(message, command) {
-		const id = message instanceof Message ? message.author.id : message.user.id;
+		const id = message.author.id;
 		const ignorer = command.ignoreCooldown || this.ignoreCooldown;
 		const isIgnored = Array.isArray(ignorer)
 			? ignorer.includes(id)
