@@ -433,19 +433,19 @@ declare module "discord-akairo" {
 		public addMessage(message: Message | Message[]): Message | Message[];
 		public edit(content: string | MessageEditOptions | APIMessage): Promise<Message>;
 		public reply(
-			options: APIMessage | (ReplyMessageOptions & { split: true | SplitOptions }) | InteractionReplyOptions
-		): Promise<Message[]>;
-		public reply(
 			options: string | APIMessage | (ReplyMessageOptions & { split?: false }) | InteractionReplyOptions
 		): Promise<Message>;
-		public send(
-			options: APIMessage | (MessageOptions & { split: true | SplitOptions }) | InteractionReplyOptions
+		public reply(
+			options: APIMessage | (ReplyMessageOptions & { split: true | SplitOptions }) | InteractionReplyOptions
 		): Promise<Message[]>;
 		public send(
 			options: string | APIMessage | (MessageOptions & { split?: false }) | InteractionReplyOptions
 		): Promise<Message>;
-		public sendNew(options: APIMessage | (MessageOptions & { split: true | SplitOptions })): Promise<Message[]>;
+		public send(
+			options: APIMessage | (MessageOptions & { split: true | SplitOptions }) | InteractionReplyOptions
+		): Promise<Message[]>;
 		public sendNew(options: string | APIMessage | (MessageOptions & { split?: false })): Promise<Message>;
+		public sendNew(options: APIMessage | (MessageOptions & { split: true | SplitOptions })): Promise<Message[]>;
 		public setEditable(state: boolean): this;
 		public setLastResponse(message: Message | Message[]): Message;
 	}
