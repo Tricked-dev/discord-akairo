@@ -387,30 +387,36 @@ declare module "discord-akairo" {
 			event: "commandFinished",
 			listener: (message: Message, command: Command, args: any, returnValue: any) => any
 		): this;
+		public on(event: "commandInvalid", listener: (message: Message, command: Command) => any): this;
 		public on(event: "commandLocked", listener: (message: Message, command: Command) => any): this;
+		public on(event: "commandLockedNsfw", listener: (message: Message, command: Command) => any): this;
 		public on(event: "commandStarted", listener: (message: Message, command: Command, args: any) => any): this;
 		public on(event: "cooldown", listener: (message: Message, command: Command, remaining: number) => any): this;
 		public on(event: "error", listener: (error: Error, message: Message, command?: Command) => any): this;
 		public on(event: "inPrompt" | "messageInvalid", listener: (message: Message) => any): this;
 		public on(event: "load", listener: (command: Command, isReload: boolean) => any): this;
 		public on(event: "messageBlocked", listener: (message: Message, reason: string) => any): this;
+		public on(event: "messageInvalid", listener: (message: Message) => any): this;
 		public on(
 			event: "missingPermissions",
 			listener: (message: Message, command: Command, type: "client" | "user", missing?: any) => any
 		): this;
 		public on(event: "remove", listener: (command: Command) => any): this;
-		public on(
-			event: "slashBlocked",
-			listener: (interaction: CommandInteraction, command: Command, type: "owner" | "superuser") => any
-		): this;
+		public on(event: "slashBlocked", listener: (message: AkairoMessage, command: Command, reason: string) => any): this;
 		public on(event: "slashError", listener: (error: Error, message: AkairoMessage, command: Command) => any): this;
-		public on(event: "slashGuildOnly", listener: (interaction: CommandInteraction) => any): this;
+		public on(
+			event: "slashFinished",
+			listener: (message: AkairoMessage, command: Command, args: any, returnValue: any) => any
+		): this;
 		public on(
 			event: "slashMissingPermissions",
 			listener: (interaction: CommandInteraction, command: Command, type: "user" | "client", missing?: any) => any
 		): this;
 		public on(event: "slashNotFound", listener: (interaction: CommandInteraction) => any): this;
-		public on(event: "slashStarted", listener: (interaction: CommandInteraction, command: Command) => any): this;
+		public on(
+			event: "slashStarted",
+			listener: (interaction: CommandInteraction, command: Command, args: any) => any
+		): this;
 	}
 
 	export class CommandUtil {
@@ -1007,23 +1013,27 @@ declare module "discord-akairo" {
 			COMMAND_FINISHED: "commandFinished";
 			COMMAND_CANCELLED: "commandCancelled";
 			COMMAND_LOCKED: "commandLocked";
+			COMMAND_INVALID: "commandInvalid";
+			COMMAND_LOCKED_NSFW: "commandLockedNsfw";
 			MISSING_PERMISSIONS: "missingPermissions";
 			COOLDOWN: "cooldown";
 			IN_PROMPT: "inPrompt";
 			ERROR: "error";
 			SLASH_ERROR: "slashError";
-			SLASH_BLOCKED: "slashBlocked";
+			SLASH_BLOCKED: "slashCommandBlocked";
 			SLASH_STARTED: "slashStarted";
+			SLASH_FINISHED: "slashFinished";
 			SLASH_NOT_FOUND: "slashNotFound";
-			SLASH_GUILD_ONLY: "slashGuildOnly";
 			SLASH_MISSING_PERMISSIONS: "slashMissingPermissions";
 		};
 		BuiltInReasons: {
 			CLIENT: "client";
 			BOT: "bot";
 			OWNER: "owner";
+			SUPER_USER: "superUser";
 			GUILD: "guild";
 			DM: "dm";
+			AUTHOR_NOT_FOUND: "authorNotFound";
 		};
 	};
 

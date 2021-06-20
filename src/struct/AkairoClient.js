@@ -51,7 +51,9 @@ class AkairoClient extends Client {
 	 */
 	isSuperUser(user) {
 		const id = this.users.resolveID(user);
-		return Array.isArray(this.superUserID) ? this.superUserID.includes(id) : id === this.superUserID;
+		return Array.isArray(this.superUserID)
+			? this.superUserID.includes(id) || this.ownerID.includes(id)
+			: id === this.superUserID || id === this.ownerID;
 	}
 }
 

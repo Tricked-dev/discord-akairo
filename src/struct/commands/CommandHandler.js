@@ -478,9 +478,6 @@ class CommandHandler extends AkairoHandler {
 	async handleSlash(interaction) {
 		if (!interaction.isCommand()) return false;
 
-		const before = command.before(message);
-		if (isPromise(before)) await before;
-
 		const command = this.findCommand(interaction.commandName);
 
 		if (!command) {
@@ -493,57 +490,44 @@ class CommandHandler extends AkairoHandler {
 			replied: this.autoDefer || command.slashEphemeral
 		});
 
-		if (this.fetchMembers && message.guild && !message.member && !message.webhookID) {
-			await message.guild.members.fetch(message.author);
-		}
-
-		if (command.channel === "guild" && !interaction.guildID) {
-			this.emit(CommandHandlerEvents.SLASH_BLOCKED, message, command, BuiltInReasons.GUILD);
-			return false;
-		}
-
-		if (command.ownerOnly && !this.client.isOwner(interaction.user)) {
-			this.emit(CommandHandlerEvents.SLASH_BLOCKED, message, command, BuiltInReasons.OWNER);
-			return false;
-		}
-		if (command.superUserOnly && !this.client.isSuperUser(interaction.user)) {
-			this.emit(CommandHandlerEvents.SLASH_BLOCKED, message, command, BuiltInReasons.SUPER_USER);
-			return false;
-		}
-
-		if (await this.runPermissionChecks(message, command, true)) {
-			return true;
-		}
-
-		if (this.runCooldowns(interaction, command)) {
-			return true;
-		}
-
-		if (this.commandUtil) {
-			if (this.commandUtils.has(message.id)) {
-				message.util = this.commandUtils.get(message.id);
-			} else {
-				message.util = new CommandUtil(this, message);
-				this.commandUtils.set(message.id, message.util);
-			}
-		}
-
-		let parsed = await this.parseCommand(message);
-		if (!parsed.command) {
-			const overParsed = await this.parseCommandOverwrittenPrefixes(message);
-			if (overParsed.command || (parsed.prefix == null && overParsed.prefix != null)) {
-				parsed = overParsed;
-			}
-		}
-
-		if (this.commandUtil) {
-			message.util.parsed = parsed;
-		}
-
 		try {
-			if (this.autoDefer || command.slashEphemeral) {
-				await interaction.defer(command.slashEphemeral);
+			if (this.fetchMembers && message.guild && !message.member && !message.webhookID) {
+				await message.guild.members.fetch(message.author);
 			}
+
+			if (await this.runAllTypeInhibitors(message)) {
+				return false;
+			}
+
+			if (this.commandUtil) {
+				if (this.commandUtils.has(message.id)) {
+					message.util = this.commandUtils.get(message.id);
+				} else {
+					message.util = new CommandUtil(this, message);
+					this.commandUtils.set(message.id, message.util);
+				}
+			}
+
+			if (await this.runPreTypeInhibitors(message)) {
+				return false;
+			}
+
+			let parsed = await this.parseCommand(message);
+			if (!parsed.command) {
+				const overParsed = await this.parseCommandOverwrittenPrefixes(message);
+				if (overParsed.command || (parsed.prefix == null && overParsed.prefix != null)) {
+					parsed = overParsed;
+				}
+			}
+
+			if (this.commandUtil) {
+				message.util.parsed = parsed;
+			}
+
+			if (await this.runPostTypeInhibitors(message, command)) {
+				return false;
+			}
+
 			const convertedOptions = {};
 			for (const option of interaction.options.values()) {
 				if (option.member) convertedOptions[option.name] = option.member;
@@ -551,15 +535,44 @@ class CommandHandler extends AkairoHandler {
 				else if (option.role) convertedOptions[option.name] = option.role;
 				else convertedOptions[option.name] = option.value;
 			}
-			this.emit("slashStarted", interaction, command);
 
-			if (command.execSlash || this.execSlash) await command.execSlash(message, convertedOptions);
-			else await command.exec(message, convertedOptions);
+			let key;
+			try {
+				if (command.lock) key = command.lock(message, convertedOptions);
+				if (isPromise(key)) key = await key;
+				if (key) {
+					if (command.locker.has(key)) {
+						key = null;
+						this.emit(CommandHandlerEvents.COMMAND_LOCKED, message, command);
+						return true;
+					}
+					command.locker.add(key);
+				}
+			} catch (err) {
+				this.emitError(err, message, command);
+			} finally {
+				if (key) command.locker.delete(key);
+			}
 
-			return true;
+			if (this.autoDefer || command.slashEphemeral) {
+				await interaction.defer(command.slashEphemeral);
+			}
+
+			try {
+				this.emit(CommandHandlerEvents.SLASH_STARTED, message, command, convertedOptions);
+				const ret =
+					command.execSlash || this.execSlash
+						? await command.execSlash(message, convertedOptions)
+						: await command.exec(message, convertedOptions);
+				this.emit(CommandHandlerEvents.SLASH_FINISHED, message, command, convertedOptions, ret);
+				return true;
+			} catch (err) {
+				this.emit(CommandHandlerEvents.SLASH_ERROR, err, message, command);
+				return false;
+			}
 		} catch (err) {
-			this.emit("slashError", err, message, command);
-			return false;
+			this.emitError(err, message);
+			return null;
 		}
 	}
 	/**
@@ -775,13 +788,19 @@ class CommandHandler extends AkairoHandler {
 	 * Runs inhibitors with the post type.
 	 * @param {Message} message - Message to handle.
 	 * @param {Command} command - Command to handle.
+	 * @param {boolean} slash - Whether or not the command should is a slash command.
 	 * @returns {Promise<boolean>}
 	 */
-	async runPostTypeInhibitors(message, command) {
+	async runPostTypeInhibitors(message, command, slash = false) {
 		if (command.ownerOnly) {
 			const isOwner = this.client.isOwner(message.author);
 			if (!isOwner) {
-				this.emit(CommandHandlerEvents.COMMAND_BLOCKED, message, command, BuiltInReasons.OWNER);
+				this.emit(
+					slash ? CommandHandlerEvents.SLASH_BLOCKED : CommandHandlerEvents.COMMAND_BLOCKED,
+					message,
+					command,
+					BuiltInReasons.OWNER
+				);
 				return true;
 			}
 		}
@@ -789,29 +808,49 @@ class CommandHandler extends AkairoHandler {
 		if (command.superUserOnly) {
 			const isSuperUser = this.client.isSuperUser(message.author);
 			if (!isSuperUser) {
-				this.emit(CommandHandlerEvents.COMMAND_BLOCKED, message, command, BuiltInReasons.OWNER);
+				this.emit(
+					slash ? CommandHandlerEvents.SLASH_BLOCKED : CommandHandlerEvents.COMMAND_BLOCKED,
+					message,
+					command,
+					BuiltInReasons.OWNER
+				);
 				return true;
 			}
 		}
 
 		if (command.channel === "guild" && !message.guild) {
-			this.emit(CommandHandlerEvents.COMMAND_BLOCKED, message, command, BuiltInReasons.GUILD);
+			this.emit(
+				slash ? CommandHandlerEvents.SLASH_BLOCKED : CommandHandlerEvents.COMMAND_BLOCKED,
+				message,
+				command,
+				BuiltInReasons.GUILD
+			);
 			return true;
 		}
 
 		if (command.channel === "dm" && message.guild) {
-			this.emit(CommandHandlerEvents.COMMAND_BLOCKED, message, command, BuiltInReasons.DM);
+			this.emit(
+				slash ? CommandHandlerEvents.SLASH_BLOCKED : CommandHandlerEvents.COMMAND_BLOCKED,
+				message,
+				command,
+				BuiltInReasons.DM
+			);
 			return true;
 		}
 
-		if (await this.runPermissionChecks(message, command)) {
+		if (await this.runPermissionChecks(message, command, slash)) {
 			return true;
 		}
 
 		const reason = this.inhibitorHandler ? await this.inhibitorHandler.test("post", message, command) : null;
 
 		if (reason != null) {
-			this.emit(CommandHandlerEvents.COMMAND_BLOCKED, message, command, reason);
+			this.emit(
+				slash ? CommandHandlerEvents.SLASH_BLOCKED : CommandHandlerEvents.COMMAND_BLOCKED,
+				message,
+				command,
+				reason
+			);
 			return true;
 		}
 
