@@ -7,14 +7,17 @@ declare module "discord-akairo" {
 		ClientOptions,
 		Collection,
 		CommandInteraction,
+		DMChannel,
 		Emoji,
 		Guild,
 		GuildMember,
+		InteractionReplyOptions,
 		Message,
 		MessageAttachment,
 		MessageEditOptions,
 		MessageEmbed,
 		MessageOptions,
+		NewsChannel,
 		PermissionResolvable,
 		ReplyMessageOptions,
 		Role,
@@ -22,8 +25,7 @@ declare module "discord-akairo" {
 		SplitOptions,
 		TextChannel,
 		User,
-		UserResolvable,
-		InteractionReplyOptions
+		UserResolvable
 	} from "discord.js";
 	import { EventEmitter } from "events";
 	import { Stream } from "stream";
@@ -247,13 +249,13 @@ declare module "discord-akairo" {
 
 		public _message: Message | null;
 		public author: User;
-		public channel: TextChannel;
+		public channel: TextChannel | DMChannel | NewsChannel;
 		public client: AkairoClient;
 		public content: string;
 		public createdAt: Date;
 		public createdTimestamp: number;
 		public guild: Guild;
-		public id: string;
+		public id: Snowflake;
 		public interaction: CommandInteraction;
 		public member: GuildMember;
 		public replied: boolean;
