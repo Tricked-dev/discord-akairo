@@ -300,6 +300,7 @@ declare module "discord-akairo" {
 		public before(message: Message): any;
 		public condition(message: Message): boolean;
 		public exec(message: Message, args: any): any;
+		public exec(message: Message | AkairoMessage, args: any): any;
 		public execSlash(message: AkairoMessage, args: any): any;
 		public parse(message: Message, content: string): Promise<Flag | any>;
 		public reload(): this;
@@ -412,13 +413,10 @@ declare module "discord-akairo" {
 		): this;
 		public on(
 			event: "slashMissingPermissions",
-			listener: (interaction: CommandInteraction, command: Command, type: "user" | "client", missing?: any) => any
+			listener: (message: AkairoMessage, command: Command, type: "user" | "client", missing?: any) => any
 		): this;
-		public on(event: "slashNotFound", listener: (interaction: CommandInteraction) => any): this;
-		public on(
-			event: "slashStarted",
-			listener: (interaction: CommandInteraction, command: Command, args: any) => any
-		): this;
+		public on(event: "slashNotFound", listener: (interaction: AkairoMessage) => any): this;
+		public on(event: "slashStarted", listener: (message: AkairoMessage, command: Command, args: any) => any): this;
 	}
 
 	export class CommandUtil {
