@@ -1122,7 +1122,12 @@ class CommandHandler extends AkairoHandler {
 		}
 
 		if (command.onlyNsfw && !message.channel.nsfw) {
-			this.emit(CommandHandlerEvents.COMMAND_BLOCKED, message, command, 'notNsfw');
+			this.emit(
+				CommandHandlerEvents.COMMAND_BLOCKED,
+				message,
+				command,
+				"notNsfw"
+			);
 			return;
 		}
 
