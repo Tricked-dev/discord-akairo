@@ -482,6 +482,7 @@ declare module "discord-akairo" {
 		public type: string;
 
 		public exec(message: Message, command?: Command): boolean | Promise<boolean>;
+		public exec(message: Message | AkairoMessage, command?: Command): boolean | Promise<boolean>;
 		public reload(): this;
 		public remove(): this;
 	}
