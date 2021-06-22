@@ -495,7 +495,7 @@ class CommandHandler extends AkairoHandler {
 				await message.guild.members.fetch(message.author);
 			}
 
-			if (await this.runAllTypeInhibitors(message)) {
+			if (await this.runAllTypeInhibitors(message, true)) {
 				return false;
 			}
 
@@ -745,9 +745,10 @@ class CommandHandler extends AkairoHandler {
 	/**
 	 * Runs inhibitors with the all type.
 	 * @param {Message} message - Message to handle.
+	 * @param {boolean} slash - Whether or not the command should is a slash command.
 	 * @returns {Promise<boolean>}
 	 */
-	async runAllTypeInhibitors(message) {
+	async runAllTypeInhibitors(message, slash = false) {
 		const reason = this.inhibitorHandler ? await this.inhibitorHandler.test("all", message) : null;
 
 		if (reason != null) {
@@ -758,7 +759,7 @@ class CommandHandler extends AkairoHandler {
 			this.emit(CommandHandlerEvents.MESSAGE_BLOCKED, message, BuiltInReasons.CLIENT);
 		} else if (this.blockBots && message.author.bot) {
 			this.emit(CommandHandlerEvents.MESSAGE_BLOCKED, message, BuiltInReasons.BOT);
-		} else if (this.hasPrompt(message.channel, message.author)) {
+		} else if (!slash && this.hasPrompt(message.channel, message.author)) {
 			this.emit(CommandHandlerEvents.IN_PROMPT, message);
 		} else {
 			return false;
