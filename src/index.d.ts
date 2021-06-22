@@ -249,7 +249,7 @@ declare module "discord-akairo" {
 
 		public _message: Message | null;
 		public author: User;
-		public channel: TextChannel | DMChannel | NewsChannel;
+		public channel: TextChannel | NewsChannel;
 		public client: AkairoClient;
 		public content: string;
 		public createdAt: Date;
