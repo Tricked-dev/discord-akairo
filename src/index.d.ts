@@ -2565,7 +2565,7 @@ declare module "discord-akairo" {
 		 * Can be 'all' to run on all messages, 'pre' to run on messages not blocked by the built-in inhibitors, or 'post' to run on messages that are commands.
 		 * Defaults to `post`
 		 */
-		type?: string;
+		type?: 'all'|'pre'|'post';
 
 		/**
 		 * Priority for the inhibitor for when more than one inhibitors block a message.
