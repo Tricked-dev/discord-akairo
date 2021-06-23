@@ -196,7 +196,7 @@ declare module "discord-akairo" {
 	 * @param id - ID of module.
 	 * @param options - Options.
 	 */
-	export abstract class AkairoModule {
+	export class AkairoModule {
 		public constructor(id: string, options?: AkairoModuleOptions);
 
 		/** Category this belongs to. */
@@ -765,7 +765,7 @@ declare module "discord-akairo" {
 	 * @param id - Command ID.
 	 * @param options - Options for the command.
 	 */
-	export abstract class Command extends AkairoModule {
+	export class Command extends AkairoModule {
 		public constructor(id: string, options?: CommandOptions);
 
 		/** Command names. */
@@ -872,15 +872,15 @@ declare module "discord-akairo" {
 		 * @param message - Message that triggered the command.
 		 * @param args - Evaluated arguments.
 		 */
-		public abstract exec(message: Message, args: any): any;
-		public abstract exec(message: Message | AkairoMessage, args: any): any;
+		public exec(message: Message, args: any): any;
+		public exec(message: Message | AkairoMessage, args: any): any;
 
 		/**
 		 * Execute the slash command
 		 * @param message - Message for slash command
 		 * @param args - Slash command options
 		 */
-		public abstract execSlash(message: AkairoMessage, args: any): any;
+		public execSlash(message: AkairoMessage, args: any): any;
 
 		/**
 		 * Parses content using the command's arguments.
@@ -1536,7 +1536,7 @@ declare module "discord-akairo" {
 	 * @param id - Inhibitor ID.
 	 * @param options - Options for the inhibitor.
 	 */
-	export abstract class Inhibitor extends AkairoModule {
+	export class Inhibitor extends AkairoModule {
 		public constructor(id: string, options?: InhibitorOptions);
 
 		/** The category the inhibitor belongs to. */
@@ -1567,8 +1567,8 @@ declare module "discord-akairo" {
 		 * @param message - Message being handled.
 		 * @param command - Command to check.
 		 */
-		public abstract exec(message: Message, command?: Command): boolean | Promise<boolean>;
-		public abstract exec(message: Message | AkairoMessage, command?: Command): boolean | Promise<boolean>;
+		public exec(message: Message, command?: Command): boolean | Promise<boolean>;
+		public exec(message: Message | AkairoMessage, command?: Command): boolean | Promise<boolean>;
 
 		/**
 		 * Reloads the inhibitor.
@@ -1686,7 +1686,7 @@ declare module "discord-akairo" {
 	 * @param id - Listener ID.
 	 * @param options - Options for the listener.
 	 */
-	export abstract class Listener extends AkairoModule {
+	export class Listener extends AkairoModule {
 		public constructor(id: string, options?: ListenerOptions);
 
 		/** The category of this listener. */
@@ -1714,7 +1714,7 @@ declare module "discord-akairo" {
 		 * Executes the listener.
 		 * @param args - Arguments.
 		 */
-		public abstract exec(...args: any[]): any;
+		public exec(...args: any[]): any;
 
 		/**
 		 * Reloads the listener.
@@ -1844,7 +1844,7 @@ declare module "discord-akairo" {
 	 * @param id - Task ID.
 	 * @param options - Options for the task.
 	 */
-	export abstract class Task extends AkairoModule {
+	export class Task extends AkairoModule {
 		public constructor(id: string, options?: TaskOptions);
 
 		/** The category of this task. */
@@ -1869,7 +1869,7 @@ declare module "discord-akairo" {
 		 * Executes the task.
 		 * @param args - Arguments.
 		 */
-		public abstract exec(...args: any[]): any;
+		public exec(...args: any[]): any;
 
 		/**
 		 * Reloads the task.
