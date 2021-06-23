@@ -6,7 +6,6 @@ class AkairoMessage {
 	 * @param {boolean} param2 - any
 	 */
 	constructor(client, interaction, { slash, replied }) {
-		this._message = null;
 		this.author = interaction.user;
 		this.channel = interaction.channel;
 		this.client = client;

@@ -3,7 +3,7 @@
 	"version": "8.2.2",
 	"description": "A highly customizable bot framework for Discord.js.",
 	"main": "./src/index.js",
-	"types": "./src/index.d.ts",
+	"types": "./src/typings/index.d.ts",
 	"author": "1Computer",
 	"license": "MIT",
 	"keywords": [
@@ -17,7 +17,6 @@
 		"commands",
 		"arguments"
 	],
-	"dependencies": {},
 	"devDependencies": {
 		"@types/node": "^10.14.4",
 		"discord-api-types": "^0.18.1",
@@ -27,7 +26,8 @@
 		"eslint-config-prettier": "^8.3.0",
 		"jsdoc": "^3.6.4",
 		"prettier": "^2.3.0",
-		"typescript": "^3.4.2"
+		"typescript": "^3.4.2",
+		"@discordjs/voice": "^0.5.0"
 	},
 	"scripts": {
 		"test": "yarn run lint",

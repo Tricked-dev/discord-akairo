@@ -79,7 +79,7 @@ class CommandHandler extends AkairoHandler {
 		this.resolver = new TypeResolver(this);
 
 		/**
-		 * Collecion of command aliases.
+		 * Collection of command aliases.
 		 * @type {Collection<string, string>}
 		 */
 		this.aliases = new Collection();
