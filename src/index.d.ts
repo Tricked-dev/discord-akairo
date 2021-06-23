@@ -2047,7 +2047,7 @@ declare module "discord-akairo" {
 		 * @param aKey - First prefix.
 		 * @param bKey - Second prefix.
 		 */
-		public static prefixCompare(aKey: any, bKey: any);
+		public static prefixCompare(aKey: any, bKey: any): any;
 
 		/**
 		 * Converts the supplied value into an array if it is not already one.
