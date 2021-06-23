@@ -1166,8 +1166,8 @@ declare module "discord-akairo" {
 		 * @param message - Message to handle.
 		 * @param slash - Whether or not the command should is a slash command.
 		 */
-		public runAllTypeInhibitors(message: Message, slash: boolean): Promise<boolean>;
-		public runAllTypeInhibitors(message: Message | AkairoMessage, slash: boolean): Promise<boolean>;
+		public runAllTypeInhibitors(message: Message, slash?: boolean): Promise<boolean>;
+		public runAllTypeInhibitors(message: Message | AkairoMessage, slash?: boolean): Promise<boolean>;
 
 		/**
 		 * Runs a command.
@@ -1191,8 +1191,8 @@ declare module "discord-akairo" {
 		 * @param command - Command to cooldown.
 		 * @param slash - Whether or not the command is a slash command.
 		 */
-		public runPermissionChecks(message: Message, command: Command, slash: boolean): Promise<boolean>;
-		public runPermissionChecks(message: Message | AkairoMessage, command: Command, slash: boolean): Promise<boolean>;
+		public runPermissionChecks(message: Message, command: Command, slash?: boolean): Promise<boolean>;
+		public runPermissionChecks(message: Message | AkairoMessage, command: Command, slash?: boolean): Promise<boolean>;
 
 		/**
 		 * Runs inhibitors with the post type.
