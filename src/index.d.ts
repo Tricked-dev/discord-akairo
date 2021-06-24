@@ -1,6 +1,7 @@
 declare module "discord-akairo" {
 	import {
 		APIMessage,
+		ApplicationCommandOptionType,
 		BufferResolvable,
 		Channel,
 		Client,
@@ -2341,16 +2342,7 @@ declare module "discord-akairo" {
 		required?: boolean;
 
 		/** The type of the argument. */
-		type:
-			| "MENTIONABLE"
-			| "ROLE"
-			| "CHANNEL"
-			| "USER"
-			| "BOOLEAN"
-			| "INTEGER"
-			| "STRING"
-			| "SUB_COMMAND_GROUP"
-			| "SUB_COMMAND";
+		type: ApplicationCommandOptionType;
 	}
 
 	/**
@@ -2567,7 +2559,7 @@ declare module "discord-akairo" {
 		 * Can be 'all' to run on all messages, 'pre' to run on messages not blocked by the built-in inhibitors, or 'post' to run on messages that are commands.
 		 * Defaults to `post`
 		 */
-		type?: 'all'|'pre'|'post';
+		type?: "all" | "pre" | "post";
 
 		/**
 		 * Priority for the inhibitor for when more than one inhibitors block a message.
@@ -3043,8 +3035,8 @@ declare module "discord-akairo" {
 		};
 	};
 
-	/** 
-	 * The version of Discord-Akairo. 
-	 */ 
+	/**
+	 * The version of Discord-Akairo.
+	 */
 	export const version: string;
 }
