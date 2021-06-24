@@ -25,7 +25,8 @@ declare module "discord-akairo" {
 		SplitOptions,
 		TextChannel,
 		User,
-		UserResolvable
+		UserResolvable,
+		ApplicationCommandOptionData
 	} from "discord.js";
 	import { EventEmitter } from "events";
 	import { Stream } from "stream";
@@ -847,7 +848,7 @@ declare module "discord-akairo" {
 		public slashGuilds?: string[];
 
 		/** Options for using the slash command. */
-		public slashOptions?: SlashCommandOptions[];
+		public slashOptions?: ApplicationCommandOptionData[];
 
 		/** Whether or not to allow client superUsers(s) only. */
 		public superUserOnly: boolean;
@@ -2425,7 +2426,7 @@ declare module "discord-akairo" {
 		slashGuilds?: string[];
 
 		/** Options for using the slash command. */
-		slashOptions?: SlashCommandOptions[];
+		slashOptions?: ApplicationCommandOptionData[];
 
 		/** Whether or not to allow client superUsers(s) only. */
 		superUserOnly?: boolean;
