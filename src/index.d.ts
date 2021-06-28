@@ -1,6 +1,6 @@
 declare module "discord-akairo" {
 	import {
-		APIMessage,
+		ApplicationCommandOptionData,
 		ApplicationCommandOptionType,
 		BufferResolvable,
 		Channel,
@@ -17,16 +17,16 @@ declare module "discord-akairo" {
 		MessageEditOptions,
 		MessageEmbed,
 		MessageOptions,
+		MessagePayload,
 		NewsChannel,
 		PermissionResolvable,
 		ReplyMessageOptions,
 		Role,
 		Snowflake,
-		SplitOptions,
 		TextChannel,
 		User,
 		UserResolvable,
-		ApplicationCommandOptionData
+		WebhookEditMessageOptions
 	} from "discord.js";
 	import { EventEmitter } from "events";
 	import { Stream } from "stream";
@@ -267,7 +267,7 @@ declare module "discord-akairo" {
 		public multipleFlags: boolean;
 
 		/** The content or function supplying the content sent when argument parsing fails. */
-		public otherwise?: string | APIMessage | MessageOptions | OtherwiseContentSupplier;
+		public otherwise?: string | MessagePayload | MessageOptions | OtherwiseContentSupplier;
 
 		/** The prompt options. */
 		public prompt?: ArgumentPromptOptions | boolean;
@@ -761,7 +761,7 @@ declare module "discord-akairo" {
 		 * Replies or edits the reply of the slash command.
 		 * @param options The options to edit the reply.
 		 */
-		public reply(options: string | APIMessage | InteractionReplyOptions): Promise<void>;
+		public reply(options: string | MessagePayload | InteractionReplyOptions): Promise<void>;
 	}
 
 	/**
@@ -1438,37 +1438,26 @@ declare module "discord-akairo" {
 		 * If the message is a slash command, edits the slash response.
 		 * @param options - Options to use.
 		 */
-		public edit(content: string | MessageEditOptions | APIMessage): Promise<Message>;
+		public edit(content: string | MessageEditOptions | WebhookEditMessageOptions | MessagePayload): Promise<Message>;
 
 		/**
 		 * Send an inline reply or respond to a slash command.
 		 * If the message is a slash command, it replies or edits the last reply.
 		 * @param options - Options to use.
 		 */
-		public reply(
-			options: string | APIMessage | (ReplyMessageOptions & { split?: false }) | InteractionReplyOptions
-		): Promise<Message>;
-		public reply(
-			options: APIMessage | (ReplyMessageOptions & { split: true | SplitOptions }) | InteractionReplyOptions
-		): Promise<Message[]>;
+		public reply(options: string | MessagePayload | ReplyMessageOptions | InteractionReplyOptions): Promise<Message>;
 
 		/**
 		 * Sends a response or edits an old response if available.
 		 * @param options - Options to use.
 		 */
-		public send(
-			options: string | APIMessage | (MessageOptions & { split?: false }) | InteractionReplyOptions
-		): Promise<Message>;
-		public send(
-			options: APIMessage | (MessageOptions & { split: true | SplitOptions }) | InteractionReplyOptions
-		): Promise<Message[]>;
+		public send(options: string | MessagePayload | MessageOptions | InteractionReplyOptions): Promise<Message>;
 
 		/**
 		 * Sends a response, overwriting the last response.
 		 * @param options - Options to use.
 		 */
-		public sendNew(options: string | APIMessage | (MessageOptions & { split?: false })): Promise<Message>;
-		public sendNew(options: APIMessage | (MessageOptions & { split: true | SplitOptions })): Promise<Message[]>;
+		public sendNew(options: string | MessagePayload | MessageOptions): Promise<Message>;
 
 		/**
 		 * Changes if the message should be edited.
@@ -2137,7 +2126,7 @@ declare module "discord-akairo" {
 		prompt?: ArgumentPromptOptions;
 
 		/** Default text sent if argument parsing fails. */
-		otherwise?: string | MessageOptions | APIMessage | OtherwiseContentSupplier;
+		otherwise?: string | MessagePayload | MessageOptions | OtherwiseContentSupplier;
 
 		/** Function to modify otherwise content. */
 		modifyOtherwise?: OtherwiseContentModifier;
@@ -2189,7 +2178,7 @@ declare module "discord-akairo" {
 		multipleFlags?: boolean;
 
 		/** Text sent if argument parsing fails. This overrides the `default` option and all prompt options. */
-		otherwise?: string | APIMessage | MessageOptions | OtherwiseContentSupplier;
+		otherwise?: string | MessagePayload | MessageOptions | OtherwiseContentSupplier;
 
 		/** Prompt options for when user does not provide input. */
 		prompt?: ArgumentPromptOptions | boolean;
@@ -2242,13 +2231,13 @@ declare module "discord-akairo" {
 		breakout?: boolean;
 
 		/** Text sent on cancellation of command. */
-		cancel?: string | MessageOptions | APIMessage | PromptContentSupplier;
+		cancel?: string | MessagePayload | MessageOptions | PromptContentSupplier;
 
 		/** Word to use for cancelling the command. Defaults to 'cancel'. */
 		cancelWord?: string;
 
 		/** Text sent on amount of tries reaching the max. */
-		ended?: string | MessageOptions | APIMessage | PromptContentSupplier;
+		ended?: string | MessagePayload | MessageOptions | PromptContentSupplier;
 
 		/**
 		 * Prompts forever until the stop word, cancel word, time limit, or retry limit.
@@ -2283,10 +2272,10 @@ declare module "discord-akairo" {
 		retries?: number;
 
 		/** Text sent on a retry (failure to cast type). */
-		retry?: string | MessageOptions | APIMessage | PromptContentSupplier;
+		retry?: string | MessagePayload | MessageOptions | PromptContentSupplier;
 
 		/** Text sent on start of prompt. */
-		start?: string | MessageOptions | APIMessage | PromptContentSupplier;
+		start?: string | MessagePayload | MessageOptions | PromptContentSupplier;
 
 		/** Word to use for ending infinite prompts. Defaults to 'stop'. */
 		stopWord?: string;
@@ -2295,7 +2284,7 @@ declare module "discord-akairo" {
 		time?: number;
 
 		/** Text sent on collector time out. */
-		timeout?: string | MessageOptions | APIMessage | PromptContentSupplier;
+		timeout?: string | MessagePayload | MessageOptions | PromptContentSupplier;
 	}
 
 	/**
@@ -2881,7 +2870,7 @@ declare module "discord-akairo" {
 		message: Message,
 		text: string,
 		data: FailureData
-	) => string | MessageOptions | APIMessage | Promise<string | MessageOptions | APIMessage>;
+	) => string | MessagePayload | MessageOptions | Promise<string | MessagePayload | MessageOptions>;
 
 	/**
 	 * A function returning the content if argument parsing fails.
@@ -2891,7 +2880,7 @@ declare module "discord-akairo" {
 	export type OtherwiseContentSupplier = (
 		message: Message,
 		data: FailureData
-	) => string | MessageOptions | APIMessage | Promise<string | MessageOptions | APIMessage>;
+	) => string | MessagePayload | MessageOptions | Promise<string | MessagePayload | MessageOptions>;
 
 	/**
 	 * A function for validating parsed arguments.
@@ -2917,7 +2906,7 @@ declare module "discord-akairo" {
 		message: Message,
 		text: string,
 		data: ArgumentPromptData
-	) => string | MessageOptions | APIMessage | Promise<string | MessageOptions | APIMessage>;
+	) => string | MessagePayload | MessageOptions | Promise<string | MessagePayload | MessageOptions>;
 
 	/**
 	 * A function returning text for the prompt.
@@ -2927,7 +2916,7 @@ declare module "discord-akairo" {
 	export type PromptContentSupplier = (
 		message: Message,
 		data: ArgumentPromptData
-	) => string | MessageOptions | APIMessage | Promise<string | MessageOptions | APIMessage>;
+	) => string | MessagePayload | MessageOptions | Promise<string | MessagePayload | MessageOptions>;
 
 	/**
 	 * A function used to return a regular expression.
