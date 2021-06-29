@@ -1,4 +1,9 @@
-const { Collection, MessageAttachment, MessageEmbed, Permissions } = require("discord.js");
+const {
+	Collection,
+	MessageAttachment,
+	MessageEmbed,
+	Permissions
+} = require("discord.js");
 
 /**
  * Client utilities to help with common tasks.
@@ -22,7 +27,10 @@ class ClientUtil {
 	 * @returns {User}
 	 */
 	resolveUser(text, users, caseSensitive = false, wholeWord = false) {
-		return users.get(text) || users.find(user => this.checkUser(text, user, caseSensitive, wholeWord));
+		return (
+			users.get(text) ||
+			users.find(user => this.checkUser(text, user, caseSensitive, wholeWord))
+		);
 	}
 
 	/**
@@ -34,7 +42,9 @@ class ClientUtil {
 	 * @returns {Collection<Snowflake, User>}
 	 */
 	resolveUsers(text, users, caseSensitive = false, wholeWord = false) {
-		return users.filter(user => this.checkUser(text, user, caseSensitive, wholeWord));
+		return users.filter(user =>
+			this.checkUser(text, user, caseSensitive, wholeWord)
+		);
 	}
 
 	/**
@@ -54,14 +64,23 @@ class ClientUtil {
 		if (match && user.id === match[1]) return true;
 
 		text = caseSensitive ? text : text.toLowerCase();
-		const username = caseSensitive ? user.username : user.username.toLowerCase();
+		const username = caseSensitive
+			? user.username
+			: user.username.toLowerCase();
 		const discrim = user.discriminator;
 
 		if (!wholeWord) {
-			return username.includes(text) || (username.includes(text.split("#")[0]) && discrim.includes(text.split("#")[1]));
+			return (
+				username.includes(text) ||
+				(username.includes(text.split("#")[0]) &&
+					discrim.includes(text.split("#")[1]))
+			);
 		}
 
-		return username === text || (username === text.split("#")[0] && discrim === text.split("#")[1]);
+		return (
+			username === text ||
+			(username === text.split("#")[0] && discrim === text.split("#")[1])
+		);
 	}
 
 	/**
@@ -73,7 +92,12 @@ class ClientUtil {
 	 * @returns {GuildMember}
 	 */
 	resolveMember(text, members, caseSensitive = false, wholeWord = false) {
-		return members.get(text) || members.find(member => this.checkMember(text, member, caseSensitive, wholeWord));
+		return (
+			members.get(text) ||
+			members.find(member =>
+				this.checkMember(text, member, caseSensitive, wholeWord)
+			)
+		);
 	}
 
 	/**
@@ -85,7 +109,9 @@ class ClientUtil {
 	 * @returns {Collection<Snowflake, GuildMember>}
 	 */
 	resolveMembers(text, members, caseSensitive = false, wholeWord = false) {
-		return members.filter(member => this.checkMember(text, member, caseSensitive, wholeWord));
+		return members.filter(member =>
+			this.checkMember(text, member, caseSensitive, wholeWord)
+		);
 	}
 
 	/**
@@ -105,15 +131,20 @@ class ClientUtil {
 		if (match && member.id === match[1]) return true;
 
 		text = caseSensitive ? text : text.toLowerCase();
-		const username = caseSensitive ? member.user.username : member.user.username.toLowerCase();
-		const displayName = caseSensitive ? member.displayName : member.displayName.toLowerCase();
+		const username = caseSensitive
+			? member.user.username
+			: member.user.username.toLowerCase();
+		const displayName = caseSensitive
+			? member.displayName
+			: member.displayName.toLowerCase();
 		const discrim = member.user.discriminator;
 
 		if (!wholeWord) {
 			return (
 				displayName.includes(text) ||
 				username.includes(text) ||
-				((username.includes(text.split("#")[0]) || displayName.includes(text.split("#")[0])) &&
+				((username.includes(text.split("#")[0]) ||
+					displayName.includes(text.split("#")[0])) &&
 					discrim.includes(text.split("#")[1]))
 			);
 		}
@@ -121,7 +152,9 @@ class ClientUtil {
 		return (
 			displayName === text ||
 			username === text ||
-			((username === text.split("#")[0] || displayName === text.split("#")[0]) && discrim === text.split("#")[1])
+			((username === text.split("#")[0] ||
+				displayName === text.split("#")[0]) &&
+				discrim === text.split("#")[1])
 		);
 	}
 
@@ -134,7 +167,12 @@ class ClientUtil {
 	 * @returns {Channel}
 	 */
 	resolveChannel(text, channels, caseSensitive = false, wholeWord = false) {
-		return channels.get(text) || channels.find(channel => this.checkChannel(text, channel, caseSensitive, wholeWord));
+		return (
+			channels.get(text) ||
+			channels.find(channel =>
+				this.checkChannel(text, channel, caseSensitive, wholeWord)
+			)
+		);
 	}
 
 	/**
@@ -146,7 +184,9 @@ class ClientUtil {
 	 * @returns {Collection<Snowflake, Channel>}
 	 */
 	resolveChannels(text, channels, caseSensitive = false, wholeWord = false) {
-		return channels.filter(channel => this.checkChannel(text, channel, caseSensitive, wholeWord));
+		return channels.filter(channel =>
+			this.checkChannel(text, channel, caseSensitive, wholeWord)
+		);
 	}
 
 	/**
@@ -184,7 +224,10 @@ class ClientUtil {
 	 * @returns {Role}
 	 */
 	resolveRole(text, roles, caseSensitive = false, wholeWord = false) {
-		return roles.get(text) || roles.find(role => this.checkRole(text, role, caseSensitive, wholeWord));
+		return (
+			roles.get(text) ||
+			roles.find(role => this.checkRole(text, role, caseSensitive, wholeWord))
+		);
 	}
 
 	/**
@@ -196,7 +239,9 @@ class ClientUtil {
 	 * @returns {Collection<Snowflake, Role>}
 	 */
 	resolveRoles(text, roles, caseSensitive = false, wholeWord = false) {
-		return roles.filter(role => this.checkRole(text, role, caseSensitive, wholeWord));
+		return roles.filter(role =>
+			this.checkRole(text, role, caseSensitive, wholeWord)
+		);
 	}
 
 	/**
@@ -234,7 +279,12 @@ class ClientUtil {
 	 * @returns {Emoji}
 	 */
 	resolveEmoji(text, emojis, caseSensitive = false, wholeWord = false) {
-		return emojis.get(text) || emojis.find(emoji => this.checkEmoji(text, emoji, caseSensitive, wholeWord));
+		return (
+			emojis.get(text) ||
+			emojis.find(emoji =>
+				this.checkEmoji(text, emoji, caseSensitive, wholeWord)
+			)
+		);
 	}
 
 	/**
@@ -246,7 +296,9 @@ class ClientUtil {
 	 * @returns {Collection<Snowflake, Emoji>}
 	 */
 	resolveEmojis(text, emojis, caseSensitive = false, wholeWord = false) {
-		return emojis.filter(emoji => this.checkEmoji(text, emoji, caseSensitive, wholeWord));
+		return emojis.filter(emoji =>
+			this.checkEmoji(text, emoji, caseSensitive, wholeWord)
+		);
 	}
 
 	/**
@@ -284,7 +336,12 @@ class ClientUtil {
 	 * @returns {Guild}
 	 */
 	resolveGuild(text, guilds, caseSensitive = false, wholeWord = false) {
-		return guilds.get(text) || guilds.find(guild => this.checkGuild(text, guild, caseSensitive, wholeWord));
+		return (
+			guilds.get(text) ||
+			guilds.find(guild =>
+				this.checkGuild(text, guild, caseSensitive, wholeWord)
+			)
+		);
 	}
 
 	/**
@@ -296,7 +353,9 @@ class ClientUtil {
 	 * @returns {Collection<Snowflake, Guild>}
 	 */
 	resolveGuilds(text, guilds, caseSensitive = false, wholeWord = false) {
-		return guilds.filter(guild => this.checkGuild(text, guild, caseSensitive, wholeWord));
+		return guilds.filter(guild =>
+			this.checkGuild(text, guild, caseSensitive, wholeWord)
+		);
 	}
 
 	/**
@@ -350,8 +409,12 @@ class ClientUtil {
 	 * @returns {number}
 	 */
 	compareStreaming(oldMember, newMember) {
-		const s1 = oldMember.presence.activity && oldMember.presence.activity.type === "STREAMING";
-		const s2 = newMember.presence.activity && newMember.presence.activity.type === "STREAMING";
+		const s1 =
+			oldMember.presence.activity &&
+			oldMember.presence.activity.type === "STREAMING";
+		const s2 =
+			newMember.presence.activity &&
+			newMember.presence.activity.type === "STREAMING";
 		if (s1 === s2) return 0;
 		if (s1) return 1;
 		if (s2) return 2;

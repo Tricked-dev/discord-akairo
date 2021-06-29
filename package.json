@@ -46,6 +46,6 @@
 		"useTabs": true,
 		"trailingComma": "none",
 		"arrowParens": "avoid",
-		"printWidth": 120
+		"printWidth": 80
 	}
 }

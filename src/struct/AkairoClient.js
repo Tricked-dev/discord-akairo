@@ -42,7 +42,9 @@ class AkairoClient extends Client {
 	 */
 	isOwner(user) {
 		const id = this.users.resolveID(user);
-		return Array.isArray(this.ownerID) ? this.ownerID.includes(id) : id === this.ownerID;
+		return Array.isArray(this.ownerID)
+			? this.ownerID.includes(id)
+			: id === this.ownerID;
 	}
 	/**
 	 * Checks if a user is the owner of this bot.

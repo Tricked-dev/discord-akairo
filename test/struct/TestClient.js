@@ -1,4 +1,10 @@
-const { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler, SQLiteProvider } = require("../../src/index");
+const {
+	AkairoClient,
+	CommandHandler,
+	InhibitorHandler,
+	ListenerHandler,
+	SQLiteProvider
+} = require("../../src/index");
 const sqlite = require("sqlite");
 
 class TestClient extends AkairoClient {
@@ -21,9 +27,11 @@ class TestClient extends AkairoClient {
 			argumentDefaults: {
 				prompt: {
 					start: "What is thing?",
-					modifyStart: (msg, text) => `${msg.author}, ${text}\nType \`cancel\` to cancel this command.`,
+					modifyStart: (msg, text) =>
+						`${msg.author}, ${text}\nType \`cancel\` to cancel this command.`,
 					retry: "What is thing, again?",
-					modifyRetry: (msg, text) => `${msg.author}, ${text}\nType \`cancel\` to cancel this command.`,
+					modifyRetry: (msg, text) =>
+						`${msg.author}, ${text}\nType \`cancel\` to cancel this command.`,
 					timeout: "Out of time.",
 					ended: "No more tries.",
 					cancel: "Cancelled.",
@@ -43,7 +51,13 @@ class TestClient extends AkairoClient {
 
 		const db = sqlite
 			.open("./test/db.sqlite")
-			.then(d => d.run("CREATE TABLE IF NOT EXISTS guilds (id TEXT NOT NULL UNIQUE, settings TEXT)").then(() => d));
+			.then(d =>
+				d
+					.run(
+						"CREATE TABLE IF NOT EXISTS guilds (id TEXT NOT NULL UNIQUE, settings TEXT)"
+					)
+					.then(() => d)
+			);
 		this.settings = new SQLiteProvider(db, "guilds", {
 			dataColumn: "settings"
 		});

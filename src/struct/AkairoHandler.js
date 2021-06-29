@@ -137,7 +137,8 @@ class AkairoHandler extends EventEmitter {
 			return undefined;
 		}
 
-		if (this.modules.has(mod.id)) throw new AkairoError("ALREADY_LOADED", this.classToHandle.name, mod.id);
+		if (this.modules.has(mod.id))
+			throw new AkairoError("ALREADY_LOADED", this.classToHandle.name, mod.id);
 
 		this.register(mod, isClass ? null : thing);
 		this.emit(AkairoHandlerEvents.LOAD, mod, isReload);
@@ -152,7 +153,10 @@ class AkairoHandler extends EventEmitter {
 	 * Defaults to the filter passed in the constructor.
 	 * @returns {AkairoHandler}
 	 */
-	loadAll(directory = this.directory, filter = this.loadFilter || (() => true)) {
+	loadAll(
+		directory = this.directory,
+		filter = this.loadFilter || (() => true)
+	) {
 		const filepaths = this.constructor.readdirRecursive(directory);
 		for (let filepath of filepaths) {
 			filepath = path.resolve(filepath);
@@ -169,7 +173,8 @@ class AkairoHandler extends EventEmitter {
 	 */
 	remove(id) {
 		const mod = this.modules.get(id.toString());
-		if (!mod) throw new AkairoError("MODULE_NOT_FOUND", this.classToHandle.name, id);
+		if (!mod)
+			throw new AkairoError("MODULE_NOT_FOUND", this.classToHandle.name, id);
 
 		this.deregister(mod);
 
@@ -196,8 +201,10 @@ class AkairoHandler extends EventEmitter {
 	 */
 	reload(id) {
 		const mod = this.modules.get(id.toString());
-		if (!mod) throw new AkairoError("MODULE_NOT_FOUND", this.classToHandle.name, id);
-		if (!mod.filepath) throw new AkairoError("NOT_RELOADABLE", this.classToHandle.name, id);
+		if (!mod)
+			throw new AkairoError("MODULE_NOT_FOUND", this.classToHandle.name, id);
+		if (!mod.filepath)
+			throw new AkairoError("NOT_RELOADABLE", this.classToHandle.name, id);
 
 		this.deregister(mod);
 
