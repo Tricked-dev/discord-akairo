@@ -793,17 +793,12 @@ class CommandHandler extends AkairoHandler {
 	 * @returns {Promise<boolean>}
 	 */
 	async runPostTypeInhibitors(message, command, slash = false) {
-		const event = slash ? CommandHandlerEvents.SLASH_BLOCKED : CommandHandlerEvents.COMMAND_BLOCKED
-		
+		const event = slash ? CommandHandlerEvents.SLASH_BLOCKED : CommandHandlerEvents.COMMAND_BLOCKED;
+
 		if (command.ownerOnly) {
 			const isOwner = this.client.isOwner(message.author);
 			if (!isOwner) {
-				this.emit(
-					event,
-					message,
-					command,
-					BuiltInReasons.OWNER
-				);
+				this.emit(event, message, command, BuiltInReasons.OWNER);
 				return true;
 			}
 		}
@@ -811,43 +806,23 @@ class CommandHandler extends AkairoHandler {
 		if (command.superUserOnly) {
 			const isSuperUser = this.client.isSuperUser(message.author);
 			if (!isSuperUser) {
-				this.emit(
-					event,
-					message,
-					command,
-					BuiltInReasons.OWNER
-				);
+				this.emit(event, message, command, BuiltInReasons.OWNER);
 				return true;
 			}
 		}
 
 		if (command.channel === "guild" && !message.guild) {
-			this.emit(
-				event,
-				message,
-				command,
-				BuiltInReasons.GUILD
-			);
+			this.emit(event, message, command, BuiltInReasons.GUILD);
 			return true;
 		}
 
 		if (command.channel === "dm" && message.guild) {
-			this.emit(
-				event,
-				message,
-				command,
-				BuiltInReasons.DM
-			);
+			this.emit(event, message, command, BuiltInReasons.DM);
 			return true;
 		}
 
 		if (command.onlyNsfw && !message.channel.nsfw) {
-			this.emit(
-				event,
-				message,
-				command,
-				BuiltInReasons.NOT_NSFW
-			);
+			this.emit(event, message, command, BuiltInReasons.NOT_NSFW);
 			return true;
 		}
 
@@ -858,12 +833,7 @@ class CommandHandler extends AkairoHandler {
 		const reason = this.inhibitorHandler ? await this.inhibitorHandler.test("post", message, command) : null;
 
 		if (reason != null) {
-			this.emit(
-				event,
-				message,
-				command,
-				reason
-			);
+			this.emit(event, message, command, reason);
 			return true;
 		}
 

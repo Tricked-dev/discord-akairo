@@ -92,6 +92,6 @@ module.exports = {
 		GUILD: "guild",
 		DM: "dm",
 		AUTHOR_NOT_FOUND: "authorNotFound",
-		NOT_NSFW: "notNsfw",
+		NOT_NSFW: "notNsfw"
 	}
 };
