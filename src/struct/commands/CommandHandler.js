@@ -793,11 +793,13 @@ class CommandHandler extends AkairoHandler {
 	 * @returns {Promise<boolean>}
 	 */
 	async runPostTypeInhibitors(message, command, slash = false) {
+		const event = slash ? CommandHandlerEvents.SLASH_BLOCKED : CommandHandlerEvents.COMMAND_BLOCKED
+		
 		if (command.ownerOnly) {
 			const isOwner = this.client.isOwner(message.author);
 			if (!isOwner) {
 				this.emit(
-					slash ? CommandHandlerEvents.SLASH_BLOCKED : CommandHandlerEvents.COMMAND_BLOCKED,
+					event,
 					message,
 					command,
 					BuiltInReasons.OWNER
@@ -810,7 +812,7 @@ class CommandHandler extends AkairoHandler {
 			const isSuperUser = this.client.isSuperUser(message.author);
 			if (!isSuperUser) {
 				this.emit(
-					slash ? CommandHandlerEvents.SLASH_BLOCKED : CommandHandlerEvents.COMMAND_BLOCKED,
+					event,
 					message,
 					command,
 					BuiltInReasons.OWNER
@@ -821,7 +823,7 @@ class CommandHandler extends AkairoHandler {
 
 		if (command.channel === "guild" && !message.guild) {
 			this.emit(
-				slash ? CommandHandlerEvents.SLASH_BLOCKED : CommandHandlerEvents.COMMAND_BLOCKED,
+				event,
 				message,
 				command,
 				BuiltInReasons.GUILD
@@ -831,7 +833,7 @@ class CommandHandler extends AkairoHandler {
 
 		if (command.channel === "dm" && message.guild) {
 			this.emit(
-				slash ? CommandHandlerEvents.SLASH_BLOCKED : CommandHandlerEvents.COMMAND_BLOCKED,
+				event,
 				message,
 				command,
 				BuiltInReasons.DM
@@ -841,7 +843,7 @@ class CommandHandler extends AkairoHandler {
 
 		if (command.onlyNsfw && !message.channel.nsfw) {
 			this.emit(
-				slash ? CommandHandlerEvents.SLASH_BLOCKED : CommandHandlerEvents.COMMAND_BLOCKED,
+				event,
 				message,
 				command,
 				BuiltInReasons.NOT_NSFW
@@ -857,7 +859,7 @@ class CommandHandler extends AkairoHandler {
 
 		if (reason != null) {
 			this.emit(
-				slash ? CommandHandlerEvents.SLASH_BLOCKED : CommandHandlerEvents.COMMAND_BLOCKED,
+				event,
 				message,
 				command,
 				reason
