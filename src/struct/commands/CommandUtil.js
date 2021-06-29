@@ -1,4 +1,4 @@
-const { Collection } = require("discord.js");
+const { Collection, MessagePayload } = require("discord.js");
 
 /**
  * Command utilities.
@@ -173,7 +173,7 @@ class CommandUtil {
 			newOptions = options;
 		}
 
-		if (!this.isSlash && !this.shouldEdit && !this.message.deleted) {
+		if (!this.isSlash && !this.shouldEdit && !(newOptions instanceof MessagePayload) && !this.message.deleted) {
 			newOptions.reply = {
 				messageReference: this.message,
 				failIfNotExists: newOptions.failIfNotExists ?? true
