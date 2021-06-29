@@ -1,4 +1,4 @@
-const { APIMessage, Collection } = require("discord.js");
+const { Collection } = require("discord.js");
 
 /**
  * Command utilities.
@@ -100,7 +100,7 @@ class CommandUtil {
 
 	/**
 	 * Sends a response or edits an old response if available.
-	 * @param {string | APIMessage | MessageOptions | InteractionReplyOptions} options - Options to use.
+	 * @param {string | MessagePayload | MessageOptions | InteractionReplyOptions} options - Options to use.
 	 * @returns {Promise<Message|Message[]|void>}
 	 */
 	// eslint-disable-next-line consistent-return
@@ -140,7 +140,7 @@ class CommandUtil {
 
 	/**
 	 * Sends a response, overwriting the last response.
-	 * @param {string | APIMessage | MessageOptions} options - Options to use.
+	 * @param {string | MessagePayload | MessageOptions} options - Options to use.
 	 * @returns {Promise<Message|Message[]>}
 	 */
 	async sendNew(options) {
@@ -152,7 +152,7 @@ class CommandUtil {
 
 	/**
 	 * Send an inline reply or respond to a slash command.
-	 * @param {string | ReplyMessageOptions | APIMessage | InteractionReplyOptions} options - Options to use.
+	 * @param {string | MessagePayload | ReplyMessageOptions | InteractionReplyOptions} options - Options to use.
 	 * @returns {Promise<Message|Message[]|void>}
 	 */
 	reply(options) {
@@ -163,7 +163,7 @@ class CommandUtil {
 			newOptions = options;
 		}
 
-		if (!this.isSlash && !this.shouldEdit && !(newOptions instanceof APIMessage) && !this.message.deleted) {
+		if (!this.isSlash && !this.shouldEdit && !this.message.deleted) {
 			newOptions.reply = {
 				messageReference: this.message,
 				failIfNotExists: newOptions.failIfNotExists ?? true
@@ -174,7 +174,8 @@ class CommandUtil {
 
 	/**
 	 * Edits the last response.
-	 * @param {string | MessageEditOptions | APIMessage} options - Options to use.
+	 * If the message is a slash command, edits the slash response.
+	 * @param {string | MessageEditOptions | WebhookEditMessageOptions | MessagePayload} options - Options to use.
 	 * @returns {Promise<Message>}
 	 */
 	edit(options) {

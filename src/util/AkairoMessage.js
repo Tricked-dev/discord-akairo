@@ -33,7 +33,7 @@ class AkairoMessage {
 
 	/**
 	 * Replies or edits the reply of the slash command.
-	 * @param {string | APIMessage | InteractionReplyOptions} options The options to edit the reply.
+	 * @param {string | InteractionReplyOptions} options The options to edit the reply.
 	 * @returns {Promise<void>}
 	 */
 	reply(options) {
