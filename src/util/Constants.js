@@ -70,7 +70,6 @@ module.exports = {
 		COMMAND_FINISHED: "commandFinished",
 		COMMAND_INVALID: "commandInvalid",
 		COMMAND_LOCKED: "commandLocked",
-		COMMAND_LOCKED_NSFW: "commandLockedNsfw",
 		COMMAND_STARTED: "commandStarted",
 		COOLDOWN: "cooldown",
 		ERROR: "error",
