@@ -839,6 +839,16 @@ class CommandHandler extends AkairoHandler {
 			return true;
 		}
 
+		if (command.onlyNsfw && !message.channel.nsfw) {
+			this.emit(
+				slash ? CommandHandlerEvents.SLASH_BLOCKED : CommandHandlerEvents.COMMAND_BLOCKED,
+				message,
+				command,
+				BuiltInReasons.NOT_NSFW
+			);
+			return true;
+		}
+
 		if (await this.runPermissionChecks(message, command, slash)) {
 			return true;
 		}
@@ -1012,16 +1022,6 @@ class CommandHandler extends AkairoHandler {
 
 		if (command.typing || this.typing) {
 			message.channel.startTyping();
-		}
-
-		if (command.onlyNsfw && !message.channel.nsfw) {
-			this.emit(
-				CommandHandlerEvents.COMMAND_BLOCKED,
-				message,
-				command,
-				"notNsfw"
-			);
-			return;
 		}
 
 		try {

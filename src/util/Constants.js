@@ -82,7 +82,7 @@ module.exports = {
 		SLASH_FINISHED: "slashFinished",
 		SLASH_MISSING_PERMISSIONS: "slashMissingPermissions",
 		SLASH_NOT_FOUND: "slashNotFound",
-		SLASH_STARTED: "slashStarted",
+		SLASH_STARTED: "slashStarted"
 	},
 	BuiltInReasons: {
 		CLIENT: "client",
@@ -91,6 +91,7 @@ module.exports = {
 		SUPER_USER: "superUser",
 		GUILD: "guild",
 		DM: "dm",
-		AUTHOR_NOT_FOUND: "authorNotFound"
+		AUTHOR_NOT_FOUND: "authorNotFound",
+		NOT_NSFW: "notNsfw",
 	}
 };
