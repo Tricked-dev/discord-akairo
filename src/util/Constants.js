@@ -64,25 +64,34 @@ module.exports = {
 		REMOVE: "remove"
 	},
 	CommandHandlerEvents: {
+		COMMAND_BLOCKED: "commandBlocked",
+		COMMAND_BREAKOUT: "commandBreakout",
+		COMMAND_CANCELLED: "commandCancelled",
+		COMMAND_FINISHED: "commandFinished",
+		COMMAND_INVALID: "commandInvalid",
+		COMMAND_LOCKED: "commandLocked",
+		COMMAND_STARTED: "commandStarted",
+		COOLDOWN: "cooldown",
+		ERROR: "error",
+		IN_PROMPT: "inPrompt",
 		MESSAGE_BLOCKED: "messageBlocked",
 		MESSAGE_INVALID: "messageInvalid",
-		COMMAND_BLOCKED: "commandBlocked",
-		COMMAND_STARTED: "commandStarted",
-		COMMAND_FINISHED: "commandFinished",
-		COMMAND_CANCELLED: "commandCancelled",
-		COMMAND_LOCKED: "commandLocked",
-		COMMAND_INVALID: "commandInvalid",
 		MISSING_PERMISSIONS: "missingPermissions",
-		COOLDOWN: "cooldown",
-		IN_PROMPT: "inPrompt",
-		ERROR: "error"
+		SLASH_BLOCKED: "slashBlocked",
+		SLASH_ERROR: "slashError",
+		SLASH_FINISHED: "slashFinished",
+		SLASH_MISSING_PERMISSIONS: "slashMissingPermissions",
+		SLASH_NOT_FOUND: "slashNotFound",
+		SLASH_STARTED: "slashStarted"
 	},
 	BuiltInReasons: {
 		CLIENT: "client",
 		BOT: "bot",
 		OWNER: "owner",
+		SUPER_USER: "superUser",
 		GUILD: "guild",
 		DM: "dm",
-		AUTHOR_NOT_FOUND: "authorNotFound"
+		AUTHOR_NOT_FOUND: "authorNotFound",
+		NOT_NSFW: "notNsfw"
 	}
 };

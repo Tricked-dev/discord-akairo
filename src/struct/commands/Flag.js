@@ -1,5 +1,5 @@
 /**
- * Represents a special return value during commmand execution or argument parsing.
+ * Represents a special return value during command execution or argument parsing.
  * @param {string} type - Type of flag.
  * @param {any} [data={}] - Extra data.
  */

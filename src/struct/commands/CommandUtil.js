@@ -1,4 +1,4 @@
-const { APIMessage, Collection } = require("discord.js");
+const { Collection, MessagePayload } = require("discord.js");
 
 /**
  * Command utilities.
@@ -15,7 +15,7 @@ class CommandUtil {
 
 		/**
 		 * Message that triggered the command.
-		 * @type {Message}
+		 * @type {Message | AkairoMessage}
 		 */
 		this.message = message;
 
@@ -33,7 +33,7 @@ class CommandUtil {
 
 		/**
 		 * The last response sent.
-		 * @type {?Message}
+		 * @type {?Message | ?RawMessage | ?}
 		 */
 		this.lastResponse = null;
 
@@ -46,11 +46,17 @@ class CommandUtil {
 		} else {
 			this.messages = null;
 		}
+
+		/**
+		 * Whether or not the command is a slash command.
+		 * @type {boolean}
+		 */
+		this.isSlash = !!message.interaction;
 	}
 
 	/**
 	 * Sets the last response.
-	 * @param {Message|Message[]} message - Message to set.
+	 * @param {Message | Message[]} message - Message to set.
 	 * @returns {Message}
 	 */
 	setLastResponse(message) {
@@ -94,32 +100,57 @@ class CommandUtil {
 
 	/**
 	 * Sends a response or edits an old response if available.
-	 * @param {string | APIMessage | MessageOptions} options - Options to use.
-	 * @returns {Promise<Message|Message[]>}
+	 * @param {string | MessagePayload | MessageOptions | InteractionReplyOptions} options - Options to use.
+	 * @returns {Promise<Message|Message[]|void>}
 	 */
+	// eslint-disable-next-line consistent-return
 	async send(options) {
 		const hasFiles =
 			options.files?.length > 0 || options.embed?.files?.length > 0;
 
-		if (
-			this.shouldEdit &&
-			(this.command ? this.command.editable : true) &&
-			!hasFiles &&
-			!this.lastResponse.deleted &&
-			!this.lastResponse.attachments.size
-		) {
-			return this.lastResponse.edit(options);
+		let newOptions = {};
+		if (typeof options === "string") {
+			newOptions.content = options;
+		} else {
+			newOptions = options;
 		}
-
-		const sent = await this.message.channel.send(options);
-		const lastSent = this.setLastResponse(sent);
-		this.setEditable(!lastSent.attachments.size);
-		return sent;
+		if (!this.isSlash) {
+			delete options.ephemeral;
+			if (
+				this.shouldEdit &&
+				!hasFiles &&
+				!this.lastResponse.deleted &&
+				!this.lastResponse.attachments.size
+			) {
+				return this.lastResponse.edit(options);
+			}
+			const sent = await this.message.channel.send(options);
+			const lastSent = this.setLastResponse(sent);
+			this.setEditable(!lastSent.attachments.size);
+			return sent;
+		} else {
+			delete options.reply;
+			if (
+				this.lastResponse ||
+				this.message.interaction.deferred ||
+				this.message.interaction.replied
+			) {
+				await this.message.interaction.editReply(options);
+				this.lastResponse = await this.message.interaction.fetchReply();
+				return this.lastResponse;
+			} else {
+				this.message.interaction.reply(options);
+				if (!options.ephemeral) {
+					this.lastResponse = await this.message.interaction.fetchReply();
+					return this.lastResponse;
+				}
+			}
+		}
 	}
 
 	/**
 	 * Sends a response, overwriting the last response.
-	 * @param {string | APIMessage | MessageOptions} options - Options to use.
+	 * @param {string | MessagePayload | MessageOptions} options - Options to use.
 	 * @returns {Promise<Message|Message[]>}
 	 */
 	async sendNew(options) {
@@ -130,9 +161,9 @@ class CommandUtil {
 	}
 
 	/**
-	 * Send an inline reply to this message.
-	 * @param {string|ReplyMessageOptions|MessageAdditions} options - Options to use.
-	 * @returns {Promise<Message|Message[]>}
+	 * Send an inline reply or respond to a slash command.
+	 * @param {string | MessagePayload | ReplyMessageOptions | InteractionReplyOptions} options - Options to use.
+	 * @returns {Promise<Message|Message[]|void>}
 	 */
 	reply(options) {
 		let newOptions = {};
@@ -142,7 +173,7 @@ class CommandUtil {
 			newOptions = options;
 		}
 
-		if (!this.shouldEdit && !(newOptions instanceof APIMessage)) {
+		if (!this.isSlash && !this.shouldEdit && !(newOptions instanceof MessagePayload) && !this.message.deleted) {
 			newOptions.reply = {
 				messageReference: this.message,
 				failIfNotExists: newOptions.failIfNotExists ?? true
@@ -153,11 +184,28 @@ class CommandUtil {
 
 	/**
 	 * Edits the last response.
-	 * @param {string | MessageEditOptions | APIMessage} options - Options to use.
+	 * If the message is a slash command, edits the slash response.
+	 * @param {string | MessageEditOptions | WebhookEditMessageOptions | MessagePayload} options - Options to use.
 	 * @returns {Promise<Message>}
 	 */
 	edit(options) {
-		return this.lastResponse.edit(options);
+		if (this.isSlash) {
+			return this.lastResponse.editReply(options);
+		} else {
+			return this.lastResponse.edit(options);
+		}
+	}
+
+	/**
+	 * Deletes the last response.
+	 * @returns {Promise<Message | void>}
+	 */
+	delete() {
+		if (this.isSlash) {
+			return this.message.deleteReply();
+		} else {
+			return this.lastResponse?.delete();
+		}
 	}
 }
 

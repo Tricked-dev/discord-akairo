@@ -4,7 +4,7 @@ const {
 	BuiltInReasons,
 	CommandHandlerEvents
 } = require("../../util/Constants");
-const { Collection, Message } = require("discord.js");
+const { Collection } = require("discord.js");
 const Command = require("./Command");
 const CommandUtil = require("./CommandUtil");
 const Flag = require("./Flag");
@@ -95,7 +95,7 @@ class CommandHandler extends AkairoHandler {
 		this.resolver = new TypeResolver(this);
 
 		/**
-		 * Collecion of command aliases.
+		 * Collection of command aliases.
 		 * @type {Collection<string, string>}
 		 */
 		this.aliases = new Collection();
@@ -528,113 +528,64 @@ class CommandHandler extends AkairoHandler {
 	async handleSlash(interaction) {
 		if (!interaction.isCommand()) return false;
 
-		if (!interaction.guildID) {
-			this.emit("slashGuildOnly", interaction);
-			return false;
-		}
-
 		const command = this.findCommand(interaction.commandName);
 
 		if (!command) {
-			this.emit("slashNotFound", interaction);
+			this.emit(CommandHandlerEvents.SLASH_NOT_FOUND, interaction);
 			return false;
 		}
 
-		if (command.ownerOnly && !this.client.isOwner(interaction.user)) {
-			this.emit("slashBlocked", interaction, command, "owner");
-			return false;
-		}
-		if (command.superUserOnly && !this.client.isSuperUser(interaction.user)) {
-			this.emit("slashBlocked", interaction, command, "superuser");
-			return false;
-		}
-		const userPermissions = interaction.channel
-			.permissionsFor(interaction.member)
-			.toArray();
-
-		if (command.userPermissions) {
-			const userMissingPermissions = command.userPermissions.filter(
-				p => !userPermissions.includes(p)
-			);
-			if (
-				command.userPermissions &&
-				command.userPermissions.length > 0 &&
-				userMissingPermissions.length > 0
-			) {
-				this.emit(
-					"slashMissingPermissions",
-					interaction,
-					command,
-					"user",
-					userMissingPermissions
-				);
-				return false;
-			}
-		}
-
-		const clientPermissions = interaction.channel
-			.permissionsFor(interaction.guild.me)
-			.toArray();
-
-		if (command.clientPermissions) {
-			const clientMissingPermissions = command.clientPermissions.filter(
-				p => !clientPermissions.includes(p)
-			);
-			if (
-				command.clientPermissions &&
-				command.clientPermissions.length > 0 &&
-				clientMissingPermissions.length > 0
-			) {
-				this.emit(
-					"slashMissingPermissions",
-					interaction,
-					command,
-					"client",
-					clientMissingPermissions
-				);
-				return false;
-			}
-		}
-
-		if (this.runCooldowns(interaction, command)) {
-			return true;
-		}
 		const message = new AkairoMessage(this.client, interaction, {
 			slash: true,
 			replied: this.autoDefer || command.slashEphemeral
 		});
 
-		if (this.commandUtil) {
-			if (this.commandUtils.has(message.id)) {
-				message.util = this.commandUtils.get(message.id);
-			} else {
-				message.util = new CommandUtil(this, message);
-				this.commandUtils.set(message.id, message.util);
-			}
-		}
-
-		const before = command.before(message);
-		if (isPromise(before)) await before;
-
-		let parsed = await this.parseCommand(message);
-		if (!parsed.command) {
-			const overParsed = await this.parseCommandOverwrittenPrefixes(message);
-			if (
-				overParsed.command ||
-				(parsed.prefix == null && overParsed.prefix != null)
-			) {
-				parsed = overParsed;
-			}
-		}
-
-		if (this.commandUtil) {
-			message.util.parsed = parsed;
-		}
-
 		try {
-			if (this.autoDefer || command.slashEphemeral) {
-				await interaction.defer(command.slashEphemeral);
+			if (
+				this.fetchMembers &&
+				message.guild &&
+				!message.member &&
+				!message.webhookID
+			) {
+				await message.guild.members.fetch(message.author);
 			}
+
+			if (await this.runAllTypeInhibitors(message, true)) {
+				return false;
+			}
+
+			if (this.commandUtil) {
+				if (this.commandUtils.has(message.id)) {
+					message.util = this.commandUtils.get(message.id);
+				} else {
+					message.util = new CommandUtil(this, message);
+					this.commandUtils.set(message.id, message.util);
+				}
+			}
+
+			if (await this.runPreTypeInhibitors(message)) {
+				return false;
+			}
+
+			let parsed = await this.parseCommand(message);
+			if (!parsed.command) {
+				const overParsed = await this.parseCommandOverwrittenPrefixes(message);
+				if (
+					overParsed.command ||
+					(parsed.prefix == null && overParsed.prefix != null)
+				) {
+					parsed = overParsed;
+				}
+			}
+
+			if (this.commandUtil) {
+				message.util.parsed = parsed;
+			}
+
+			if (await this.runPostTypeInhibitors(message, command)) {
+				return false;
+			}
+
 			const convertedOptions = {};
 			for (const option of interaction.options.values()) {
 				if (option.member) convertedOptions[option.name] = option.member;
@@ -642,16 +593,55 @@ class CommandHandler extends AkairoHandler {
 				else if (option.role) convertedOptions[option.name] = option.role;
 				else convertedOptions[option.name] = option.value;
 			}
-			this.emit("slashStarted", interaction, command);
 
-			if (command.execSlash || this.execSlash)
-				await command.execSlash(message, convertedOptions);
-			else await command.exec(message, convertedOptions);
+			let key;
+			try {
+				if (command.lock) key = command.lock(message, convertedOptions);
+				if (isPromise(key)) key = await key;
+				if (key) {
+					if (command.locker.has(key)) {
+						key = null;
+						this.emit(CommandHandlerEvents.COMMAND_LOCKED, message, command);
+						return true;
+					}
+					command.locker.add(key);
+				}
+			} catch (err) {
+				this.emitError(err, message, command);
+			} finally {
+				if (key) command.locker.delete(key);
+			}
 
-			return true;
+			if (this.autoDefer || command.slashEphemeral) {
+				await interaction.defer(command.slashEphemeral);
+			}
+
+			try {
+				this.emit(
+					CommandHandlerEvents.SLASH_STARTED,
+					message,
+					command,
+					convertedOptions
+				);
+				const ret =
+					command.execSlash || this.execSlash
+						? await command.execSlash(message, convertedOptions)
+						: await command.exec(message, convertedOptions);
+				this.emit(
+					CommandHandlerEvents.SLASH_FINISHED,
+					message,
+					command,
+					convertedOptions,
+					ret
+				);
+				return true;
+			} catch (err) {
+				this.emit(CommandHandlerEvents.SLASH_ERROR, err, message, command);
+				return false;
+			}
 		} catch (err) {
-			this.emit("slashError", err, message, command);
-			return false;
+			this.emitError(err, message);
+			return null;
 		}
 	}
 	/**
@@ -837,9 +827,10 @@ class CommandHandler extends AkairoHandler {
 	/**
 	 * Runs inhibitors with the all type.
 	 * @param {Message} message - Message to handle.
+	 * @param {boolean} slash - Whether or not the command should is a slash command.
 	 * @returns {Promise<boolean>}
 	 */
-	async runAllTypeInhibitors(message) {
+	async runAllTypeInhibitors(message, slash = false) {
 		const reason = this.inhibitorHandler
 			? await this.inhibitorHandler.test("all", message)
 			: null;
@@ -864,7 +855,7 @@ class CommandHandler extends AkairoHandler {
 				message,
 				BuiltInReasons.BOT
 			);
-		} else if (this.hasPrompt(message.channel, message.author)) {
+		} else if (!slash && this.hasPrompt(message.channel, message.author)) {
 			this.emit(CommandHandlerEvents.IN_PROMPT, message);
 		} else {
 			return false;
@@ -896,18 +887,18 @@ class CommandHandler extends AkairoHandler {
 	 * Runs inhibitors with the post type.
 	 * @param {Message} message - Message to handle.
 	 * @param {Command} command - Command to handle.
+	 * @param {boolean} slash - Whether or not the command should is a slash command.
 	 * @returns {Promise<boolean>}
 	 */
-	async runPostTypeInhibitors(message, command) {
+	async runPostTypeInhibitors(message, command, slash = false) {
+		const event = slash
+			? CommandHandlerEvents.SLASH_BLOCKED
+			: CommandHandlerEvents.COMMAND_BLOCKED;
+
 		if (command.ownerOnly) {
 			const isOwner = this.client.isOwner(message.author);
 			if (!isOwner) {
-				this.emit(
-					CommandHandlerEvents.COMMAND_BLOCKED,
-					message,
-					command,
-					BuiltInReasons.OWNER
-				);
+				this.emit(event, message, command, BuiltInReasons.OWNER);
 				return true;
 			}
 		}
@@ -915,37 +906,27 @@ class CommandHandler extends AkairoHandler {
 		if (command.superUserOnly) {
 			const isSuperUser = this.client.isSuperUser(message.author);
 			if (!isSuperUser) {
-				this.emit(
-					CommandHandlerEvents.COMMAND_BLOCKED,
-					message,
-					command,
-					BuiltInReasons.OWNER
-				);
+				this.emit(event, message, command, BuiltInReasons.OWNER);
 				return true;
 			}
 		}
 
 		if (command.channel === "guild" && !message.guild) {
-			this.emit(
-				CommandHandlerEvents.COMMAND_BLOCKED,
-				message,
-				command,
-				BuiltInReasons.GUILD
-			);
+			this.emit(event, message, command, BuiltInReasons.GUILD);
 			return true;
 		}
 
 		if (command.channel === "dm" && message.guild) {
-			this.emit(
-				CommandHandlerEvents.COMMAND_BLOCKED,
-				message,
-				command,
-				BuiltInReasons.DM
-			);
+			this.emit(event, message, command, BuiltInReasons.DM);
 			return true;
 		}
 
-		if (await this.runPermissionChecks(message, command)) {
+		if (command.onlyNsfw && !message.channel.nsfw) {
+			this.emit(event, message, command, BuiltInReasons.NOT_NSFW);
+			return true;
+		}
+
+		if (await this.runPermissionChecks(message, command, slash)) {
 			return true;
 		}
 
@@ -954,7 +935,7 @@ class CommandHandler extends AkairoHandler {
 			: null;
 
 		if (reason != null) {
-			this.emit(CommandHandlerEvents.COMMAND_BLOCKED, message, command, reason);
+			this.emit(event, message, command, reason);
 			return true;
 		}
 
@@ -969,9 +950,10 @@ class CommandHandler extends AkairoHandler {
 	 * Runs permission checks.
 	 * @param {Message} message - Message that called the command.
 	 * @param {Command} command - Command to cooldown.
+	 * @param {boolean} slash - Whether or not the command is a slash command.
 	 * @returns {Promise<boolean>}
 	 */
-	async runPermissionChecks(message, command) {
+	async runPermissionChecks(message, command, slash = false) {
 		if (command.clientPermissions) {
 			if (typeof command.clientPermissions === "function") {
 				let missing = command.clientPermissions(message);
@@ -979,7 +961,9 @@ class CommandHandler extends AkairoHandler {
 
 				if (missing != null) {
 					this.emit(
-						CommandHandlerEvents.MISSING_PERMISSIONS,
+						slash
+							? CommandHandlerEvents.SLASH_MISSING_PERMISSIONS
+							: CommandHandlerEvents.MISSING_PERMISSIONS,
 						message,
 						command,
 						"client",
@@ -993,7 +977,9 @@ class CommandHandler extends AkairoHandler {
 					.missing(command.clientPermissions);
 				if (missing.length) {
 					this.emit(
-						CommandHandlerEvents.MISSING_PERMISSIONS,
+						slash
+							? CommandHandlerEvents.SLASH_MISSING_PERMISSIONS
+							: CommandHandlerEvents.MISSING_PERMISSIONS,
 						message,
 						command,
 						"client",
@@ -1019,7 +1005,9 @@ class CommandHandler extends AkairoHandler {
 
 					if (missing != null) {
 						this.emit(
-							CommandHandlerEvents.MISSING_PERMISSIONS,
+							slash
+								? CommandHandlerEvents.SLASH_MISSING_PERMISSIONS
+								: CommandHandlerEvents.MISSING_PERMISSIONS,
 							message,
 							command,
 							"user",
@@ -1033,7 +1021,9 @@ class CommandHandler extends AkairoHandler {
 						.missing(command.userPermissions);
 					if (missing.length) {
 						this.emit(
-							CommandHandlerEvents.MISSING_PERMISSIONS,
+							slash
+								? CommandHandlerEvents.SLASH_MISSING_PERMISSIONS
+								: CommandHandlerEvents.MISSING_PERMISSIONS,
 							message,
 							command,
 							"user",
@@ -1055,7 +1045,7 @@ class CommandHandler extends AkairoHandler {
 	 * @returns {boolean}
 	 */
 	runCooldowns(message, command) {
-		const id = message instanceof Message ? message.author.id : message.user.id;
+		const id = message.author.id;
 		const ignorer = command.ignoreCooldown || this.ignoreCooldown;
 		const isIgnored = Array.isArray(ignorer)
 			? ignorer.includes(id)
@@ -1119,16 +1109,6 @@ class CommandHandler extends AkairoHandler {
 
 		if (command.typing || this.typing) {
 			message.channel.startTyping();
-		}
-
-		if (command.onlyNsfw && !message.channel.nsfw) {
-			this.emit(
-				CommandHandlerEvents.COMMAND_BLOCKED,
-				message,
-				command,
-				"notNsfw"
-			);
-			return;
 		}
 
 		try {
