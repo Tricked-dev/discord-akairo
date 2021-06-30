@@ -173,7 +173,12 @@ class CommandUtil {
 			newOptions = options;
 		}
 
-		if (!this.isSlash && !this.shouldEdit && !(newOptions instanceof MessagePayload) && !this.message.deleted) {
+		if (
+			!this.isSlash &&
+			!this.shouldEdit &&
+			!(newOptions instanceof MessagePayload) &&
+			!this.message.deleted
+		) {
 			newOptions.reply = {
 				messageReference: this.message,
 				failIfNotExists: newOptions.failIfNotExists ?? true
