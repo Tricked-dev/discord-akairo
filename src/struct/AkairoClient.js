@@ -9,6 +9,7 @@ const ClientUtil = require("./ClientUtil");
  * If not specified, the previous options parameter is used instead.
  */
 class AkairoClient extends Client {
+<<<<<<< HEAD
 	constructor(options = {}, clientOptions) {
 		super(clientOptions || options);
 
@@ -57,6 +58,37 @@ class AkairoClient extends Client {
 			? this.superUserID.includes(id) || this.ownerID.includes(id)
 			: id === this.superUserID || id === this.ownerID;
 	}
+=======
+    constructor(options = {}, clientOptions) {
+        super(clientOptions || options);
+
+        const { ownerID = '' } = options;
+
+        /**
+         * The ID of the owner(s).
+         * @type {Snowflake|Snowflake[]}
+         */
+        this.ownerID = ownerID;
+
+        /**
+         * Utility methods.
+         * @type {ClientUtil}
+         */
+        this.util = new ClientUtil(this);
+    }
+
+    /**
+     * Checks if a user is the owner of this bot.
+     * @param {UserResolvable} user - User to check.
+     * @returns {boolean}
+     */
+    isOwner(user) {
+        const id = this.users.resolveId(user);
+        return Array.isArray(this.ownerID)
+            ? this.ownerID.includes(id)
+            : id === this.ownerID;
+    }
+>>>>>>> upstream/master
 }
 
 module.exports = AkairoClient;

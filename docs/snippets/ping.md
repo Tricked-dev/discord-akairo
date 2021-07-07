@@ -10,6 +10,7 @@ class PingCommand extends Command {
 		});
 	}
 
+<<<<<<< HEAD
 	async exec(message) {
 		const sent = await message.util.reply("Pong!");
 		const timeDiff =
@@ -21,6 +22,17 @@ class PingCommand extends Command {
 			`💟 **Heartbeat**: ${Math.round(this.client.ws.ping)} ms`
 		]);
 	}
+=======
+    async exec(message) {
+        const sent = await message.util.reply('Pong!');
+        const timeDiff = (sent.editedAt || sent.createdAt) - (message.editedAt || message.createdAt);
+        return message.util.reply(
+            'Pong!\n' +
+            `🔂 **RTT**: ${timeDiff} ms\n` +
+            `💟 **Heartbeat**: ${Math.round(this.client.ws.ping)} ms`
+        );
+    }
+>>>>>>> upstream/master
 }
 
 module.exports = PingCommand;
