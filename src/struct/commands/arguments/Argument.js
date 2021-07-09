@@ -304,15 +304,13 @@ class Argument {
 			}
 
 			let input;
-			try {
-				input = (
-					await message.channel.awaitMessages({
-							filter: m => m.author.id === message.author.id,
-							max: 1,
-							time: promptOptions.time,
-							errors: ["time"]
-					}).first();
-
+            try {
+                input = (await message.channel.awaitMessages({
+                    filter: m => m.author.id === message.author.id,
+                    max: 1,
+                    time: promptOptions.time,
+                    errors: ['time']
+                })).first();
 				if (message.util) message.util.addMessage(input);
 			} catch (err) {
 				const timeoutText = await getText(
