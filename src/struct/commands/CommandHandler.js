@@ -280,7 +280,7 @@ class CommandHandler extends AkairoHandler {
 		this.client.once("ready", () => {
 			if (this.autoRegisterSlashCommands) this.registerSlashCommands();
 
-			this.client.on("message", async m => {
+			this.client.on("messageCreate", async m => {
 				if (m.partial) await m.fetch();
 				this.handle(m);
 			});
@@ -293,7 +293,7 @@ class CommandHandler extends AkairoHandler {
 					if (this.handleEdits) this.handle(m);
 				});
 			}
-			this.client.on("interaction", i => {
+			this.client.on("interactionCreate", i => {
 				this.handleSlash(i);
 			});
 		});
