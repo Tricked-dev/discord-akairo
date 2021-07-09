@@ -459,7 +459,7 @@ class CommandHandler extends AkairoHandler {
 				this.fetchMembers &&
 				message.guild &&
 				!message.member &&
-				!message.webhookID
+				!message.webhookId
 			) {
 				await message.guild.members.fetch(message.author);
 			}
