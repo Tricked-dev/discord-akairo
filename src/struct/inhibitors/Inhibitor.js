@@ -1,13 +1,31 @@
+// @ts-check
+"use strict";
+
+/**
+ * @typedef {import("../AkairoModule").AkairoModuleOptions} AkairoModuleOptions
+ * @typedef {import("./InhibitorHandler").Command} Command
+ */
+/**
+ * @typedef {Object} TempMessage
+ * @property {import("../commands/CommandUtil")} [util] - command util
+ * @typedef {import("discord.js").Message & TempMessage} Message
+ */
+
 const AkairoError = require("../../util/AkairoError");
 const AkairoModule = require("../AkairoModule");
 
 /**
  * Represents an inhibitor.
  * @param {string} id - Inhibitor ID.
- * @param {InhibitorOptions} [options={}] - Options for the inhibitor.
+ * @param {InhibitorOptions} [options={reason = "", type = "post",priority = 0 }] - Options for the inhibitor.
  * @extends {AkairoModule}
  */
 class Inhibitor extends AkairoModule {
+	/**
+	 * @param {string} id - Inhibitor ID.
+	 * @param {InhibitorOptions} [options={reason = "", type = "post",priority = 0}] - Options for the inhibitor. 
+	 */
+	// @ts-expect-error
 	constructor(id, { category, reason = "", type = "post", priority = 0 } = {}) {
 		super(id, { category });
 
@@ -51,7 +69,8 @@ class Inhibitor extends AkairoModule {
 	 * @param {Command} [command] - Command to check.
 	 * @returns {boolean|Promise<boolean>}
 	 */
-	exec() {
+	// eslint-disable-next-line no-unused-vars
+	exec(message, command) {
 		throw new AkairoError("NOT_IMPLEMENTED", this.constructor.name, "exec");
 	}
 

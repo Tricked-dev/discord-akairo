@@ -1,3 +1,10 @@
+// @ts-check
+"use strict";
+
+/**
+ * @typedef {import("../struct/AkairoClient")} AkairoClient
+ */
+
 const AkairoError = require("../util/AkairoError");
 const { AkairoHandlerEvents } = require("../util/Constants");
 const AkairoModule = require("./AkairoModule");
@@ -14,6 +21,10 @@ const path = require("path");
  * @extends {EventEmitter}
  */
 class AkairoHandler extends EventEmitter {
+	/**
+	 * @param {AkairoClient} client - The Akairo client.
+	 * @param {AkairoHandlerOptions} options - Options for module loading and handling.
+	 */
 	constructor(
 		client,
 		{
@@ -120,6 +131,7 @@ class AkairoHandler extends EventEmitter {
 	 */
 	load(thing, isReload = false) {
 		const isClass = typeof thing === "function";
+		// @ts-expect-error
 		if (!isClass && !this.extensions.has(path.extname(thing))) return undefined;
 
 		let mod = isClass
@@ -128,18 +140,20 @@ class AkairoHandler extends EventEmitter {
 					if (!m) return null;
 					if (m.prototype instanceof this.classToHandle) return m;
 					return m.default ? findExport.call(this, m.default) : null;
+					// @ts-expect-error
 			  }.call(this, require(thing));
 
 		if (mod && mod.prototype instanceof this.classToHandle) {
 			mod = new mod(this); // eslint-disable-line new-cap
 		} else {
+			// @ts-expect-error
 			if (!isClass) delete require.cache[require.resolve(thing)];
 			return undefined;
 		}
 
 		if (this.modules.has(mod.id))
 			throw new AkairoError("ALREADY_LOADED", this.classToHandle.name, mod.id);
-
+		// @ts-expect-error
 		this.register(mod, isClass ? null : thing);
 		this.emit(AkairoHandlerEvents.LOAD, mod, isReload);
 		return mod;
@@ -157,6 +171,7 @@ class AkairoHandler extends EventEmitter {
 		directory = this.directory,
 		filter = this.loadFilter || (() => true)
 	) {
+		// @ts-expect-error
 		const filepaths = this.constructor.readdirRecursive(directory);
 		for (let filepath of filepaths) {
 			filepath = path.resolve(filepath);

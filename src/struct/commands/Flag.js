@@ -1,3 +1,12 @@
+// @ts-check
+"use strict";
+
+/**
+ * @typedef {Object} TempMessage
+ * @property {import("./CommandUtil")} [util] - command util
+ * @typedef {import("discord.js").Message & TempMessage} Message
+ */
+
 /**
  * Represents a special return value during command execution or argument parsing.
  * @param {string} type - Type of flag.

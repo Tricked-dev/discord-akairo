@@ -1,3 +1,25 @@
+// @ts-check
+"use strict";
+
+/**
+ * @typedef {import("discord.js").Snowflake} Snowflake
+ * @typedef {import("discord.js").Channel} Channel
+ * @typedef {import("discord.js").User} User
+ * @typedef {import("discord.js").CommandInteraction} CommandInteraction
+ * @typedef {import("discord.js").PartialMessage} PartialMessage
+ * @typedef {import("../AkairoHandler").AkairoHandlerOptions} AkairoHandlerOptions
+ * @typedef {import("../AkairoClient")} AkairoClient
+ * @typedef {import("./arguments/Argument").DefaultArgumentOptions} DefaultArgumentOptions
+ * @typedef {import("../inhibitors/InhibitorHandler")} InhibitorHandler
+ * @typedef {import("../listeners/ListenerHandler")} ListenerHandler
+ * @typedef {import("../AkairoModule")} AkairoModule
+ */
+/**
+ * @typedef {Object} TempMessage
+ * @property {CommandUtil} [util] - command util
+ * @typedef {import("discord.js").Message & TempMessage} Message
+ */
+
 const AkairoError = require("../../util/AkairoError");
 const AkairoHandler = require("../AkairoHandler");
 const {
@@ -15,6 +37,7 @@ const {
 	intoCallable,
 	isPromise,
 	prefixCompare
+	// @ts-expect-error
 } = require("../../util/Util");
 const AkairoMessage = require("../../util/AkairoMessage");
 const TypeResolver = require("./arguments/TypeResolver");
@@ -29,16 +52,20 @@ class CommandHandler extends AkairoHandler {
 	constructor(
 		client,
 		{
+			// @ts-expect-error
 			directory,
 			classToHandle = Command,
 			extensions = [".js", ".ts"],
+			// @ts-expect-error
 			automateCategories,
+			// @ts-expect-error
 			loadFilter,
 			blockClient = true,
 			blockBots = true,
 			fetchMembers = false,
 			handleEdits = false,
 			storeMessages = false,
+			// @ts-expect-error
 			commandUtil,
 			commandUtilLifetime = 3e5,
 			commandUtilSweepInterval = 3e5,
@@ -48,10 +75,12 @@ class CommandHandler extends AkairoHandler {
 			argumentDefaults = {},
 			prefix = "!",
 			allowMention = true,
+			// @ts-expect-error
 			aliasReplacement,
-			autoDefer = true,
+			autoDefer = false,
 			typing = false,
-			autoRegisterSlashCommands = false
+			autoRegisterSlashCommands = false,
+			execSlash = false
 		} = {}
 	) {
 		if (
@@ -164,6 +193,7 @@ class CommandHandler extends AkairoHandler {
 		this.commandUtilSweepInterval = commandUtilSweepInterval;
 		if (this.commandUtilSweepInterval > 0) {
 			this.client.setInterval(
+				// @ts-expect-error
 				() => this.sweepCommandUtil(),
 				this.commandUtilSweepInterval
 			);
@@ -204,7 +234,8 @@ class CommandHandler extends AkairoHandler {
 		 */
 		this.ignorePermissions =
 			typeof ignorePermissions === "function"
-				? ignorePermissions.bind(this)
+				? // @ts-expect-error
+				  ignorePermissions.bind(this)
 				: ignorePermissions;
 
 		/**
@@ -242,6 +273,7 @@ class CommandHandler extends AkairoHandler {
 		 * The prefix(es) for command parsing.
 		 * @type {string|string[]|PrefixSupplier}
 		 */
+		// @ts-expect-error
 		this.prefix = typeof prefix === "function" ? prefix.bind(this) : prefix;
 
 		/**
@@ -250,7 +282,8 @@ class CommandHandler extends AkairoHandler {
 		 */
 		this.allowMention =
 			typeof allowMention === "function"
-				? allowMention.bind(this)
+				? // @ts-expect-error
+				  allowMention.bind(this)
 				: Boolean(allowMention);
 
 		/**
@@ -260,6 +293,8 @@ class CommandHandler extends AkairoHandler {
 		this.inhibitorHandler = null;
 
 		this.autoDefer = Boolean(autoDefer);
+
+		this.execSlash = Boolean(execSlash);
 
 		/**
 		 * Directory to commands.
@@ -280,7 +315,7 @@ class CommandHandler extends AkairoHandler {
 		this.client.once("ready", () => {
 			if (this.autoRegisterSlashCommands) this.registerSlashCommands();
 
-			this.client.on("message", async m => {
+			this.client.on("messageCreate", async m => {
 				if (m.partial) await m.fetch();
 				this.handle(m);
 			});
@@ -290,10 +325,12 @@ class CommandHandler extends AkairoHandler {
 					if (o.partial) await o.fetch();
 					if (m.partial) await m.fetch();
 					if (o.content === m.content) return;
+					// @ts-expect-error
 					if (this.handleEdits) this.handle(m);
 				});
 			}
-			this.client.on("interaction", i => {
+			this.client.on("interactionCreate", i => {
+				if (!i.isCommand()) return;
 				this.handleSlash(i);
 			});
 		});
@@ -302,6 +339,7 @@ class CommandHandler extends AkairoHandler {
 	registerSlashCommands() {
 		const slashCommandsParsed = [];
 		for (const [, data] of this.modules) {
+			// @ts-expect-error
 			if (data.slash) {
 				const parseDescriptionCommand = description => {
 					if (typeof description === "object") {
@@ -315,9 +353,13 @@ class CommandHandler extends AkairoHandler {
 				};
 
 				slashCommandsParsed.push({
+					// @ts-expect-error
 					name: data.aliases[0],
+					// @ts-expect-error
 					description: parseDescriptionCommand(data.description),
+					// @ts-expect-error
 					options: data.slashOptions,
+					// @ts-expect-error
 					guilds: data.slashGuilds
 				});
 			}
@@ -440,6 +482,7 @@ class CommandHandler extends AkairoHandler {
 				if (prefixes.size === 1) {
 					this.prefixes.delete(command.prefix);
 				} else {
+					// @ts-expect-error
 					prefixes.delete(command.prefix);
 				}
 			}
@@ -459,7 +502,7 @@ class CommandHandler extends AkairoHandler {
 				this.fetchMembers &&
 				message.guild &&
 				!message.member &&
-				!message.webhookID
+				!message.webhookId
 			) {
 				await message.guild.members.fetch(message.author);
 			}
@@ -526,8 +569,6 @@ class CommandHandler extends AkairoHandler {
 	 */
 	// eslint-disable-next-line complexity
 	async handleSlash(interaction) {
-		if (!interaction.isCommand()) return false;
-
 		const command = this.findCommand(interaction.commandName);
 
 		if (!command) {
@@ -541,12 +582,7 @@ class CommandHandler extends AkairoHandler {
 		});
 
 		try {
-			if (
-				this.fetchMembers &&
-				message.guild &&
-				!message.member &&
-				!message.webhookID
-			) {
+			if (this.fetchMembers && message.guild && !message.member) {
 				await message.guild.members.fetch(message.author);
 			}
 
@@ -613,7 +649,7 @@ class CommandHandler extends AkairoHandler {
 			}
 
 			if (this.autoDefer || command.slashEphemeral) {
-				await interaction.defer(command.slashEphemeral);
+				await interaction.defer({ ephemeral: command.slashEphemeral });
 			}
 
 			try {
@@ -624,8 +660,10 @@ class CommandHandler extends AkairoHandler {
 					convertedOptions
 				);
 				const ret =
+					// @ts-expect-error
 					command.execSlash || this.execSlash
-						? await command.execSlash(message, convertedOptions)
+						? // @ts-expect-error
+						  await command.execSlash(message, convertedOptions)
 						: await command.exec(message, convertedOptions);
 				this.emit(
 					CommandHandlerEvents.SLASH_FINISHED,
@@ -656,7 +694,7 @@ class CommandHandler extends AkairoHandler {
 		let key;
 		try {
 			if (!ignore) {
-				if (message.edited && !command.editable) return false;
+				if (message.editedTimestamp && !command.editable) return false;
 				if (await this.runPostTypeInhibitors(message, command)) return false;
 			}
 
@@ -680,6 +718,7 @@ class CommandHandler extends AkairoHandler {
 				return this.handleDirectCommand(
 					message,
 					args.rest,
+					// @ts-expect-error
 					continueCommand,
 					args.ignore
 				);
@@ -699,7 +738,8 @@ class CommandHandler extends AkairoHandler {
 				}
 			}
 
-			return await this.runCommand(message, command, args);
+			await this.runCommand(message, command, args);
+			return true;
 		} catch (err) {
 			this.emitError(err, message, command);
 			return null;
@@ -727,11 +767,19 @@ class CommandHandler extends AkairoHandler {
 	async handleRegexCommands(message) {
 		const hasRegexCommands = [];
 		for (const command of this.modules.values()) {
-			if (message.edited ? command.editable : true) {
+			if (
+				message.editedTimestamp
+					? // @ts-expect-error
+					  command.editable
+					: true
+			) {
 				const regex =
+					// @ts-expect-error
 					typeof command.regex === "function"
-						? command.regex(message)
-						: command.regex;
+						? // @ts-expect-error
+						  command.regex(message)
+						: // @ts-expect-error
+						  command.regex;
 				if (regex) hasRegexCommands.push({ command, regex });
 			}
 		}
@@ -763,9 +811,12 @@ class CommandHandler extends AkairoHandler {
 			promises.push(
 				(async () => {
 					try {
+						// @ts-expect-error
 						if (await this.runPostTypeInhibitors(message, command)) return;
+						// @ts-expect-error
 						const before = command.before(message);
 						if (isPromise(before)) await before;
+						// @ts-expect-error
 						await this.runCommand(message, command, { match, matches });
 					} catch (err) {
 						this.emitError(err, message, command);
@@ -788,9 +839,15 @@ class CommandHandler extends AkairoHandler {
 
 		const filterPromises = [];
 		for (const command of this.modules.values()) {
-			if (message.edited && !command.editable) continue;
+			if (
+				message.editedTimestamp &&
+				// @ts-expect-error
+				!command.editable
+			)
+				continue;
 			filterPromises.push(
 				(async () => {
+					// @ts-expect-error
 					let cond = command.condition(message);
 					if (isPromise(cond)) cond = await cond;
 					if (cond) trueCommands.push(command);
@@ -826,7 +883,7 @@ class CommandHandler extends AkairoHandler {
 
 	/**
 	 * Runs inhibitors with the all type.
-	 * @param {Message} message - Message to handle.
+	 * @param {Message|AkairoMessage} message - Message to handle.
 	 * @param {boolean} slash - Whether or not the command should is a slash command.
 	 * @returns {Promise<boolean>}
 	 */
@@ -855,6 +912,7 @@ class CommandHandler extends AkairoHandler {
 				message,
 				BuiltInReasons.BOT
 			);
+			// @ts-expect-error
 		} else if (!slash && this.hasPrompt(message.channel, message.author)) {
 			this.emit(CommandHandlerEvents.IN_PROMPT, message);
 		} else {
@@ -866,7 +924,7 @@ class CommandHandler extends AkairoHandler {
 
 	/**
 	 * Runs inhibitors with the pre type.
-	 * @param {Message} message - Message to handle.
+	 * @param {Message|AkairoMessage} message - Message to handle.
 	 * @returns {Promise<boolean>}
 	 */
 	async runPreTypeInhibitors(message) {
@@ -885,7 +943,7 @@ class CommandHandler extends AkairoHandler {
 
 	/**
 	 * Runs inhibitors with the post type.
-	 * @param {Message} message - Message to handle.
+	 * @param {Message|AkairoMessage} message - Message to handle.
 	 * @param {Command} command - Command to handle.
 	 * @param {boolean} slash - Whether or not the command should is a slash command.
 	 * @returns {Promise<boolean>}
@@ -921,6 +979,7 @@ class CommandHandler extends AkairoHandler {
 			return true;
 		}
 
+		// @ts-expect-error
 		if (command.onlyNsfw && !message.channel.nsfw) {
 			this.emit(event, message, command, BuiltInReasons.NOT_NSFW);
 			return true;
@@ -948,7 +1007,7 @@ class CommandHandler extends AkairoHandler {
 
 	/**
 	 * Runs permission checks.
-	 * @param {Message} message - Message that called the command.
+	 * @param {Message|AkairoMessage} message - Message that called the command.
 	 * @param {Command} command - Command to cooldown.
 	 * @param {boolean} slash - Whether or not the command is a slash command.
 	 * @returns {Promise<boolean>}
@@ -973,6 +1032,7 @@ class CommandHandler extends AkairoHandler {
 				}
 			} else if (message.guild) {
 				const missing = message.channel
+					// @ts-expect-error
 					.permissionsFor(this.client.user)
 					.missing(command.clientPermissions);
 				if (missing.length) {
@@ -1017,6 +1077,7 @@ class CommandHandler extends AkairoHandler {
 					}
 				} else if (message.guild) {
 					const missing = message.channel
+						// @ts-expect-error
 						.permissionsFor(message.author)
 						.missing(command.userPermissions);
 					if (missing.length) {
@@ -1040,7 +1101,7 @@ class CommandHandler extends AkairoHandler {
 
 	/**
 	 * Runs cooldowns and checks if a user is under cooldown.
-	 * @param {Message} message - Message that called the command.
+	 * @param {Message|AkairoMessage} message - Message that called the command.
 	 * @param {Command} command - Command to cooldown.
 	 * @returns {boolean}
 	 */
@@ -1130,7 +1191,7 @@ class CommandHandler extends AkairoHandler {
 
 	/**
 	 * Parses the command and its argument list.
-	 * @param {Message} message - Message that called the command.
+	 * @param {Message|AkairoMessage} message - Message that called the command.
 	 * @returns {Promise<ParsedComponentData>}
 	 */
 	async parseCommand(message) {
@@ -1153,11 +1214,12 @@ class CommandHandler extends AkairoHandler {
 
 	/**
 	 * Parses the command and its argument list using prefix overwrites.
-	 * @param {Message} message - Message that called the command.
+	 * @param {Message|AkairoMessage} message - Message that called the command.
 	 * @returns {Promise<ParsedComponentData>}
 	 */
 	async parseCommandOverwrittenPrefixes(message) {
 		if (!this.prefixes.size) {
+			// @ts-expect-error
 			return {};
 		}
 
@@ -1173,7 +1235,7 @@ class CommandHandler extends AkairoHandler {
 
 	/**
 	 * Runs parseWithPrefix on multiple prefixes and returns the best parse.
-	 * @param {Message} message - Message to parse.
+	 * @param {Message|AkairoMessage} message - Message to parse.
 	 * @param {any[]} pairs - Pairs of prefix to associated commands.
 	 * That is, `[string, Set<string> | null][]`.
 	 * @returns {ParsedComponentData}
@@ -1192,13 +1254,14 @@ class CommandHandler extends AkairoHandler {
 			return guess;
 		}
 
+		// @ts-expect-error
 		return {};
 	}
 
 	/**
 	 * Tries to parse a message with the given prefix and associated commands.
 	 * Associated commands refer to when a prefix is used in prefix overrides.
-	 * @param {Message} message - Message to parse.
+	 * @param {Message|AkairoMessage} message - Message to parse.
 	 * @param {string} prefix - Prefix to use.
 	 * @param {Set<string>} [associatedCommands=null] - Associated commands.
 	 * @returns {ParsedComponentData}
@@ -1206,6 +1269,7 @@ class CommandHandler extends AkairoHandler {
 	parseWithPrefix(message, prefix, associatedCommands = null) {
 		const lowerContent = message.content.toLowerCase();
 		if (!lowerContent.startsWith(prefix.toLowerCase())) {
+			// @ts-expect-error
 			return {};
 		}
 
@@ -1221,14 +1285,17 @@ class CommandHandler extends AkairoHandler {
 		const afterPrefix = message.content.slice(prefix.length).trim();
 
 		if (!command) {
+			// @ts-expect-error
 			return { prefix, alias, content, afterPrefix };
 		}
 
 		if (associatedCommands == null) {
 			if (command.prefix != null) {
+				// @ts-expect-error
 				return { prefix, alias, content, afterPrefix };
 			}
 		} else if (!associatedCommands.has(command.id)) {
+			// @ts-expect-error
 			return { prefix, alias, content, afterPrefix };
 		}
 
@@ -1238,11 +1305,12 @@ class CommandHandler extends AkairoHandler {
 	/**
 	 * Handles errors from the handling.
 	 * @param {Error} err - The error.
-	 * @param {Message} message - Message that called the command.
-	 * @param {Command} [command] - Command that errored.
+	 * @param {Message|AkairoMessage} message - Message that called the command.
+	 * @param {Command|AkairoModule} [command] - Command that errored.
 	 * @returns {void}
 	 */
 	emitError(err, message, command) {
+		// @ts-expect-error
 		if (command && command.typing) message.channel.stopTyping();
 		if (this.listenerCount(CommandHandlerEvents.ERROR)) {
 			this.emit(CommandHandlerEvents.ERROR, err, message, command);
@@ -1264,6 +1332,7 @@ class CommandHandler extends AkairoHandler {
 			const now = Date.now();
 			const message = commandUtil.message;
 			if (
+				// @ts-expect-error
 				now - (message.editedTimestamp || message.createdTimestamp) >
 				lifetime
 			) {
@@ -1319,6 +1388,7 @@ class CommandHandler extends AkairoHandler {
 	 * @returns {Command}
 	 */
 	findCommand(name) {
+		// @ts-expect-error
 		return this.modules.get(this.aliases.get(name.toLowerCase()));
 	}
 
@@ -1525,7 +1595,7 @@ module.exports = CommandHandler;
 /**
  * Data for managing cooldowns.
  * @typedef {Object} CooldownData
- * @prop {Timeout} timer - Timeout object.
+ * @prop {NodeJS.Timer} timer - Timeout object.
  * @prop {number} end - When the cooldown ends.
  * @prop {number} uses - Number of times the command has been used.
  */

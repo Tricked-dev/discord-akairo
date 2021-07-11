@@ -1,3 +1,6 @@
+// @ts-check
+"use strict";
+
 const { Collection } = require("discord.js");
 
 /**

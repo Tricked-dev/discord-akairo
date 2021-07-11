@@ -1,3 +1,10 @@
+// @ts-check
+"use strict";
+
+/**
+ * @typedef {import('./arguments/Argument').ArgumentOptions} ArgumentOptions
+ */
+
 const { ArgumentMatches } = require("../../util/Constants");
 
 /*
@@ -56,6 +63,7 @@ const { ArgumentMatches } = require("../../util/Constants");
 class Tokenizer {
 	constructor(
 		content,
+		// @ts-expect-error
 		{ flagWords = [], optionFlagWords = [], quoted = true, separator } = {}
 	) {
 		this.content = content;
@@ -451,6 +459,7 @@ class ContentParser {
 		flagWords = [],
 		optionFlagWords = [],
 		quoted = true,
+		// @ts-expect-error
 		separator
 	} = {}) {
 		this.flagWords = flagWords;

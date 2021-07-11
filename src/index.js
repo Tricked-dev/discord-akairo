@@ -1,3 +1,6 @@
+// @ts-check
+"use strict";
+
 module.exports = {
 	// Core
 	AkairoClient: require("./struct/AkairoClient"),

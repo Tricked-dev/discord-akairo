@@ -1,3 +1,6 @@
+// @ts-check
+"use strict";
+
 class Util {
 	static isPromise(value) {
 		return (

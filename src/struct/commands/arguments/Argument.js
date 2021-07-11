@@ -1,5 +1,26 @@
+// @ts-check
+"use strict";
+
+/**
+ * @typedef {import("../Command")} Command
+ * @typedef {import("../../AkairoClient")} AkairoClient
+ * @typedef {import("../CommandUtil").CommandHandler} CommandHandler
+ * @typedef {import("discord.js").MessageOptions} MessageOptions
+ * @typedef {import("discord.js").MessageEmbed} MessageEmbed
+ * @typedef {import("discord.js").MessageAttachment} MessageAttachment
+ * @typedef {import("discord.js").MessageAdditions} MessageAdditions
+ * @typedef {import("../CommandUtil")} CommandUtil
+ * @typedef {import("./TypeResolver")} TypeResolver
+ */
+/**
+ * @typedef {Object} TempMessage
+ * @property {import("../CommandUtil")} [util] - command util
+ * @typedef {import("discord.js").Message & TempMessage} Message
+ */
+
 const { ArgumentMatches, ArgumentTypes } = require("../../../util/Constants");
 const Flag = require("../Flag");
+// @ts-expect-error
 const { choice, intoCallable, isPromise } = require("../../../util/Util");
 
 /**
@@ -40,6 +61,7 @@ class Argument {
 		 * The type to cast to or a function to use to cast.
 		 * @type {ArgumentType|ArgumentTypeCaster}
 		 */
+		// @ts-expect-error
 		this.type = typeof type === "function" ? type.bind(this) : type;
 
 		/**
@@ -114,6 +136,7 @@ class Argument {
 	 * @type {CommandHandler}
 	 */
 	get handler() {
+		// @ts-expect-error
 		return this.command.handler;
 	}
 
@@ -295,9 +318,11 @@ class Argument {
 
 				if (startText) {
 					sentStart = await (message.util || message.channel).send(startText);
-					if (message.util) {
+					if (message.util && sentStart) {
 						message.util.setEditable(false);
+						// @ts-expect-error
 						message.util.setLastResponse(sentStart);
+						// @ts-expect-error
 						message.util.addMessage(sentStart);
 					}
 				}
@@ -306,14 +331,12 @@ class Argument {
 			let input;
 			try {
 				input = (
-					await message.channel.awaitMessages(
-						m => m.author.id === message.author.id,
-						{
-							max: 1,
-							time: promptOptions.time,
-							errors: ["time"]
-						}
-					)
+					await message.channel.awaitMessages({
+						filter: m => m.author.id === message.author.id,
+						max: 1,
+						time: promptOptions.time,
+						errors: ["time"]
+					})
 				).first();
 
 				if (message.util) message.util.addMessage(input);
@@ -445,6 +468,7 @@ class Argument {
 			return res;
 		}
 
+		// @ts-expect-error
 		if (type instanceof RegExp) {
 			const match = phrase.match(type);
 			if (!match) return null;
@@ -870,7 +894,7 @@ module.exports = Argument;
 /**
  * A function for processing some value to use as an argument.
  * This is mainly used in composing argument types.
- * @typedef {Function} ArgumentTypeCaster
+ * @typedef {Function} ArgumentTypeCaster_
  * @param {Message} message - Message that triggered the command.
  * @param {any} value - Some value.
  * @returns {any}

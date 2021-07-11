@@ -1,4 +1,5 @@
 declare module "discord-akairo" {
+	import { APIInteractionGuildMember, APIMessage } from "discord-api-types/v8";
 	import {
 		ApplicationCommandOptionData,
 		ApplicationCommandOptionType,
@@ -8,22 +9,27 @@ declare module "discord-akairo" {
 		ClientOptions,
 		Collection,
 		CommandInteraction,
+		DMChannel,
 		Emoji,
 		Guild,
+		GuildChannel,
 		GuildMember,
 		InteractionReplyOptions,
 		Message,
 		MessageAttachment,
 		MessageEditOptions,
 		MessageEmbed,
+		MessageEmbedOptions,
 		MessageOptions,
 		MessagePayload,
 		NewsChannel,
+		PartialDMChannel,
 		PermissionResolvable,
 		ReplyMessageOptions,
 		Role,
 		Snowflake,
 		TextChannel,
+		ThreadChannel,
 		User,
 		UserResolvable,
 		WebhookEditMessageOptions
@@ -488,7 +494,7 @@ declare module "discord-akairo" {
 		 */
 		public checkChannel(
 			text: string,
-			channel: Channel,
+			channel: GuildChannel | ThreadChannel,
 			caseSensitive?: boolean,
 			wholeWord?: boolean
 		): boolean;
@@ -567,7 +573,9 @@ declare module "discord-akairo" {
 		 * Makes a Collection.
 		 * @param iterable - Entries to fill with.
 		 */
-		public collection<K, V>(iterable?: Iterable<[K, V][]>): Collection<K, V>;
+		public collection<K, V>(
+			iterable?: ReadonlyArray<readonly [K, V]> | null
+		): Collection<K, V>;
 
 		/**
 		 * Compares two member objects presences and checks if they stopped or started a stream or not.
@@ -584,7 +592,7 @@ declare module "discord-akairo" {
 		 * Makes a MessageEmbed.
 		 * @param data - Embed data.
 		 */
-		public embed(data?: object): MessageEmbed;
+		public embed(data?: MessageEmbed | MessageEmbedOptions): MessageEmbed;
 
 		/**
 		 * Combination of `<Client>.fetchUser()` and `<Guild>.fetchMember()`.
@@ -594,9 +602,14 @@ declare module "discord-akairo" {
 		 */
 		public fetchMember(
 			guild: Guild,
-			id: string,
+			id: Snowflake,
 			cache?: boolean
 		): Promise<GuildMember>;
+
+		/**
+		 * Array of permission names.
+		 */
+		public permissionNames(): string[];
 
 		/**
 		 * Resolves a channel from a string, such as an ID, a name, or a mention.
@@ -607,10 +620,10 @@ declare module "discord-akairo" {
 		 */
 		public resolveChannel(
 			text: string,
-			channels: Collection<Snowflake, Channel>,
+			channels: Collection<Snowflake, GuildChannel | ThreadChannel>,
 			caseSensitive?: boolean,
 			wholeWord?: boolean
-		): Channel;
+		): GuildChannel | ThreadChannel;
 
 		/**
 		 * Resolves multiple channels from a string, such as an ID, a name, or a mention.
@@ -621,10 +634,10 @@ declare module "discord-akairo" {
 		 */
 		public resolveChannels(
 			text: string,
-			channels: Collection<Snowflake, Channel>,
+			channels: Collection<Snowflake, GuildChannel>,
 			caseSensitive?: boolean,
 			wholeWord?: boolean
-		): Collection<Snowflake, Channel>;
+		): Collection<Snowflake, GuildChannel>;
 
 		/**
 		 * Resolves a custom emoji from a string, such as a name or a mention.
@@ -752,7 +765,7 @@ declare module "discord-akairo" {
 		 * @param wholeWord - Makes finding by name match full word only.
 		 */
 		public resolveUser(
-			text: string,
+			text: Snowflake | string,
 			users: Collection<Snowflake, User>,
 			caseSensitive?: boolean,
 			wholeWord?: boolean
@@ -777,7 +790,7 @@ declare module "discord-akairo" {
 	 * A command interaction represented as a message.
 	 * @param client - AkairoClient
 	 * @param interaction - CommandInteraction
-	 * @param param2 - any
+	 * @param additionalInfo - Other information
 	 */
 	export class AkairoMessage {
 		public constructor(
@@ -790,7 +803,12 @@ declare module "discord-akairo" {
 		public author: User;
 
 		/** The channel that the interaction was sent in. */
-		public channel?: TextChannel | NewsChannel;
+		public channel?:
+			| TextChannel
+			| DMChannel
+			| NewsChannel
+			| ThreadChannel
+			| PartialDMChannel;
 
 		/** The Akairo client. */
 		public client: AkairoClient;
@@ -817,7 +835,7 @@ declare module "discord-akairo" {
 		 * Represents the author of the interaction as a guild member.
 		 * Only available if the interaction comes from a guild where the author is still a member.
 		 */
-		public member: GuildMember;
+		public member: GuildMember | APIInteractionGuildMember;
 
 		/** Whether or not the interaction has been replied to. */
 		public replied: boolean;
@@ -836,7 +854,7 @@ declare module "discord-akairo" {
 		 */
 		public reply(
 			options: string | MessagePayload | InteractionReplyOptions
-		): Promise<void>;
+		): Promise<Message | APIMessage>;
 	}
 
 	/**
@@ -1004,6 +1022,9 @@ declare module "discord-akairo" {
 		/** Automatically defer messages "BotName is thinking". */
 		public autoDefer: boolean;
 
+		/**  Specify whether to register all slash commands when starting the client */
+		public autoRegisterSlashCommands: boolean;
+
 		/** Whether or not to block bots. */
 		public blockBots: boolean;
 
@@ -1078,7 +1099,10 @@ declare module "discord-akairo" {
 		public resolver: TypeResolver;
 
 		/** Whether or not to store messages in CommandUtil. */
-		public storeMessage: boolean;
+		public storeMessages: boolean;
+
+		/** Show "BotName is typing" information message on the text channels when a command is running. */
+		public typing: boolean;
 
 		/**
 		 * Adds an ongoing prompt in order to prevent command usage in the channel.
@@ -1099,7 +1123,11 @@ declare module "discord-akairo" {
 		 * @param message - Message that called the command.
 		 * @param command - Command that errored.
 		 */
-		public emitError(err: Error, message: Message, command?: Command): void;
+		public emitError(
+			err: Error,
+			message: Message | AkairoMessage,
+			command?: Command
+		): void;
 
 		/**
 		 * Finds a category by name.
@@ -1336,6 +1364,17 @@ declare module "discord-akairo" {
 		public runPreTypeInhibitors(
 			message: Message | AkairoMessage
 		): Promise<boolean>;
+
+		/**
+		 * Set up the command handler
+		 */
+		public setup(): void;
+
+		/**
+		 * Sweep command util instances from cache and returns amount sweeped.
+		 * @param lifetime - Messages older than this will have their command util instance sweeped. This is in milliseconds and defaults to the `commandUtilLifetime` option.
+		 */
+		public sweepCommandUtil(lifetime: number): number;
 
 		/**
 		 * Set the inhibitor handler to use.
@@ -1602,7 +1641,10 @@ declare module "discord-akairo" {
 	 * @param message - Message that triggered the command.
 	 */
 	export class CommandUtil {
-		public constructor(handler: CommandHandler, message: Message);
+		public constructor(
+			handler: CommandHandler,
+			message: Message | AkairoMessage
+		);
 
 		/**  The command handler. */
 		public handler: CommandHandler;
@@ -1614,7 +1656,7 @@ declare module "discord-akairo" {
 		public lastResponse?: Message;
 
 		/** Message that triggered the command. */
-		public message: Message;
+		public message: Message | AkairoMessage;
 
 		/** Messages stored from prompts and prompt replies. */
 		public messages?: Collection<Snowflake, Message>;
@@ -1650,24 +1692,22 @@ declare module "discord-akairo" {
 		 * @param options - Options to use.
 		 */
 		public reply(
-			options:
-				| string
-				| MessagePayload
-				| ReplyMessageOptions
-				| InteractionReplyOptions
+			options:string | MessagePayload | ReplyMessageOptions
 		): Promise<Message>;
+		public reply(
+			options:string | MessagePayload | InteractionReplyOptions
+		): Promise<Message|APIMessage>;
 
 		/**
 		 * Sends a response or edits an old response if available.
 		 * @param options - Options to use.
 		 */
 		public send(
-			options:
-				| string
-				| MessagePayload
-				| MessageOptions
-				| InteractionReplyOptions
+			options: string | MessagePayload | MessageOptions
 		): Promise<Message>;
+		public send(
+			options: string | MessagePayload | InteractionReplyOptions
+		): Promise<Message|APIMessage>;
 
 		/**
 		 * Sends a response, overwriting the last response.
@@ -1687,7 +1727,12 @@ declare module "discord-akairo" {
 		 * Sets the last response.
 		 * @param message - Message to set.
 		 */
-		public setLastResponse(message: Message | Message[]): Message;
+		public setLastResponse(message: Message): Message;
+
+		/**
+		 * Deletes the last response.
+		 */
+		public delete(): Promise<Message | void>;
 	}
 
 	/**
@@ -1890,7 +1935,7 @@ declare module "discord-akairo" {
 		 */
 		public test(
 			type: "all" | "pre" | "post",
-			message: Message,
+			message: Message | AkairoMessage,
 			command?: Command
 		): Promise<string | void>;
 

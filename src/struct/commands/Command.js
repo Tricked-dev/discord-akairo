@@ -1,3 +1,24 @@
+// @ts-check
+"use strict";
+
+/**
+ * @typedef {import("../AkairoModule").AkairoModuleOptions} AkairoModuleOptions
+ * @typedef {import("./CommandHandler").DefaultArgumentOptions} DefaultArgumentOptions
+ * @typedef {import("./CommandHandler").PrefixSupplier} PrefixSupplier
+ * @typedef {import("./CommandHandler").IgnoreCheckPredicate} IgnoreCheckPredicate
+ * @typedef {import("../../util/AkairoMessage")} AkairoMessage
+ * @typedef {import("./arguments/ArgumentRunner").ArgumentRunnerState} ArgumentRunnerState
+ * @typedef {import("./ContentParser").ContentParserResult} ContentParserResult
+ * @typedef {import("./Flag")} Flag
+ * @typedef {import("discord.js").PermissionResolvable} PermissionResolvable
+ * @typedef {import("discord.js").Snowflake} Snowflake
+ */
+/**
+ * @typedef {Object} TempMessage
+ * @property {import("./CommandUtil")} [util] - command util
+ * @typedef {import("discord.js").Message & TempMessage} Message
+ */
+
 const AkairoError = require("../../util/AkairoError");
 const AkairoModule = require("../AkairoModule");
 const Argument = require("./arguments/Argument");
@@ -11,38 +32,43 @@ const ContentParser = require("./ContentParser");
  * @extends {AkairoModule}
  */
 class Command extends AkairoModule {
+	/**
+	 * @param {string} id - Command ID.
+	 * @param {CommandOptions} options - Options for the command.
+	 */
 	constructor(id, options = {}) {
 		super(id, { category: options.category });
 
-		const {
-			onlyNsfw = false,
-			aliases = [],
-			args = this.args || [],
-			quoted = true,
-			separator,
-			channel = null,
-			ownerOnly = false,
-			superUserOnly = false,
-			editable = true,
-			typing = false,
-			cooldown = null,
-			ratelimit = 1,
-			argumentDefaults = {},
-			description = "",
-			prefix = this.prefix,
-			clientPermissions = this.clientPermissions,
-			userPermissions = this.userPermissions,
-			regex = this.regex,
-			condition = this.condition || (() => false),
-			before = this.before || (() => undefined),
-			lock,
-			ignoreCooldown,
-			ignorePermissions,
-			flags = [],
-			optionFlags = [],
-			slash = false,
-			slashOptions,
-			slashEphemeral = false,
+		/** @type {CommandOptions}*/
+		const { // @ts-expect-error
+			onlyNsfw = false, // @ts-expect-error
+			aliases = [], // @ts-expect-error
+			args = this.args || [], // @ts-expect-error
+			quoted = true, // @ts-expect-error
+			separator, // @ts-expect-error
+			channel = null, // @ts-expect-error
+			ownerOnly = false, // @ts-expect-error
+			superUserOnly = false, // @ts-expect-error
+			editable = true, // @ts-expect-error
+			typing = false, // @ts-expect-error
+			cooldown = null, // @ts-expect-error
+			ratelimit = 1, // @ts-expect-error
+			argumentDefaults = {}, // @ts-expect-error
+			description = "", // @ts-expect-error
+			prefix = this.prefix, // @ts-expect-error
+			clientPermissions = this.clientPermissions,// @ts-expect-error
+			userPermissions = this.userPermissions,// @ts-expect-error
+			regex = this.regex,// @ts-expect-error
+			condition = this.condition || (() => false),// @ts-expect-error
+			before = this.before || (() => undefined),// @ts-expect-error
+			lock,// @ts-expect-error
+			ignoreCooldown,// @ts-expect-error
+			ignorePermissions,// @ts-expect-error
+			flags = [],// @ts-expect-error
+			optionFlags = [],// @ts-expect-error
+			slash = false,// @ts-expect-error
+			slashOptions,// @ts-expect-error
+			slashEphemeral = false,// @ts-expect-error
 			slashGuilds = []
 		} = options;
 		/**
@@ -65,6 +91,7 @@ class Command extends AkairoModule {
 		this.argumentRunner = new ArgumentRunner(this);
 		this.argumentGenerator = Array.isArray(args)
 			? ArgumentRunner.fromArguments(
+					// @ts-expect-error
 					args.map(arg => [arg.id, new Argument(this, arg)])
 			  )
 			: args.bind(this);
@@ -256,11 +283,12 @@ class Command extends AkairoModule {
 	/**
 	 * Executes the command.
 	 * @abstract
-	 * @param {Message} message - Message that triggered the command.
+	 * @param {Message|AkairoMessage} message - Message that triggered the command.
 	 * @param {any} args - Evaluated arguments.
 	 * @returns {any}
 	 */
-	exec() {
+	// eslint-disable-next-line no-unused-vars
+	exec(message, args) {
 		throw new AkairoError("NOT_IMPLEMENTED", this.constructor.name, "exec");
 	}
 

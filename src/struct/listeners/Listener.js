@@ -1,3 +1,12 @@
+// @ts-check
+"use strict";
+
+/**
+ * @typedef {import('../AkairoModule').AkairoModuleOptions} AkairoModuleOptions
+ * @typedef {import('./ListenerHandler').EventEmitter} EventEmitter
+ * @typedef {import('./ListenerHandler')} ListenerHandler
+ */
+
 const AkairoError = require("../../util/AkairoError");
 const AkairoModule = require("../AkairoModule");
 
@@ -8,6 +17,11 @@ const AkairoModule = require("../AkairoModule");
  * @extends {AkairoModule}
  */
 class Listener extends AkairoModule {
+	/**
+	 * @param {string} id - The ID of this listener.
+	 * @param {ListenerHandler} handler - Options for the listener
+	 */
+	// @ts-expect-error
 	constructor(id, { category, emitter, event, type = "on" } = {}) {
 		super(id, { category });
 
@@ -45,10 +59,11 @@ class Listener extends AkairoModule {
 	/**
 	 * Executes the listener.
 	 * @abstract
-	 * @param {...args} [args] - Arguments.
+	 * @param {...any} [args] - Arguments.
 	 * @returns {any}
 	 */
-	exec() {
+	// eslint-disable-next-line no-unused-vars
+	exec(...args) {
 		throw new AkairoError("NOT_IMPLEMENTED", this.constructor.name, "exec");
 	}
 
@@ -71,7 +86,7 @@ module.exports = Listener;
 
 /**
  * Options to use for listener execution behavior.
- * Also includes properties from AkairoModuleOptions.
+ * Also includes properties from {@link AkairoModuleOptions}.
  * @typedef {AkairoModuleOptions} ListenerOptions
  * @prop {string|EventEmitter} emitter - The event emitter, either a key from `ListenerHandler#emitters` or an EventEmitter.
  * @prop {string} event - Event name to listen to.

@@ -1,3 +1,6 @@
+// @ts-check
+"use strict";
+
 module.exports = {
 	ArgumentMatches: {
 		PHRASE: "phrase",

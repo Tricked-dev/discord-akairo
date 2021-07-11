@@ -1,6 +1,16 @@
+// @ts-check
+"use strict";
+
+/**
+ * @typedef {import("../AkairoClient")} AkairoClient
+ * @typedef {import("../AkairoHandler").AkairoHandlerOptions} AkairoHandlerOptions
+ * @typedef {import("../AkairoHandler")} EventEmitter
+ */
+
 const AkairoError = require("../../util/AkairoError");
 const AkairoHandler = require("../AkairoHandler");
 const { Collection } = require("discord.js");
+// @ts-expect-error
 const { isEventEmitter } = require("../../util/Util");
 const Listener = require("./Listener");
 
@@ -11,6 +21,10 @@ const Listener = require("./Listener");
  * @extends {AkairoHandler}
  */
 class ListenerHandler extends AkairoHandler {
+	/**
+	 * @param {AkairoClient} client - The Akairo client.
+	 * @param {AkairoHandlerOptions} options - Options.
+	 */
 	constructor(
 		client,
 		{
@@ -48,6 +62,7 @@ class ListenerHandler extends AkairoHandler {
 		 * @type {Collection<string, EventEmitter>}
 		 */
 		this.emitters = new Collection();
+		// @ts-expect-error
 		this.emitters.set("client", this.client);
 
 		/**
@@ -73,7 +88,6 @@ class ListenerHandler extends AkairoHandler {
 		super.register(listener, filepath);
 		listener.exec = listener.exec.bind(listener);
 		this.addToEmitter(listener.id);
-		return listener;
 	}
 
 	/**
@@ -92,13 +106,22 @@ class ListenerHandler extends AkairoHandler {
 	 * @returns {Listener}
 	 */
 	addToEmitter(id) {
+		/**
+		 * @type {Listener}
+		 */
+		// @ts-expect-error
 		const listener = this.modules.get(id.toString());
 		if (!listener)
 			throw new AkairoError("MODULE_NOT_FOUND", this.classToHandle.name, id);
 
+		/**
+		 * @type {AkairoHandler}
+		 */
+		// @ts-expect-error
 		const emitter = isEventEmitter(listener.emitter)
 			? listener.emitter
-			: this.emitters.get(listener.emitter);
+			: // @ts-expect-error
+			  this.emitters.get(listener.emitter);
 		if (!isEventEmitter(emitter))
 			throw new AkairoError("INVALID_TYPE", "emitter", "EventEmitter", true);
 
@@ -117,13 +140,22 @@ class ListenerHandler extends AkairoHandler {
 	 * @returns {Listener}
 	 */
 	removeFromEmitter(id) {
+		/**
+		 * @type {Listener}
+		 */
+		// @ts-expect-error
 		const listener = this.modules.get(id.toString());
 		if (!listener)
 			throw new AkairoError("MODULE_NOT_FOUND", this.classToHandle.name, id);
 
+		/**
+		 * @type {AkairoHandler}
+		 */
+		// @ts-expect-error
 		const emitter = isEventEmitter(listener.emitter)
 			? listener.emitter
-			: this.emitters.get(listener.emitter);
+			: // @ts-expect-error
+			  this.emitters.get(listener.emitter);
 		if (!isEventEmitter(emitter))
 			throw new AkairoError("INVALID_TYPE", "emitter", "EventEmitter", true);
 
