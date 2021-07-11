@@ -40,7 +40,8 @@ class Command extends AkairoModule {
 		super(id, { category: options.category });
 
 		/** @type {CommandOptions}*/
-		const { // @ts-expect-error
+		const {
+			// @ts-expect-error
 			onlyNsfw = false, // @ts-expect-error
 			aliases = [], // @ts-expect-error
 			args = this.args || [], // @ts-expect-error
@@ -56,19 +57,19 @@ class Command extends AkairoModule {
 			argumentDefaults = {}, // @ts-expect-error
 			description = "", // @ts-expect-error
 			prefix = this.prefix, // @ts-expect-error
-			clientPermissions = this.clientPermissions,// @ts-expect-error
-			userPermissions = this.userPermissions,// @ts-expect-error
-			regex = this.regex,// @ts-expect-error
-			condition = this.condition || (() => false),// @ts-expect-error
-			before = this.before || (() => undefined),// @ts-expect-error
-			lock,// @ts-expect-error
-			ignoreCooldown,// @ts-expect-error
-			ignorePermissions,// @ts-expect-error
-			flags = [],// @ts-expect-error
-			optionFlags = [],// @ts-expect-error
-			slash = false,// @ts-expect-error
-			slashOptions,// @ts-expect-error
-			slashEphemeral = false,// @ts-expect-error
+			clientPermissions = this.clientPermissions, // @ts-expect-error
+			userPermissions = this.userPermissions, // @ts-expect-error
+			regex = this.regex, // @ts-expect-error
+			condition = this.condition || (() => false), // @ts-expect-error
+			before = this.before || (() => undefined), // @ts-expect-error
+			lock, // @ts-expect-error
+			ignoreCooldown, // @ts-expect-error
+			ignorePermissions, // @ts-expect-error
+			flags = [], // @ts-expect-error
+			optionFlags = [], // @ts-expect-error
+			slash = false, // @ts-expect-error
+			slashOptions, // @ts-expect-error
+			slashEphemeral = false, // @ts-expect-error
 			slashGuilds = []
 		} = options;
 		/**

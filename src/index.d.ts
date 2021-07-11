@@ -1692,11 +1692,11 @@ declare module "discord-akairo" {
 		 * @param options - Options to use.
 		 */
 		public reply(
-			options:string | MessagePayload | ReplyMessageOptions
+			options: string | MessagePayload | ReplyMessageOptions
 		): Promise<Message>;
 		public reply(
-			options:string | MessagePayload | InteractionReplyOptions
-		): Promise<Message|APIMessage>;
+			options: string | MessagePayload | InteractionReplyOptions
+		): Promise<Message | APIMessage>;
 
 		/**
 		 * Sends a response or edits an old response if available.
@@ -1707,7 +1707,7 @@ declare module "discord-akairo" {
 		): Promise<Message>;
 		public send(
 			options: string | MessagePayload | InteractionReplyOptions
-		): Promise<Message|APIMessage>;
+		): Promise<Message | APIMessage>;
 
 		/**
 		 * Sends a response, overwriting the last response.

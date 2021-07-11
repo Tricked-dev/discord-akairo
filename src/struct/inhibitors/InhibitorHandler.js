@@ -28,8 +28,8 @@ const { isPromise } = require("../../util/Util");
  */
 class InhibitorHandler extends AkairoHandler {
 	/**
- * @param {AkairoClient} client - The Akairo client.
- * @param {AkairoHandlerOptions} options - Options.
+	 * @param {AkairoClient} client - The Akairo client.
+	 * @param {AkairoHandlerOptions} options - Options.
 	 */
 	constructor(
 		client,

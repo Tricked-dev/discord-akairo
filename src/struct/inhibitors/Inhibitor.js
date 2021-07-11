@@ -23,7 +23,7 @@ const AkairoModule = require("../AkairoModule");
 class Inhibitor extends AkairoModule {
 	/**
 	 * @param {string} id - Inhibitor ID.
-	 * @param {InhibitorOptions} [options={reason = "", type = "post",priority = 0}] - Options for the inhibitor. 
+	 * @param {InhibitorOptions} [options={reason = "", type = "post",priority = 0}] - Options for the inhibitor.
 	 */
 	// @ts-expect-error
 	constructor(id, { category, reason = "", type = "post", priority = 0 } = {}) {
