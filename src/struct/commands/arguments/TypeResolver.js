@@ -282,7 +282,7 @@ class TypeResolver {
 					// TODO: Fix this if it need to be fixed.
 					// @ts-expect-error
 					return persons.map(
-						(/** @type {{ user: GuildMember; }} */ member) => member.user
+						(/** @type {GuildMember} */ member) => member.user
 					);
 				}
 

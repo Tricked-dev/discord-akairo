@@ -10,7 +10,7 @@
  * @typedef {import("discord.js").MessageEmbed} MessageEmbed
  * @typedef {import("discord.js").WebhookEditMessageOptions} WebhookEditMessageOptions
  * @typedef {import("discord.js").MessageEmbedOptions} MessageEmbedOptions
- * @typedef {import("discord-api-types").APIMessage} APIMessage
+ * @typedef {import("discord-api-types/v9").APIMessage} APIMessage
  * @typedef {import("../../struct/commands/CommandHandler")} CommandHandler
  * @typedef {import("../../util/AkairoMessage")} AkairoMessage
  * @typedef {import("../../struct/commands/CommandHandler").ParsedComponentData} ParsedComponentData
@@ -190,13 +190,21 @@ class CommandUtil {
 	/**
 	 * Sends a response, overwriting the last response.
 	 * @param {string | MessagePayload | MessageOptions} options - Options to use.
-	 * @returns {Promise<Message>}
+	 * @returns {Promise<Message | APIMessage>}
 	 */
 	async sendNew(options) {
-		const sent = await this.message.channel.send(options);
-		const lastSent = this.setLastResponse(sent);
-		this.setEditable(!lastSent.attachments.size);
-		return sent;
+		if (!(this.message.interaction instanceof CommandInteraction)) {
+			const sent = await this.message.channel.send(options);
+			const lastSent = this.setLastResponse(sent);
+			this.setEditable(!lastSent.attachments.size);
+			return sent;
+		} else {
+			const sent = await this.message.interaction.followUp(options);
+			// @ts-expect-error
+			this.setLastResponse(sent);
+			// @ts-expect-error
+			return sent;
+		}
 	}
 
 	/**

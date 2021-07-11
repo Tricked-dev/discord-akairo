@@ -49,6 +49,7 @@ declare module "discord-akairo" {
 		}
 	}
 
+	//#region classes 
 	/**
 	 * Represents an error for Akairo.
 	 * @param key - Error key.
@@ -1716,6 +1717,9 @@ declare module "discord-akairo" {
 		public sendNew(
 			options: string | MessagePayload | MessageOptions
 		): Promise<Message>;
+		public sendNew(
+			options: string | MessagePayload | InteractionReplyOptions
+		): Promise<Message | APIMessage>;
 
 		/**
 		 * Changes if the message should be edited.
@@ -2363,6 +2367,10 @@ declare module "discord-akairo" {
 		public static choice(...xs: any[]): any;
 	}
 
+	//#endregion
+
+	//#region interfaces
+
 	/**
 	 * Options for module loading and handling.
 	 */
@@ -2914,6 +2922,10 @@ declare module "discord-akairo" {
 		prefix?: string;
 	}
 
+	//#endregion
+
+	//#region types
+
 	/**
 	 * A single phrase or flag.
 	 */
@@ -3257,6 +3269,8 @@ declare module "discord-akairo" {
 	 * @param message - Message to get regex for.
 	 */
 	export type RegexSupplier = (message: Message) => RegExp;
+
+	//#endregion
 
 	/**
 	 * Constants used throughout Discord-Akairo.
