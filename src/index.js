@@ -32,6 +32,7 @@ module.exports = {
 
 	// Utilities
 	AkairoError: require("./util/AkairoError"),
+	AkairoMessage: require("./util/AkairoMessage"),
 	Category: require("./util/Category"),
 	Constants: require("./util/Constants"),
 	Util: require("./util/Util"),
