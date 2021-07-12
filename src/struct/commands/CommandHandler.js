@@ -1031,11 +1031,11 @@ class CommandHandler extends AkairoHandler {
 					return true;
 				}
 			} else if (message.guild) {
+				if (message.channel.type === "DM") return false;
 				const missing = message.channel
-					// @ts-expect-error
 					.permissionsFor(this.client.user)
-					.missing(command.clientPermissions);
-				if (missing.length) {
+					?.missing(command.clientPermissions);
+				if (missing?.length) {
 					this.emit(
 						slash
 							? CommandHandlerEvents.SLASH_MISSING_PERMISSIONS
@@ -1076,11 +1076,11 @@ class CommandHandler extends AkairoHandler {
 						return true;
 					}
 				} else if (message.guild) {
+					if (message.channel.type === "DM") return false;
 					const missing = message.channel
-						// @ts-expect-error
 						.permissionsFor(message.author)
-						.missing(command.userPermissions);
-					if (missing.length) {
+						?.missing(command.userPermissions);
+					if (missing?.length) {
 						this.emit(
 							slash
 								? CommandHandlerEvents.SLASH_MISSING_PERMISSIONS
