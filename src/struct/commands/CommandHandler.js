@@ -1106,7 +1106,7 @@ class CommandHandler extends AkairoHandler {
 	 * @returns {boolean}
 	 */
 	runCooldowns(message, command) {
-		const id = message.author.id;
+		const id = message.author?.id;
 		const ignorer = command.ignoreCooldown || this.ignoreCooldown;
 		const isIgnored = Array.isArray(ignorer)
 			? ignorer.includes(id)
