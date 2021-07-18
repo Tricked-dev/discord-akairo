@@ -49,7 +49,7 @@ declare module "discord-akairo" {
 		}
 	}
 
-	//#region classes 
+	//#region classes
 	/**
 	 * Represents an error for Akairo.
 	 * @param key - Error key.

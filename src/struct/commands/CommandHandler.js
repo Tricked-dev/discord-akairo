@@ -192,11 +192,10 @@ class CommandHandler extends AkairoHandler {
 		 */
 		this.commandUtilSweepInterval = commandUtilSweepInterval;
 		if (this.commandUtilSweepInterval > 0) {
-			this.client.setInterval(
-				// @ts-expect-error
+			setInterval(
 				() => this.sweepCommandUtil(),
 				this.commandUtilSweepInterval
-			);
+			).unref();
 		}
 
 		/**
@@ -1126,16 +1125,16 @@ class CommandHandler extends AkairoHandler {
 
 		if (!this.cooldowns.get(id)[command.id]) {
 			this.cooldowns.get(id)[command.id] = {
-				timer: this.client.setTimeout(() => {
+				timer: setTimeout(() => {
 					if (this.cooldowns.get(id)[command.id]) {
-						this.client.clearTimeout(this.cooldowns.get(id)[command.id].timer);
+						clearTimeout(this.cooldowns.get(id)[command.id].timer);
 					}
 					this.cooldowns.get(id)[command.id] = null;
 
 					if (!Object.keys(this.cooldowns.get(id)).length) {
 						this.cooldowns.delete(id);
 					}
-				}, time),
+				}, time).unref(),
 				end: endTime,
 				uses: 0
 			};
@@ -1167,9 +1166,11 @@ class CommandHandler extends AkairoHandler {
 			this.emit(CommandHandlerEvents.COMMAND_INVALID, message, command);
 			return;
 		}
-
+		let typing;
 		if (command.typing || this.typing) {
-			message.channel.startTyping();
+			typing = setInterval(() => {
+				message.channel.sendTyping();
+			}, 9000);
 		}
 
 		try {
@@ -1183,8 +1184,8 @@ class CommandHandler extends AkairoHandler {
 				ret
 			);
 		} finally {
-			if (command.typing || this.typing) {
-				message.channel.stopTyping();
+			if (command.typing || (this.typing && typing)) {
+				clearInterval(typing);
 			}
 		}
 	}
