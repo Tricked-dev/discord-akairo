@@ -163,10 +163,10 @@ class CommandHandler extends AkairoHandler {
 		 */
 		this.commandUtilSweepInterval = commandUtilSweepInterval;
 		if (this.commandUtilSweepInterval > 0) {
-			this.client.setInterval(
+			setInterval(
 				() => this.sweepCommandUtil(),
 				this.commandUtilSweepInterval
-			);
+			).unref();
 		}
 
 		/**
@@ -1065,16 +1065,16 @@ class CommandHandler extends AkairoHandler {
 
 		if (!this.cooldowns.get(id)[command.id]) {
 			this.cooldowns.get(id)[command.id] = {
-				timer: this.client.setTimeout(() => {
+				timer: setTimeout(() => {
 					if (this.cooldowns.get(id)[command.id]) {
-						this.client.clearTimeout(this.cooldowns.get(id)[command.id].timer);
+						clearTimeout(this.cooldowns.get(id)[command.id].timer);
 					}
 					this.cooldowns.get(id)[command.id] = null;
 
 					if (!Object.keys(this.cooldowns.get(id)).length) {
 						this.cooldowns.delete(id);
 					}
-				}, time),
+				}, time).unref(),
 				end: endTime,
 				uses: 0
 			};
