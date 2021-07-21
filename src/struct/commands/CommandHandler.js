@@ -1166,28 +1166,19 @@ class CommandHandler extends AkairoHandler {
 			this.emit(CommandHandlerEvents.COMMAND_INVALID, message, command);
 			return;
 		}
-		let typing;
 		if (command.typing || this.typing) {
-			typing = setInterval(() => {
-				message.channel.sendTyping();
-			}, 9000);
+			message.channel.sendTyping();
 		}
 
-		try {
-			this.emit(CommandHandlerEvents.COMMAND_STARTED, message, command, args);
-			const ret = await command.exec(message, args);
-			this.emit(
-				CommandHandlerEvents.COMMAND_FINISHED,
-				message,
-				command,
-				args,
-				ret
-			);
-		} finally {
-			if (command.typing || (this.typing && typing)) {
-				clearInterval(typing);
-			}
-		}
+		this.emit(CommandHandlerEvents.COMMAND_STARTED, message, command, args);
+		const ret = await command.exec(message, args);
+		this.emit(
+			CommandHandlerEvents.COMMAND_FINISHED,
+			message,
+			command,
+			args,
+			ret
+		);
 	}
 
 	/**
