@@ -577,7 +577,8 @@ class CommandHandler extends AkairoHandler {
 
 		const message = new AkairoMessage(this.client, interaction, {
 			slash: true,
-			replied: this.autoDefer || command.slashEphemeral
+			replied: this.autoDefer || command.slashEphemeral,
+			command
 		});
 
 		try {
@@ -622,11 +623,11 @@ class CommandHandler extends AkairoHandler {
 			}
 
 			const convertedOptions = {};
-			for (const option of interaction.options.values()) {
-				if (option.member) convertedOptions[option.name] = option.member;
-				else if (option.channel) convertedOptions[option.name] = option.channel;
-				else if (option.role) convertedOptions[option.name] = option.role;
-				else convertedOptions[option.name] = option.value;
+			for (const option of command.slashOptions) {
+				convertedOptions[option.name] = interaction.options.get(
+					option.name,
+					option.required || false
+				);
 			}
 
 			let key;
