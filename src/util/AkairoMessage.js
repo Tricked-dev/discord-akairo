@@ -18,7 +18,7 @@ class AkairoMessage {
 		this.member = interaction.member;
 		this.replied = replied;
 		this.util = { parsed: { slash } };
-		for (const option of interaction.options.values()) {
+		for (const option of interaction.options._options.values()) {
 			if (option.member) {
 				this.content += ` ${option.name}: ${option.member}`;
 			} else if (option.channel) {
