@@ -587,7 +587,7 @@ class CommandHandler extends AkairoHandler {
 			}
 
 			const convertedOptions = {};
-			for (const option of interaction.options.values()) {
+			for (const option of interaction.options._options.values()) {
 				if (option.member) convertedOptions[option.name] = option.member;
 				else if (option.channel) convertedOptions[option.name] = option.channel;
 				else if (option.role) convertedOptions[option.name] = option.role;
