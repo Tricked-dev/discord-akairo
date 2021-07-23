@@ -315,7 +315,9 @@ class TypeResolver {
 				);
 				if (!channels.size) return null;
 
-				const categoryChannels = channels.filter(c => c.type === "GUILD_CATEGORY");
+				const categoryChannels = channels.filter(
+					c => c.type === "GUILD_CATEGORY"
+				);
 				return categoryChannels.size ? categoryChannels : null;
 			},
 
