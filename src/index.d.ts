@@ -3010,7 +3010,7 @@ declare module "discord-akairo" {
 		commandBlocked: [
 			message: Message,
 			command: Command,
-			reason: typeof Constants["BuiltInReasons"]
+			reason: typeof Constants["BuiltInReasons"] | string
 		];
 
 		/**
