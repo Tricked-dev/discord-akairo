@@ -64,7 +64,7 @@ class CommandUtil {
 
 		/**
 		 * The last response sent.
-		 * @type {?Message}
+		 * @type {?Message | ?RawMessage | ?}
 		 */
 		this.lastResponse = null;
 

@@ -1,5 +1,5 @@
 declare module "discord-akairo" {
-	import { APIInteractionGuildMember, APIMessage } from "discord-api-types/v8";
+	import { APIInteractionGuildMember, APIMessage } from "discord-api-types/v9";
 	import {
 		ApplicationCommandOptionData,
 		ApplicationCommandOptionType,
@@ -1383,6 +1383,26 @@ declare module "discord-akairo" {
 			event: K,
 			listener: (...args: CommandHandlerEvents[K]) => Awaited<void>
 		): this;
+
+		/**
+		 * Emitted when a an incoming interaction command cannot be matched with a command.
+		 * @param interaction - The incoming interaction.
+		 */
+		public on(
+			event: "slashNotFound",
+			listener: (interaction: AkairoMessage) => any
+		): this;
+
+		/**
+		 * Emitted when a slash command starts execution.
+		 * @param message - The slash message.
+		 * @param command - Command executed.
+		 * @param args - The args passed to the command.
+		 */
+		public on(
+			event: "slashStarted",
+			listener: (message: AkairoMessage, command: Command, args: any) => any
+		): this;
 	}
 
 	/**
@@ -1444,6 +1464,12 @@ declare module "discord-akairo" {
 		public reply(
 			options: string | MessagePayload | ReplyMessageOptions
 		): Promise<Message>;
+
+		/**
+		 * Send an inline reply or respond to a slash command.
+		 * If the message is a slash command, it replies or edits the last reply.
+		 * @param options - Options to use.
+		 */
 		public reply(
 			options: string | MessagePayload | InteractionReplyOptions
 		): Promise<Message | APIMessage>;
@@ -1455,6 +1481,11 @@ declare module "discord-akairo" {
 		public send(
 			options: string | MessagePayload | MessageOptions
 		): Promise<Message>;
+
+		/**
+		 * Sends a response or edits an old response if available.
+		 * @param options - Options to use.
+		 */
 		public send(
 			options: string | MessagePayload | InteractionReplyOptions
 		): Promise<Message | APIMessage>;
@@ -1466,6 +1497,11 @@ declare module "discord-akairo" {
 		public sendNew(
 			options: string | MessagePayload | MessageOptions
 		): Promise<Message>;
+
+		/**
+		 * Sends a response, overwriting the last response.
+		 * @param options - Options to use.
+		 */
 		public sendNew(
 			options: string | MessagePayload | InteractionReplyOptions
 		): Promise<Message | APIMessage>;
@@ -1977,6 +2013,12 @@ declare module "discord-akairo" {
 			event: K,
 			listener: (...args: TaskHandlerEvents[K]) => Awaited<void>
 		): this;
+
+		/**
+		 * Emitted when a task is removed.
+		 * @param task - Task removed.
+		 */
+		public on(event: "remove", task: (task: Task) => any): this;
 	}
 
 	/**

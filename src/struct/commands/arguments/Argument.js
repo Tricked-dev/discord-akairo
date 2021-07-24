@@ -338,7 +338,6 @@ class Argument {
 						errors: ["time"]
 					})
 				).first();
-
 				if (message.util) message.util.addMessage(input);
 			} catch (err) {
 				const timeoutText = await getText(

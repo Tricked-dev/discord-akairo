@@ -15,7 +15,7 @@
  * @typedef {import("discord-api-types").APIMessage} APIMessage
  * @typedef {import("discord.js").Snowflake} Snowflake
  * @typedef {import("discord.js").MessagePayload} MessagePayload
- * @typedef {import("discord-api-types/v9").APIInteractionGuildMember} APIInteractionGuildMember
+ * @typedef {import("discord-api-types/v8").APIInteractionGuildMember} APIInteractionGuildMember
  * @typedef {import("../struct/AkairoClient")} AkairoClient
  * @typedef {import("../struct/commands/CommandUtil")} CommandUtil
  * @typedef {import("../struct/commands/Command")} Command
@@ -116,7 +116,6 @@ class AkairoMessage {
 		for (const option of command.slashOptions) {
 			this.content += ` ${option.name}: ${interaction.options.get(
 				option.name,
-				option.required || false
 			)}`;
 		}
 	}
