@@ -30,12 +30,12 @@ const {
 /**
  * Command utilities.
  * @param {CommandHandler} handler - The command handler.
- * @param {Message} message - Message that triggered the command.
+ * @param {Message|AkairoMessage} message - Message that triggered the command.
  */
 class CommandUtil {
 	/**
 	 * @param {CommandHandler} handler - The command handler.
-	 * @param {Message|AkairoMessage} message - The message
+	 * @param {Message | AkairoMessage} message - The message
 	 */
 	constructor(handler, message) {
 		/**
@@ -64,7 +64,7 @@ class CommandUtil {
 
 		/**
 		 * The last response sent.
-		 * @type {?Message | ?RawMessage | ?}
+		 * @type {?Message | ?}
 		 */
 		this.lastResponse = null;
 
@@ -101,8 +101,8 @@ class CommandUtil {
 
 	/**
 	 * Adds client prompt or user reply to messages.
-	 * @param {Message|Message[]} message - Message to add.
-	 * @returns {Message|Message[]}
+	 * @param {Message | Message[]} message - Message to add.
+	 * @returns {Message | Message[]}
 	 */
 	addMessage(message) {
 		if (this.handler.storeMessages) {
@@ -131,9 +131,8 @@ class CommandUtil {
 	/**
 	 * Sends a response or edits an old response if available.
 	 * @param {string | MessagePayload | MessageOptions | InteractionReplyOptions} options - Options to use.
-	 * @returns {Promise<Message|APIMessage>}
+	 * @returns {Promise<Message | APIMessage>}
 	 */
-	// eslint-disable-next-line consistent-return
 	async send(options) {
 		const hasFiles =
 			typeof options === "string" ? false : options.files?.length > 0;
@@ -171,7 +170,6 @@ class CommandUtil {
 				this.message.interaction.deferred ||
 				this.message.interaction.replied
 			) {
-				// @ts-expect-error
 				this.lastResponse = await this.message.interaction.editReply(options);
 				return this.lastResponse;
 			} else {
@@ -180,7 +178,6 @@ class CommandUtil {
 					// @ts-expect-error
 					options.fetchReply = true;
 				}
-				// @ts-expect-error
 				this.lastResponse = await this.message.interaction.reply(newOptions);
 				return this.lastResponse;
 			}
@@ -202,7 +199,6 @@ class CommandUtil {
 			const sent = await this.message.interaction.followUp(options);
 			// @ts-expect-error
 			this.setLastResponse(sent);
-			// @ts-expect-error
 			return sent;
 		}
 	}
@@ -242,12 +238,11 @@ class CommandUtil {
 	/**
 	 * Edits the last response.
 	 * If the message is a slash command, edits the slash response.
-	 * @param {string | MessagePayload | WebhookEditMessageOptions} options - Options to use.
+	 * @param {string | MessageEditOptions | MessagePayload | WebhookEditMessageOptions} options - Options to use.
 	 * @returns {Promise<Message>}
 	 */
 	edit(options) {
 		if (this.isSlash) {
-			// @ts-expect-error
 			return this.lastResponse.interaction.editReply(options);
 		} else {
 			return this.lastResponse.edit(options);

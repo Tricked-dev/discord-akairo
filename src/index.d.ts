@@ -2090,13 +2090,13 @@ declare module "discord-akairo" {
 		 * @param aKey - First prefix.
 		 * @param bKey - Second prefix.
 		 */
-		public static prefixCompare(aKey: any, bKey: any): any;
+		public static prefixCompare(aKey: any, bKey: any): number;
 
 		/**
 		 * Converts the supplied value into an array if it is not already one.
 		 * @param x - Value to convert.
 		 */
-		public static intoArray(x: any): any;
+		public static intoArray<T>(x: T | T[]): T;
 
 		/**
 		 * Converts something to become callable.
@@ -2780,6 +2780,8 @@ declare module "discord-akairo" {
 	 * - `channel` tries to resolve to a channel.
 	 * - `textChannel` tries to resolve to a text channel.
 	 * - `voiceChannel` tries to resolve to a voice channel.
+	 * - `stageChannel` tries to resolve to a stage channel.
+	 * - `threadChannel` tries to resolve a thread channel.
 	 * - `role` tries to resolve to a role.
 	 * - `emoji` tries to resolve to a custom emoji.
 	 * - `guild` tries to resolve to a guild.
@@ -2832,6 +2834,10 @@ declare module "discord-akairo" {
 		| "newsChannels"
 		| "storeChannel"
 		| "storeChannels"
+		| "stageChannel"
+		| "stageChannels"
+		| "threadChannel"
+		| "threadChannels"
 		| "role"
 		| "roles"
 		| "emoji"
@@ -3329,6 +3335,10 @@ declare module "discord-akairo" {
 			NEWS_CHANNELS: "newsChannels";
 			STORE_CHANNEL: "storeChannel";
 			STORE_CHANNELS: "storeChannels";
+			STAGE_CHANNEL: "stageChannel";
+			STAGE_CHANNELS: "stageChannels";
+			THREAD_CHANNEL: "threadChannel";
+			THREAD_CHANNELS: "threadChannels";
 			ROLE: "role";
 			ROLES: "roles";
 			EMOJI: "emoji";

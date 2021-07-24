@@ -11,11 +11,7 @@
  * @typedef {import("discord.js").User} User
  * @typedef {import("discord.js").GuildMember} GuildMember
  * @typedef {import("discord.js").Snowflake} Snowflake
- */
-/**
- * @typedef {Object} TempMessage
- * @property {import("../CommandUtil")} [util] - command util
- * @typedef {import("discord.js").Message & TempMessage} Message
+ * @typedef {import("../CommandUtil").Message} Message
  */
 
 const { ArgumentTypes } = require("../../../util/Constants");
@@ -218,32 +214,28 @@ class TypeResolver {
 			) => {
 				if (!phrase) return null;
 
-				const person =
-					message.channel.type === "GUILD_TEXT"
-						? this.client.util.resolveMember(
-								phrase,
-								message.guild.members.cache
-						  )
-						: message.channel.type === "DM"
-						? this.client.util.resolveUser(
-								phrase,
-								new Collection([
-									[message.channel.recipient.id, message.channel.recipient],
-									[this.client.user.id, this.client.user]
-								])
-						  )
-						: this.client.util.resolveUser(
-								phrase,
-								new Collection([
-									[this.client.user.id, this.client.user]
-									// TODO: Fix this if it need to be fixed.
-									// @ts-expect-error
-								]).concat(message.channel.recipients)
-						  );
+				const person = message.channel.type.startsWith("GUILD")
+					? this.client.util.resolveMember(phrase, message.guild.members.cache)
+					: message.channel.type === "DM"
+					? this.client.util.resolveUser(
+							phrase,
+							new Collection([
+								[message.channel.recipient.id, message.channel.recipient],
+								[this.client.user.id, this.client.user]
+							])
+					  )
+					: this.client.util.resolveUser(
+							phrase,
+							new Collection([
+								[this.client.user.id, this.client.user]
+								// Not sure why this is here, bots can't be in group dms
+								// @ts-expect-error
+							]).concat(message.channel.recipients)
+					  );
 
 				if (!person) return null;
 				// @ts-expect-error
-				if (message.channel.type === "GUILD_TEXT") return person.user;
+				if (message.channel.type.startsWith("GUILD")) return person.user;
 				return person;
 			},
 
@@ -253,33 +245,28 @@ class TypeResolver {
 			) => {
 				if (!phrase) return null;
 
-				const persons =
-					message.channel.type === "GUILD_TEXT"
-						? this.client.util.resolveMembers(
-								phrase,
-								message.guild.members.cache
-						  )
-						: message.channel.type === "DM"
-						? this.client.util.resolveUsers(
-								phrase,
-								new Collection([
-									[message.channel.recipient.id, message.channel.recipient],
-									[this.client.user.id, this.client.user]
-								])
-						  )
-						: this.client.util.resolveUsers(
-								phrase,
-								new Collection([
-									[this.client.user.id, this.client.user]
-									// TODO: Fix this if it need to be fixed.
-									// @ts-expect-error
-								]).concat(message.channel.recipients)
-						  );
+				const persons = message.channel.type.startsWith("GUILD")
+					? this.client.util.resolveMembers(phrase, message.guild.members.cache)
+					: message.channel.type === "DM"
+					? this.client.util.resolveUsers(
+							phrase,
+							new Collection([
+								[message.channel.recipient.id, message.channel.recipient],
+								[this.client.user.id, this.client.user]
+							])
+					  )
+					: this.client.util.resolveUsers(
+							phrase,
+							new Collection([
+								[this.client.user.id, this.client.user]
+								// Not sure why this is here, bots can't be in group dms
+								// @ts-expect-error
+							]).concat(message.channel.recipients)
+					  );
 
 				if (!persons.size) return null;
 
-				if (message.channel.type === "GUILD_TEXT") {
-					// TODO: Fix this if it need to be fixed.
+				if (message.channel.type.startsWith("GUILD")) {
 					// @ts-expect-error
 					return persons.map(
 						(/** @type {GuildMember} */ member) => member.user
@@ -466,6 +453,70 @@ class TypeResolver {
 				if (!channels.size) return null;
 
 				const storeChannels = channels.filter(c => c.type === "GUILD_STORE");
+				return storeChannels.size ? storeChannels : null;
+			},
+
+			[ArgumentTypes.STAGE_CHANNEL]: (
+				/** @type {Message} */ message,
+				/** @type {string} */ phrase
+			) => {
+				if (!phrase) return null;
+
+				const channel = this.client.util.resolveChannel(
+					phrase,
+					message.guild.channels.cache
+				);
+				if (!channel || channel.type !== "GUILD_STAGE_VOICE") return null;
+
+				return channel;
+			},
+
+			[ArgumentTypes.STAGE_CHANNELS]: (
+				/** @type {Message} */ message,
+				/** @type {string} */ phrase
+			) => {
+				if (!phrase) return null;
+
+				const channels = this.client.util.resolveChannels(
+					phrase,
+					message.guild.channels.cache
+				);
+				if (!channels.size) return null;
+
+				const storeChannels = channels.filter(
+					c => c.type === "GUILD_STAGE_VOICE"
+				);
+				return storeChannels.size ? storeChannels : null;
+			},
+
+			[ArgumentTypes.THREAD_CHANNEL]: (
+				/** @type {Message} */ message,
+				/** @type {string} */ phrase
+			) => {
+				if (!phrase) return null;
+
+				const channel = this.client.util.resolveChannel(
+					phrase,
+					message.guild.channels.cache
+				);
+				if (!channel || !channel.type.includes("THREAD")) return null;
+
+				return channel;
+			},
+
+			[ArgumentTypes.THREAD_CHANNELS]: (
+				/** @type {Message} */ message,
+				/** @type {string} */ phrase
+			) => {
+				if (!phrase) return null;
+
+				const channels = this.client.util.resolveChannels(
+					phrase,
+					message.guild.channels.cache
+				);
+				if (!channels.size) return null;
+
+				const storeChannels = channels.filter(c => c.type.includes("THREAD"));
 				return storeChannels.size ? storeChannels : null;
 			},
 

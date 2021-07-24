@@ -12,11 +12,8 @@
  * @typedef {import("./Flag")} Flag
  * @typedef {import("discord.js").PermissionResolvable} PermissionResolvable
  * @typedef {import("discord.js").Snowflake} Snowflake
- */
-/**
- * @typedef {Object} TempMessage
- * @property {import("./CommandUtil")} [util] - command util
- * @typedef {import("discord.js").Message & TempMessage} Message
+ * @typedef {import("discord.js").ApplicationCommandOptionData} ApplicationCommandOptionData
+ * @typedef {import("./CommandUtil").Message} Message
  */
 
 const AkairoError = require("../../util/AkairoError");
@@ -247,6 +244,7 @@ class Command extends AkairoModule {
 
 		/**
 		 * Option for using slash command
+		 * @type {ApplicationCommandOptionData[]}
 		 */
 		this.slashOptions = slashOptions;
 
@@ -298,8 +296,8 @@ class Command extends AkairoModule {
 	 * @param {AkairoMessage} message - Message for slash command
 	 * @param {any} args - Slash command options
 	 * @returns {any}
-	 * Disabled cause it wouldnt work with the current design
 	 */
+ 	/* Disabled cause it wouldn't work with the current design */
 	// execSlash() {
 	// 	if (this.slash) {
 	// 		throw new AkairoError(

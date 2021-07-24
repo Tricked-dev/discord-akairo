@@ -2,9 +2,7 @@
 "use strict";
 
 /**
- * @typedef {Object} TempMessage
- * @property {import("./CommandUtil")} [util] - command util
- * @typedef {import("discord.js").Message & TempMessage} Message
+ * @typedef {import("./CommandUtil").Message} Message
  */
 
 /**

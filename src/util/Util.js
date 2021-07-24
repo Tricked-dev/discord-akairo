@@ -1,7 +1,15 @@
 // @ts-check
 "use strict";
 
+/**
+ * Akairo Utilities.
+ */
 class Util {
+	/**
+	 * Checks if a value is a promise.
+	 * @param {any} value - Value to check.
+	 * @returns {boolean}
+	 */
 	static isPromise(value) {
 		return (
 			value &&
@@ -10,6 +18,11 @@ class Util {
 		);
 	}
 
+	/**
+	 * Checks if the supplied value is a promise.
+	 * @param {any} value - Value to check.
+	 * @returns {boolean}
+	 */
 	static isEventEmitter(value) {
 		return (
 			value &&
@@ -18,6 +31,12 @@ class Util {
 		);
 	}
 
+	/**
+	 * Compares two prefixes.
+	 * @param {any} aKey - First prefix.
+	 * @param {any} bKey - Second prefix.
+	 * @returns {number}
+	 */
 	static prefixCompare(aKey, bKey) {
 		if (aKey === "" && bKey === "") return 0;
 		if (aKey === "") return 1;
@@ -30,6 +49,11 @@ class Util {
 			: bKey.length - aKey.length;
 	}
 
+	/**
+	 * Converts the supplied value into an array if it is not already one.
+	 * @param {any} x - Value to convert.
+	 * @returns {any}
+	 */
 	static intoArray(x) {
 		if (Array.isArray(x)) {
 			return x;
@@ -38,6 +62,11 @@ class Util {
 		return [x];
 	}
 
+	/**
+	 * Converts something to become callable.
+	 * @param {any} thing - What to turn into a callable.
+	 * @returns {any}
+	 */
 	static intoCallable(thing) {
 		if (typeof thing === "function") {
 			return thing;
@@ -46,6 +75,12 @@ class Util {
 		return () => thing;
 	}
 
+	/**
+	 *
+	 * @param {any} xs -
+	 * @param {any} f -
+	 * @returns {any}
+	 */
 	static flatMap(xs, f) {
 		const res = [];
 		for (const x of xs) {
@@ -55,6 +90,12 @@ class Util {
 		return res;
 	}
 
+	/**
+	 *
+	 * @param {any} o1 -
+	 * @param {any} os -
+	 * @returns {any}
+	 */
 	static deepAssign(o1, ...os) {
 		for (const o of os) {
 			for (const [k, v] of Object.entries(o)) {
@@ -74,6 +115,11 @@ class Util {
 		return o1;
 	}
 
+	/**
+	 *
+	 * @param {any[]} xs -
+	 * @returns {any}
+	 */
 	static choice(...xs) {
 		for (const x of xs) {
 			if (x != null) {

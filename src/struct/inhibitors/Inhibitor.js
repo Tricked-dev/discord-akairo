@@ -3,12 +3,8 @@
 
 /**
  * @typedef {import("../AkairoModule").AkairoModuleOptions} AkairoModuleOptions
- * @typedef {import("./InhibitorHandler").Command} Command
- */
-/**
- * @typedef {Object} TempMessage
- * @property {import("../commands/CommandUtil")} [util] - command util
- * @typedef {import("discord.js").Message & TempMessage} Message
+ * @typedef {import("./InhibitorHandler").Command} Command 
+ * @typedef {import("../commands/CommandUtil").Message} Message
  */
 
 const AkairoError = require("../../util/AkairoError");
@@ -17,13 +13,13 @@ const AkairoModule = require("../AkairoModule");
 /**
  * Represents an inhibitor.
  * @param {string} id - Inhibitor ID.
- * @param {InhibitorOptions} [options={reason = "", type = "post",priority = 0 }] - Options for the inhibitor.
+ * @param {InhibitorOptions} [options={reason = "", type = "post", priority = 0 }] - Options for the inhibitor.
  * @extends {AkairoModule}
  */
 class Inhibitor extends AkairoModule {
 	/**
 	 * @param {string} id - Inhibitor ID.
-	 * @param {InhibitorOptions} [options={reason = "", type = "post",priority = 0}] - Options for the inhibitor.
+	 * @param {InhibitorOptions} [options={reason = "", type = "post" ,priority = 0}] - Options for the inhibitor.
 	 */
 	// @ts-expect-error
 	constructor(id, { category, reason = "", type = "post", priority = 0 } = {}) {

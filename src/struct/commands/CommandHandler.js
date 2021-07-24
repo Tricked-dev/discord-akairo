@@ -13,11 +13,7 @@
  * @typedef {import("../inhibitors/InhibitorHandler")} InhibitorHandler
  * @typedef {import("../listeners/ListenerHandler")} ListenerHandler
  * @typedef {import("../AkairoModule")} AkairoModule
- */
-/**
- * @typedef {Object} TempMessage
- * @property {CommandUtil} [util] - command util
- * @typedef {import("discord.js").Message & TempMessage} Message
+ * @typedef {import("./CommandUtil").Message} Message
  */
 
 const AkairoError = require("../../util/AkairoError");

@@ -7,11 +7,7 @@
  * @typedef {import("../AkairoHandler").AkairoHandlerOptions} AkairoHandlerOptions
  * @typedef {import("../commands/Command")} Command
  * @typedef {import("../../util/AkairoMessage")} AkairoMessage
- */
-/**
- * @typedef {Object} TempMessage
- * @property {import("../commands/CommandUtil")} [util] - command util
- * @typedef {import("discord.js").Message & TempMessage} Message
+ * @typedef {import("../commands/CommandUtil").Message} Message
  */
 
 const AkairoError = require("../../util/AkairoError");
