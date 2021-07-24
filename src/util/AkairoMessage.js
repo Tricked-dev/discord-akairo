@@ -116,7 +116,7 @@ class AkairoMessage {
 			this.content += ` ${option.name}: ${interaction.options.get(
 				option.name,
 				option.required || false
-			)}`;
+			)?.value}`;
 		}
 	}
 

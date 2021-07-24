@@ -623,7 +623,7 @@ class CommandHandler extends AkairoHandler {
 				convertedOptions[option.name] = interaction.options.get(
 					option.name,
 					option.required || false
-				);
+				)?.value;
 			}
 
 			let key;
