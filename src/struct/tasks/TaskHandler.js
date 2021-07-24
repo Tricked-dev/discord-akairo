@@ -1,7 +1,26 @@
+// @ts-check
+"use strict";
+
+/**
+ * @typedef {import("../AkairoClient")} AkairoClient
+ * @typedef {import("../AkairoHandler").AkairoHandlerOptions} AkairoHandlerOptions
+ */
+
 const AkairoError = require("../../util/AkairoError");
 const AkairoHandler = require("../AkairoHandler");
 const Task = require("./Task");
+
+/**
+ * Loads tasks.
+ * @param {AkairoClient} client - The Akairo client.
+ * @param {AkairoHandlerOptions} options - Options.
+ * @extends {AkairoHandler}
+ */
 class TaskHandler extends AkairoHandler {
+	/**
+	 * @param {AkairoClient} client - The Akairo client.
+	 * @param {AkairoHandlerOptions} options - Options.
+	 */
 	constructor(
 		client,
 		{
@@ -31,12 +50,13 @@ class TaskHandler extends AkairoHandler {
 
 	startAll() {
 		this.client.on("ready", () => {
-			this.modules.forEach(task => {
-				if (task.runOnStart) task.exec();
-				if (task.delay) {
+			this.modules.forEach(module => {
+				if (!(module instanceof Task)) return;
+				if (module.runOnStart) module.exec();
+				if (module.delay) {
 					setInterval(() => {
-						task.exec();
-					}, Number(task.delay));
+						module.exec();
+					}, Number(module.delay));
 				}
 			});
 		});

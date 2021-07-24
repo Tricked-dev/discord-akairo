@@ -1,6 +1,19 @@
+// @ts-check
+"use strict";
+
+/**
+ * @typedef {import("discord.js").Collection} Collection
+ * @typedef {import("../ClientUtil").AkairoClient} AkairoClient
+ * @typedef {import("../AkairoHandler").AkairoHandlerOptions} AkairoHandlerOptions
+ * @typedef {import("../commands/Command")} Command
+ * @typedef {import("../../util/AkairoMessage")} AkairoMessage
+ * @typedef {import("../commands/CommandUtil").Message} Message
+ */
+
 const AkairoError = require("../../util/AkairoError");
 const AkairoHandler = require("../AkairoHandler");
 const Inhibitor = require("./Inhibitor");
+// @ts-expect-error
 const { isPromise } = require("../../util/Util");
 
 /**
@@ -10,6 +23,10 @@ const { isPromise } = require("../../util/Util");
  * @extends {AkairoHandler}
  */
 class InhibitorHandler extends AkairoHandler {
+	/**
+	 * @param {AkairoClient} client - The Akairo client.
+	 * @param {AkairoHandlerOptions} options - Options.
+	 */
 	constructor(
 		client,
 		{
@@ -58,13 +75,14 @@ class InhibitorHandler extends AkairoHandler {
 	 * Tests inhibitors against the message.
 	 * Returns the reason if blocked.
 	 * @param {string} type - Type of inhibitor, 'all', 'pre', or 'post'.
-	 * @param {Message} message - Message to test.
+	 * @param {Message|AkairoMessage} message - Message to test.
 	 * @param {Command} [command] - Command to use.
 	 * @returns {Promise<string|void>}
 	 */
 	async test(type, message, command) {
 		if (!this.modules.size) return null;
 
+		// @ts-expect-error
 		const inhibitors = this.modules.filter(i => i.type === type);
 		if (!inhibitors.size) return null;
 
@@ -73,6 +91,7 @@ class InhibitorHandler extends AkairoHandler {
 		for (const inhibitor of inhibitors.values()) {
 			promises.push(
 				(async () => {
+					// @ts-expect-error
 					let inhibited = inhibitor.exec(message, command);
 					if (isPromise(inhibited)) inhibited = await inhibited;
 					if (inhibited) return inhibitor;
@@ -81,6 +100,10 @@ class InhibitorHandler extends AkairoHandler {
 			);
 		}
 
+		/**
+		 * @type {Inhibitor[]}
+		 */
+		// @ts-expect-error
 		const inhibitedInhibitors = (await Promise.all(promises)).filter(r => r);
 		if (!inhibitedInhibitors.length) return null;
 

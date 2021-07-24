@@ -28,8 +28,8 @@ class EvalCommand extends Command {
 		const tokenRegex = new RegExp(`${token}|${rev}`, "g");
 		const cb = "```";
 
+		// eslint-disable-next-line no-unused-vars
 		const print = (...a) => {
-			// eslint-disable-line no-unused-vars
 			const cleaned = a.map(obj => {
 				if (typeof o !== "string") obj = util.inspect(obj, { depth: 1 });
 				return obj.replace(tokenRegex, "[TOKEN]");

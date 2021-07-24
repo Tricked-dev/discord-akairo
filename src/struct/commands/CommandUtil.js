@@ -1,11 +1,42 @@
-const { Collection, MessagePayload } = require("discord.js");
+// @ts-check
+"use strict";
+
+/**
+ * @typedef {import("discord.js").MessageOptions} MessageOptions
+ * @typedef {import("discord.js").ReplyMessageOptions} ReplyMessageOptions
+ * @typedef {import("discord.js").MessageEditOptions} MessageEditOptions
+ * @typedef {import("discord.js").Snowflake} Snowflake
+ * @typedef {import("discord.js").InteractionReplyOptions} InteractionReplyOptions
+ * @typedef {import("discord.js").MessageEmbed} MessageEmbed
+ * @typedef {import("discord.js").WebhookEditMessageOptions} WebhookEditMessageOptions
+ * @typedef {import("discord.js").MessageEmbedOptions} MessageEmbedOptions
+ * @typedef {import("discord-api-types/v9").APIMessage} APIMessage
+ * @typedef {import("../../struct/commands/CommandHandler")} CommandHandler
+ * @typedef {import("../../util/AkairoMessage")} AkairoMessage
+ * @typedef {import("../../struct/commands/CommandHandler").ParsedComponentData} ParsedComponentData
+ */
+/**
+ * @typedef {Object} TempMessage
+ * @property {CommandUtil} [util] - command util
+ * @typedef {import("discord.js").Message & TempMessage} Message
+ */
+
+const {
+	Collection,
+	MessagePayload,
+	CommandInteraction
+} = require("discord.js");
 
 /**
  * Command utilities.
  * @param {CommandHandler} handler - The command handler.
- * @param {Message} message - Message that triggered the command.
+ * @param {Message|AkairoMessage} message - Message that triggered the command.
  */
 class CommandUtil {
+	/**
+	 * @param {CommandHandler} handler - The command handler.
+	 * @param {Message | AkairoMessage} message - The message
+	 */
 	constructor(handler, message) {
 		/**
 		 * The command handler.
@@ -33,7 +64,7 @@ class CommandUtil {
 
 		/**
 		 * The last response sent.
-		 * @type {?Message | ?RawMessage | ?}
+		 * @type {?Message | ?}
 		 */
 		this.lastResponse = null;
 
@@ -56,7 +87,7 @@ class CommandUtil {
 
 	/**
 	 * Sets the last response.
-	 * @param {Message | Message[]} message - Message to set.
+	 * @param {Message} message - Message to set.
 	 * @returns {Message}
 	 */
 	setLastResponse(message) {
@@ -65,14 +96,13 @@ class CommandUtil {
 		} else {
 			this.lastResponse = message;
 		}
-
 		return this.lastResponse;
 	}
 
 	/**
 	 * Adds client prompt or user reply to messages.
-	 * @param {Message|Message[]} message - Message to add.
-	 * @returns {Message|Message[]}
+	 * @param {Message | Message[]} message - Message to add.
+	 * @returns {Message | Message[]}
 	 */
 	addMessage(message) {
 		if (this.handler.storeMessages) {
@@ -101,21 +131,23 @@ class CommandUtil {
 	/**
 	 * Sends a response or edits an old response if available.
 	 * @param {string | MessagePayload | MessageOptions | InteractionReplyOptions} options - Options to use.
-	 * @returns {Promise<Message|Message[]|void>}
+	 * @returns {Promise<Message | APIMessage>}
 	 */
-	// eslint-disable-next-line consistent-return
 	async send(options) {
 		const hasFiles =
-			options.files?.length > 0 || options.embed?.files?.length > 0;
+			typeof options === "string" ? false : options.files?.length > 0;
 
+		/** @type {MessageOptions | InteractionReplyOptions} */
 		let newOptions = {};
 		if (typeof options === "string") {
 			newOptions.content = options;
 		} else {
+			// @ts-expect-error
 			newOptions = options;
 		}
-		if (!this.isSlash) {
-			delete options.ephemeral;
+		if (!(this.message.interaction instanceof CommandInteraction)) {
+			// @ts-expect-error
+			if (typeof options !== "string") delete options.ephemeral;
 			if (
 				this.shouldEdit &&
 				!hasFiles &&
@@ -125,25 +157,29 @@ class CommandUtil {
 				return this.lastResponse.edit(options);
 			}
 			const sent = await this.message.channel.send(options);
+
 			const lastSent = this.setLastResponse(sent);
 			this.setEditable(!lastSent.attachments.size);
+
 			return sent;
 		} else {
-			delete options.reply;
+			// @ts-expect-error
+			if (typeof options !== "string") delete options.reply;
 			if (
 				this.lastResponse ||
 				this.message.interaction.deferred ||
 				this.message.interaction.replied
 			) {
-				await this.message.interaction.editReply(options);
-				this.lastResponse = await this.message.interaction.fetchReply();
+				this.lastResponse = await this.message.interaction.editReply(options);
 				return this.lastResponse;
 			} else {
-				this.message.interaction.reply(options);
-				if (!options.ephemeral) {
-					this.lastResponse = await this.message.interaction.fetchReply();
-					return this.lastResponse;
+				// @ts-expect-error
+				if (!newOptions.ephemeral) {
+					// @ts-expect-error
+					options.fetchReply = true;
 				}
+				this.lastResponse = await this.message.interaction.reply(newOptions);
+				return this.lastResponse;
 			}
 		}
 	}
@@ -151,25 +187,34 @@ class CommandUtil {
 	/**
 	 * Sends a response, overwriting the last response.
 	 * @param {string | MessagePayload | MessageOptions} options - Options to use.
-	 * @returns {Promise<Message|Message[]>}
+	 * @returns {Promise<Message | APIMessage>}
 	 */
 	async sendNew(options) {
-		const sent = await this.message.channel.send(options);
-		const lastSent = this.setLastResponse(sent);
-		this.setEditable(!lastSent.attachments.size);
-		return sent;
+		if (!(this.message.interaction instanceof CommandInteraction)) {
+			const sent = await this.message.channel.send(options);
+			const lastSent = this.setLastResponse(sent);
+			this.setEditable(!lastSent.attachments.size);
+			return sent;
+		} else {
+			const sent = await this.message.interaction.followUp(options);
+			// @ts-expect-error
+			this.setLastResponse(sent);
+			return sent;
+		}
 	}
 
 	/**
 	 * Send an inline reply or respond to a slash command.
 	 * @param {string | MessagePayload | ReplyMessageOptions | InteractionReplyOptions} options - Options to use.
-	 * @returns {Promise<Message|Message[]|void>}
+	 * @returns {Promise<Message|APIMessage>}
 	 */
 	reply(options) {
+		/** @type {ReplyMessageOptions | InteractionReplyOptions} */
 		let newOptions = {};
 		if (typeof options == "string") {
 			newOptions.content = options;
 		} else {
+			// @ts-expect-error
 			newOptions = options;
 		}
 
@@ -177,10 +222,13 @@ class CommandUtil {
 			!this.isSlash &&
 			!this.shouldEdit &&
 			!(newOptions instanceof MessagePayload) &&
+			// @ts-expect-error
 			!this.message.deleted
 		) {
+			// @ts-expect-error
 			newOptions.reply = {
 				messageReference: this.message,
+				// @ts-expect-error
 				failIfNotExists: newOptions.failIfNotExists ?? true
 			};
 		}
@@ -190,12 +238,12 @@ class CommandUtil {
 	/**
 	 * Edits the last response.
 	 * If the message is a slash command, edits the slash response.
-	 * @param {string | MessageEditOptions | WebhookEditMessageOptions | MessagePayload} options - Options to use.
+	 * @param {string | MessageEditOptions | MessagePayload | WebhookEditMessageOptions} options - Options to use.
 	 * @returns {Promise<Message>}
 	 */
 	edit(options) {
 		if (this.isSlash) {
-			return this.lastResponse.editReply(options);
+			return this.lastResponse.interaction.editReply(options);
 		} else {
 			return this.lastResponse.edit(options);
 		}
@@ -207,7 +255,8 @@ class CommandUtil {
 	 */
 	delete() {
 		if (this.isSlash) {
-			return this.message.deleteReply();
+			// @ts-expect-error
+			return this.message.interaction.deleteReply();
 		} else {
 			return this.lastResponse?.delete();
 		}

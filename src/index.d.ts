@@ -1,29 +1,36 @@
 declare module "discord-akairo" {
+	import { APIInteractionGuildMember, APIMessage } from "discord-api-types/v9";
 	import {
 		ApplicationCommandOptionData,
 		ApplicationCommandOptionType,
+		Awaited,
 		BufferResolvable,
 		Channel,
 		Client,
 		ClientOptions,
 		Collection,
 		CommandInteraction,
+		DMChannel,
 		Emoji,
 		Guild,
+		GuildChannel,
 		GuildMember,
 		InteractionReplyOptions,
 		Message,
 		MessageAttachment,
 		MessageEditOptions,
 		MessageEmbed,
+		MessageEmbedOptions,
 		MessageOptions,
 		MessagePayload,
 		NewsChannel,
+		PartialDMChannel,
 		PermissionResolvable,
 		ReplyMessageOptions,
 		Role,
 		Snowflake,
 		TextChannel,
+		ThreadChannel,
 		User,
 		UserResolvable,
 		WebhookEditMessageOptions
@@ -43,6 +50,7 @@ declare module "discord-akairo" {
 		}
 	}
 
+	//#region classes
 	/**
 	 * Represents an error for Akairo.
 	 * @param key - Error key.
@@ -176,21 +184,10 @@ declare module "discord-akairo" {
 		 */
 		public removeAll(): this;
 
-		/**
-		 * Emitted when a module is loaded.
-		 * @param mod - Module loaded.
-		 * @param isReload - Whether or not this was a reload.
-		 */
-		public on(
-			event: "load",
-			listener: (mod: AkairoModule, isReload: boolean) => any
+		public on<K extends keyof AkairoHandlerEvents>(
+			event: K,
+			listener: (...args: AkairoHandlerEvents[K]) => Awaited<void>
 		): this;
-
-		/**
-		 * Emitted when a module is removed.
-		 * @param mod - Module removed.
-		 */
-		public on(event: "remove", listener: (mod: AkairoModule) => any): this;
 
 		/**
 		 * Reads files recursively from a directory.
@@ -488,7 +485,7 @@ declare module "discord-akairo" {
 		 */
 		public checkChannel(
 			text: string,
-			channel: Channel,
+			channel: GuildChannel | ThreadChannel,
 			caseSensitive?: boolean,
 			wholeWord?: boolean
 		): boolean;
@@ -567,7 +564,9 @@ declare module "discord-akairo" {
 		 * Makes a Collection.
 		 * @param iterable - Entries to fill with.
 		 */
-		public collection<K, V>(iterable?: Iterable<[K, V][]>): Collection<K, V>;
+		public collection<K, V>(
+			iterable?: ReadonlyArray<readonly [K, V]> | null
+		): Collection<K, V>;
 
 		/**
 		 * Compares two member objects presences and checks if they stopped or started a stream or not.
@@ -584,7 +583,7 @@ declare module "discord-akairo" {
 		 * Makes a MessageEmbed.
 		 * @param data - Embed data.
 		 */
-		public embed(data?: object): MessageEmbed;
+		public embed(data?: MessageEmbed | MessageEmbedOptions): MessageEmbed;
 
 		/**
 		 * Combination of `<Client>.fetchUser()` and `<Guild>.fetchMember()`.
@@ -594,9 +593,14 @@ declare module "discord-akairo" {
 		 */
 		public fetchMember(
 			guild: Guild,
-			id: string,
+			id: Snowflake,
 			cache?: boolean
 		): Promise<GuildMember>;
+
+		/**
+		 * Array of permission names.
+		 */
+		public permissionNames(): string[];
 
 		/**
 		 * Resolves a channel from a string, such as an ID, a name, or a mention.
@@ -607,10 +611,10 @@ declare module "discord-akairo" {
 		 */
 		public resolveChannel(
 			text: string,
-			channels: Collection<Snowflake, Channel>,
+			channels: Collection<Snowflake, GuildChannel | ThreadChannel>,
 			caseSensitive?: boolean,
 			wholeWord?: boolean
-		): Channel;
+		): GuildChannel | ThreadChannel;
 
 		/**
 		 * Resolves multiple channels from a string, such as an ID, a name, or a mention.
@@ -621,10 +625,10 @@ declare module "discord-akairo" {
 		 */
 		public resolveChannels(
 			text: string,
-			channels: Collection<Snowflake, Channel>,
+			channels: Collection<Snowflake, GuildChannel>,
 			caseSensitive?: boolean,
 			wholeWord?: boolean
-		): Collection<Snowflake, Channel>;
+		): Collection<Snowflake, GuildChannel>;
 
 		/**
 		 * Resolves a custom emoji from a string, such as a name or a mention.
@@ -752,7 +756,7 @@ declare module "discord-akairo" {
 		 * @param wholeWord - Makes finding by name match full word only.
 		 */
 		public resolveUser(
-			text: string,
+			text: Snowflake | string,
 			users: Collection<Snowflake, User>,
 			caseSensitive?: boolean,
 			wholeWord?: boolean
@@ -777,7 +781,7 @@ declare module "discord-akairo" {
 	 * A command interaction represented as a message.
 	 * @param client - AkairoClient
 	 * @param interaction - CommandInteraction
-	 * @param param2 - any
+	 * @param additionalInfo - Other information
 	 */
 	export class AkairoMessage {
 		public constructor(
@@ -790,7 +794,12 @@ declare module "discord-akairo" {
 		public author: User;
 
 		/** The channel that the interaction was sent in. */
-		public channel?: TextChannel | NewsChannel;
+		public channel?:
+			| TextChannel
+			| DMChannel
+			| NewsChannel
+			| ThreadChannel
+			| PartialDMChannel;
 
 		/** The Akairo client. */
 		public client: AkairoClient;
@@ -817,7 +826,7 @@ declare module "discord-akairo" {
 		 * Represents the author of the interaction as a guild member.
 		 * Only available if the interaction comes from a guild where the author is still a member.
 		 */
-		public member: GuildMember;
+		public member: GuildMember | APIInteractionGuildMember;
 
 		/** Whether or not the interaction has been replied to. */
 		public replied: boolean;
@@ -836,7 +845,7 @@ declare module "discord-akairo" {
 		 */
 		public reply(
 			options: string | MessagePayload | InteractionReplyOptions
-		): Promise<void>;
+		): Promise<Message | APIMessage>;
 	}
 
 	/**
@@ -1004,6 +1013,9 @@ declare module "discord-akairo" {
 		/** Automatically defer messages "BotName is thinking". */
 		public autoDefer: boolean;
 
+		/**  Specify whether to register all slash commands when starting the client */
+		public autoRegisterSlashCommands: boolean;
+
 		/** Whether or not to block bots. */
 		public blockBots: boolean;
 
@@ -1078,7 +1090,10 @@ declare module "discord-akairo" {
 		public resolver: TypeResolver;
 
 		/** Whether or not to store messages in CommandUtil. */
-		public storeMessage: boolean;
+		public storeMessages: boolean;
+
+		/** Show "BotName is typing" information message on the text channels when a command is running. */
+		public typing: boolean;
 
 		/**
 		 * Adds an ongoing prompt in order to prevent command usage in the channel.
@@ -1099,7 +1114,11 @@ declare module "discord-akairo" {
 		 * @param message - Message that called the command.
 		 * @param command - Command that errored.
 		 */
-		public emitError(err: Error, message: Message, command?: Command): void;
+		public emitError(
+			err: Error,
+			message: Message | AkairoMessage,
+			command?: Command
+		): void;
 
 		/**
 		 * Finds a category by name.
@@ -1338,6 +1357,17 @@ declare module "discord-akairo" {
 		): Promise<boolean>;
 
 		/**
+		 * Set up the command handler
+		 */
+		public setup(): void;
+
+		/**
+		 * Sweep command util instances from cache and returns amount sweeped.
+		 * @param lifetime - Messages older than this will have their command util instance sweeped. This is in milliseconds and defaults to the `commandUtilLifetime` option.
+		 */
+		public sweepCommandUtil(lifetime: number): number;
+
+		/**
 		 * Set the inhibitor handler to use.
 		 * @param inhibitorHandler - The inhibitor handler.
 		 */
@@ -1349,230 +1379,9 @@ declare module "discord-akairo" {
 		 */
 		public useListenerHandler(ListenerHandler: ListenerHandler): this;
 
-		/**
-		 * Emitted when a command is blocked by a post-message inhibitor. The built-in inhibitors are `owner`, `superUser`, `guild`, and `dm`.
-		 * @param message - Message sent.
-		 * @param command - Command blocked.
-		 * @param reason - Reason for the block.
-		 */
-		public on(
-			event: "commandBlocked",
-			listener: (
-				message: Message,
-				command: Command,
-				reason: typeof Constants["BuiltInReasons"] | string
-			) => any
-		): this;
-
-		/**
-		 * Emitted when a command breaks out with a retry prompt.
-		 * @param message - Message sent.
-		 * @param command - Command being broken out.
-		 * @param breakMessage - Breakout message.
-		 */
-		public on(
-			event: "commandBreakout",
-			listener: (
-				message: Message,
-				command: Command,
-				breakMessage: Message
-			) => any
-		): this;
-
-		/**
-		 * Emitted when a command is cancelled via prompt or argument cancel.
-		 * @param message - Message sent.
-		 * @param command - Command executed.
-		 * @param retryMessage - Message to retry with. This is passed when a prompt was broken out of with a message that looks like a command.
-		 */
-		public on(
-			event: "commandCancelled",
-			listener: (
-				message: Message,
-				command: Command,
-				retryMessage?: Message
-			) => any
-		): this;
-
-		/**
-		 * Emitted when a command finishes execution.
-		 * @param message - Message sent.
-		 * @param command - Command executed.
-		 * @param args - The args passed to the command.
-		 * @param returnValue - The command's return value.
-		 */
-		public on(
-			event: "commandFinished",
-			listener: (
-				message: Message,
-				command: Command,
-				args: any,
-				returnValue: any
-			) => any
-		): this;
-		public on(
-			event: "commandInvalid",
-			listener: (message: Message, command: Command) => any
-		): this;
-		public on(
-			event: "commandLocked",
-			listener: (message: Message, command: Command) => any
-		): this;
-
-		/**
-		 * Emitted when a command starts execution.
-		 * @param message - Message sent.
-		 * @param command - Command executed.
-		 * @param args - The args passed to the command.
-		 */
-		public on(
-			event: "commandStarted",
-			listener: (message: Message, command: Command, args: any) => any
-		): this;
-
-		/**
-		 * Emitted when a command or slash command is found on cooldown.
-		 * @param message - Message sent.
-		 * @param command - Command blocked.
-		 * @param remaining - Remaining time in milliseconds for cooldown.
-		 */
-		public on(
-			event: "cooldown",
-			listener: (message: Message, command: Command, remaining: number) => any
-		): this;
-
-		/**
-		 * Emitted when a command or inhibitor errors.
-		 * @param error - The error.
-		 * @param message - Message sent.
-		 * @param command - Command executed.
-		 */
-		public on(
-			event: "error",
-			listener: (error: Error, message: Message, command?: Command) => any
-		): this;
-
-		/**
-		 * Emitted when a user is in a command argument prompt.
-		 * Used to prevent usage of commands during a prompt.
-		 * @param message - Message sent.
-		 */
-		public on(event: "inPrompt", listener: (message: Message) => any): this;
-
-		/**
-		 * Emitted when a command is loaded.
-		 * @param command - Module loaded.
-		 * @param isReload - Whether or not this was a reload.
-		 */
-		public on(
-			event: "load",
-			listener: (command: Command, isReload: boolean) => any
-		): this;
-
-		/**
-		 * Emitted when a message is blocked by a pre-message inhibitor. The built-in inhibitors are 'client' and 'bot'.
-		 * @param message - Message sent.
-		 * @param reason - Reason for the block.
-		 */
-		public on(
-			event: "messageBlocked",
-			listener: (message: Message, reason: string) => any
-		): this;
-		public on(
-			event: "messageBlocked",
-			listener: (message: Message | AkairoMessage, reason: string) => any
-		): this;
-
-		/**
-		 * Emitted when a message does not start with the prefix or match a command.
-		 * @param message - Message sent.
-		 */
-		public on(
-			event: "messageInvalid",
-			listener: (message: Message) => any
-		): this;
-
-		/**
-		 * Emitted when a command permissions check is failed.
-		 * @param message - Message sent.
-		 * @param command - Command blocked.
-		 * @param type - Either 'client' or 'user'.
-		 * @param missing - The missing permissions.
-		 */
-		public on(
-			event: "missingPermissions",
-			listener: (
-				message: Message,
-				command: Command,
-				type: "client" | "user",
-				missing?: any
-			) => any
-		): this;
-
-		/**
-		 * Emitted when a command is removed.
-		 * @param command - Command removed.
-		 */
-		public on(event: "remove", listener: (command: Command) => any): this;
-
-		/**
-		 * Emitted when a slash command is blocked by a post-message inhibitor. The built-in inhibitors are `owner`, `superUser`, `guild`, and `dm`.
-		 * @param message - The slash message.
-		 * @param command - Command blocked.
-		 * @param reason - Reason for the block.
-		 */
-		public on(
-			event: "slashBlocked",
-			listener: (
-				message: AkairoMessage,
-				command: Command,
-				reason: string
-			) => any
-		): this;
-
-		/**
-		 * Emitted when a slash command errors.
-		 * @param error - The error.
-		 * @param message - The slash message.
-		 * @param command - Command executed.
-		 */
-		public on(
-			event: "slashError",
-			listener: (error: Error, message: AkairoMessage, command: Command) => any
-		): this;
-
-		/**
-		 * Emitted when a slash command finishes execution.
-		 * @param message - The slash message.
-		 * @param command - Command executed.
-		 * @param args - The args passed to the command.
-		 * @param returnValue - The command's return value.
-		 */
-		public on(
-			event: "slashFinished",
-			listener: (
-				message: AkairoMessage,
-				command: Command,
-				args: any,
-				returnValue: any
-			) => any
-		): this;
-
-		/**
-		 * Emitted when a slash command permissions check is failed.
-		 * @param message - The slash message.
-		 * @param command - Command blocked.
-		 * @param type - Either 'client' or 'user'.
-		 * @param missing - The missing permissions.
-		 */
-		public on(
-			event: "slashMissingPermissions",
-			listener: (
-				message: AkairoMessage,
-				command: Command,
-				type: "user" | "client",
-				missing?: any
-			) => any
+		public on<K extends keyof CommandHandlerEvents>(
+			event: K,
+			listener: (...args: CommandHandlerEvents[K]) => Awaited<void>
 		): this;
 
 		/**
@@ -1602,7 +1411,10 @@ declare module "discord-akairo" {
 	 * @param message - Message that triggered the command.
 	 */
 	export class CommandUtil {
-		public constructor(handler: CommandHandler, message: Message);
+		public constructor(
+			handler: CommandHandler,
+			message: Message | AkairoMessage
+		);
 
 		/**  The command handler. */
 		public handler: CommandHandler;
@@ -1614,7 +1426,7 @@ declare module "discord-akairo" {
 		public lastResponse?: Message;
 
 		/** Message that triggered the command. */
-		public message: Message;
+		public message: Message | AkairoMessage;
 
 		/** Messages stored from prompts and prompt replies. */
 		public messages?: Collection<Snowflake, Message>;
@@ -1650,11 +1462,24 @@ declare module "discord-akairo" {
 		 * @param options - Options to use.
 		 */
 		public reply(
-			options:
-				| string
-				| MessagePayload
-				| ReplyMessageOptions
-				| InteractionReplyOptions
+			options: string | MessagePayload | ReplyMessageOptions
+		): Promise<Message>;
+
+		/**
+		 * Send an inline reply or respond to a slash command.
+		 * If the message is a slash command, it replies or edits the last reply.
+		 * @param options - Options to use.
+		 */
+		public reply(
+			options: string | MessagePayload | InteractionReplyOptions
+		): Promise<Message | APIMessage>;
+
+		/**
+		 * Sends a response or edits an old response if available.
+		 * @param options - Options to use.
+		 */
+		public send(
+			options: string | MessagePayload | MessageOptions
 		): Promise<Message>;
 
 		/**
@@ -1662,12 +1487,8 @@ declare module "discord-akairo" {
 		 * @param options - Options to use.
 		 */
 		public send(
-			options:
-				| string
-				| MessagePayload
-				| MessageOptions
-				| InteractionReplyOptions
-		): Promise<Message>;
+			options: string | MessagePayload | InteractionReplyOptions
+		): Promise<Message | APIMessage>;
 
 		/**
 		 * Sends a response, overwriting the last response.
@@ -1676,6 +1497,14 @@ declare module "discord-akairo" {
 		public sendNew(
 			options: string | MessagePayload | MessageOptions
 		): Promise<Message>;
+
+		/**
+		 * Sends a response, overwriting the last response.
+		 * @param options - Options to use.
+		 */
+		public sendNew(
+			options: string | MessagePayload | InteractionReplyOptions
+		): Promise<Message | APIMessage>;
 
 		/**
 		 * Changes if the message should be edited.
@@ -1687,7 +1516,12 @@ declare module "discord-akairo" {
 		 * Sets the last response.
 		 * @param message - Message to set.
 		 */
-		public setLastResponse(message: Message | Message[]): Message;
+		public setLastResponse(message: Message): Message;
+
+		/**
+		 * Deletes the last response.
+		 */
+		public delete(): Promise<Message | void>;
 	}
 
 	/**
@@ -1890,24 +1724,13 @@ declare module "discord-akairo" {
 		 */
 		public test(
 			type: "all" | "pre" | "post",
-			message: Message,
+			message: Message | AkairoMessage,
 			command?: Command
 		): Promise<string | void>;
 
-		/**
-		 * Emitted when an inhibitor is removed.
-		 * @param inhibitor - Inhibitor removed.
-		 */
-		public on(event: "remove", listener: (inhibitor: Inhibitor) => any): this;
-
-		/**
-		 * Emitted when an inhibitor is loaded.
-		 * @param inhibitor - Inhibitor loaded.
-		 * @param isReload - Whether or not this was a reload.
-		 */
-		public on(
-			event: "load",
-			listener: (inhibitor: Inhibitor, isReload: boolean) => any
+		public on<K extends keyof InhibitorHandlerEvents>(
+			event: K,
+			listener: (...args: InhibitorHandlerEvents[K]) => Awaited<void>
 		): this;
 	}
 
@@ -2055,20 +1878,9 @@ declare module "discord-akairo" {
 		 */
 		public setEmitters(emitters: { [x: string]: EventEmitter }): void;
 
-		/**
-		 * Emitted when a listener is removed.
-		 * @param listener - Listener removed.
-		 */
-		public on(event: "remove", listener: (listener: Listener) => any): this;
-
-		/**
-		 * Emitted when a listener is loaded.
-		 * @param listener - Listener loaded.
-		 * @param isReload - Whether or not this was a reload.
-		 */
-		public on(
-			event: "load",
-			listener: (listener: Listener, isReload: boolean) => any
+		public on<K extends keyof ListenerHandlerEvents>(
+			event: K,
+			listener: (...args: ListenerHandlerEvents[K]) => Awaited<void>
 		): this;
 	}
 
@@ -2197,14 +2009,9 @@ declare module "discord-akairo" {
 		 */
 		public startAll(): void;
 
-		/**
-		 * Emitted when a task is loaded.
-		 * @param task - Task loaded.
-		 * @param isReload - Whether or not this was a reload.
-		 */
-		public on(
-			event: "load",
-			task: (task: Task, isReload: boolean) => any
+		public on<K extends keyof TaskHandlerEvents>(
+			event: K,
+			listener: (...args: TaskHandlerEvents[K]) => Awaited<void>
 		): this;
 
 		/**
@@ -2283,13 +2090,13 @@ declare module "discord-akairo" {
 		 * @param aKey - First prefix.
 		 * @param bKey - Second prefix.
 		 */
-		public static prefixCompare(aKey: any, bKey: any): any;
+		public static prefixCompare(aKey: any, bKey: any): number;
 
 		/**
 		 * Converts the supplied value into an array if it is not already one.
 		 * @param x - Value to convert.
 		 */
-		public static intoArray(x: any): any;
+		public static intoArray<T>(x: T | T[]): T;
 
 		/**
 		 * Converts something to become callable.
@@ -2317,6 +2124,10 @@ declare module "discord-akairo" {
 		 */
 		public static choice(...xs: any[]): any;
 	}
+
+	//#endregion
+
+	//#region interfaces
 
 	/**
 	 * Options for module loading and handling.
@@ -2869,6 +2680,10 @@ declare module "discord-akairo" {
 		prefix?: string;
 	}
 
+	//#endregion
+
+	//#region types
+
 	/**
 	 * A single phrase or flag.
 	 */
@@ -2965,6 +2780,8 @@ declare module "discord-akairo" {
 	 * - `channel` tries to resolve to a channel.
 	 * - `textChannel` tries to resolve to a text channel.
 	 * - `voiceChannel` tries to resolve to a voice channel.
+	 * - `stageChannel` tries to resolve to a stage channel.
+	 * - `threadChannel` tries to resolve a thread channel.
 	 * - `role` tries to resolve to a role.
 	 * - `emoji` tries to resolve to a custom emoji.
 	 * - `guild` tries to resolve to a guild.
@@ -3017,6 +2834,10 @@ declare module "discord-akairo" {
 		| "newsChannels"
 		| "storeChannel"
 		| "storeChannels"
+		| "stageChannel"
+		| "stageChannels"
+		| "threadChannel"
+		| "threadChannels"
 		| "role"
 		| "roles"
 		| "emoji"
@@ -3213,6 +3034,262 @@ declare module "discord-akairo" {
 	 */
 	export type RegexSupplier = (message: Message) => RegExp;
 
+	export interface AkairoHandlerEvents {
+		/**
+		 * Emitted when a module is loaded.
+		 * @param mod - Module loaded.
+		 * @param isReload - Whether or not this was a reload.
+		 */
+		load: [mod: AkairoModule, isReload: boolean];
+		/**
+		 * Emitted when a module is removed.
+		 * @param mod - Module removed.
+		 */
+		remove: [mod: AkairoModule];
+	}
+
+	export interface CommandHandlerEvents extends AkairoHandlerEvents {
+		/**
+		 * Emitted when a command is blocked by a post-message inhibitor. The built-in inhibitors are `owner`, `superUser`, `guild`, and `dm`.
+		 * @param message - Message sent.
+		 * @param command - Command blocked.
+		 * @param reason - Reason for the block.
+		 */
+		commandBlocked: [
+			message: Message,
+			command: Command,
+			reason: typeof Constants["BuiltInReasons"] | string
+		];
+
+		/**
+		 * Emitted when a command breaks out with a retry prompt.
+		 * @param message - Message sent.
+		 * @param command - Command being broken out.
+		 * @param breakMessage - Breakout message.
+		 */
+		commandBreakout: [
+			message: Message,
+			command: Command,
+			breakMessage: Message
+		];
+
+		/**
+		 * Emitted when a command is cancelled via prompt or argument cancel.
+		 * @param message - Message sent.
+		 * @param command - Command executed.
+		 * @param retryMessage - Message to retry with. This is passed when a prompt was broken out of with a message that looks like a command.
+		 */
+		commandCancelled: [
+			message: Message,
+			command: Command,
+			retryMessage?: Message
+		];
+
+		/**
+		 * Emitted when a command finishes execution.
+		 * @param message - Message sent.
+		 * @param command - Command executed.
+		 * @param args - The args passed to the command.
+		 * @param returnValue - The command's return value.
+		 */
+		commandFinished: [
+			message: Message,
+			command: Command,
+			args: any,
+			returnValue: any
+		];
+
+		/**
+		 * Emitted when a command is invalid
+		 * @param message - Message sent.
+		 * @param command - Command executed.
+		 */
+		commandInvalid: [message: Message, command: Command];
+
+		/**
+		 * Emitted when a command is locked
+		 * @param message - Message sent.
+		 * @param command - Command executed.
+		 */
+		commandLocked: [message: Message, command: Command];
+
+		/**
+		 * Emitted when a command starts execution.
+		 * @param message - Message sent.
+		 * @param command - Command executed.
+		 * @param args - The args passed to the command.
+		 */
+		commandStarted: [message: Message, command: Command, args: any];
+
+		/**
+		 * Emitted when a command or slash command is found on cooldown.
+		 * @param message - Message sent.
+		 * @param command - Command blocked.
+		 * @param remaining - Remaining time in milliseconds for cooldown.
+		 */
+		cooldown: [message: Message, command: Command, remaining: number];
+
+		/**
+		 * Emitted when a command or inhibitor errors.
+		 * @param error - The error.
+		 * @param message - Message sent.
+		 * @param command - Command executed.
+		 */
+		error: [error: Error, message: Message, command?: Command];
+
+		/**
+		 * Emitted when a user is in a command argument prompt.
+		 * Used to prevent usage of commands during a prompt.
+		 * @param message - Message sent.
+		 */
+		inPrompt: [message: Message];
+
+		/**
+		 * Emitted when a command is loaded.
+		 * @param command - Module loaded.
+		 * @param isReload - Whether or not this was a reload.
+		 */
+		load: [command: Command, isReload: boolean];
+
+		/**
+		 * Emitted when a message is blocked by a pre-message inhibitor. The built-in inhibitors are 'client' and 'bot'.
+		 * @param message - Message sent.
+		 * @param reason - Reason for the block.
+		 */
+		messageBlocked: [message: Message | AkairoMessage, reason: string];
+
+		/**
+		 * Emitted when a message does not start with the prefix or match a command.
+		 * @param message - Message sent.
+		 */
+		messageInvalid: [message: Message];
+
+		/**
+		 * Emitted when a command permissions check is failed.
+		 * @param message - Message sent.
+		 * @param command - Command blocked.
+		 * @param type - Either 'client' or 'user'.
+		 * @param missing - The missing permissions.
+		 */
+		missingPermissions: [
+			message: Message,
+			command: Command,
+			type: "client" | "user",
+			missing?: any
+		];
+
+		/**
+		 * Emitted when a command is removed.
+		 * @param command - Command removed.
+		 */
+		remove: [command: Command];
+
+		/**
+		 * Emitted when a slash command is blocked by a post-message inhibitor. The built-in inhibitors are `owner`, `superUser`, `guild`, and `dm`.
+		 * @param message - The slash message.
+		 * @param command - Command blocked.
+		 * @param reason - Reason for the block.
+		 */
+		slashBlocked: [message: AkairoMessage, command: Command, reason: string];
+
+		/**
+		 * Emitted when a slash command errors.
+		 * @param error - The error.
+		 * @param message - The slash message.
+		 * @param command - Command executed.
+		 */
+		slashError: [error: Error, message: AkairoMessage, command: Command];
+
+		/**
+		 * Emitted when a slash command finishes execution.
+		 * @param message - The slash message.
+		 * @param command - Command executed.
+		 * @param args - The args passed to the command.
+		 * @param returnValue - The command's return value.
+		 */
+		slashFinished: [
+			message: AkairoMessage,
+			command: Command,
+			args: any,
+			returnValue: any
+		];
+
+		/**
+		 * Emitted when a slash command permissions check is failed.
+		 * @param message - The slash message.
+		 * @param command - Command blocked.
+		 * @param type - Either 'client' or 'user'.
+		 * @param missing - The missing permissions.
+		 */
+		slashMissingPermissions: [
+			message: AkairoMessage,
+			command: Command,
+			type: "user" | "client",
+			missing?: any
+		];
+
+		/**
+		 * Emitted when a an incoming interaction command cannot be matched with a command.
+		 * @param interaction - The incoming interaction.
+		 */
+		slashNotFound: [interaction: AkairoMessage];
+
+		/**
+		 * Emitted when a slash command starts execution.
+		 * @param message - The slash message.
+		 * @param command - Command executed.
+		 * @param args - The args passed to the command.
+		 */
+		slashStarted: [message: AkairoMessage, command: Command, args: any];
+	}
+
+	export interface InhibitorHandlerEvents extends AkairoHandlerEvents {
+		/**
+		 * Emitted when an inhibitor is removed.
+		 * @param inhibitor - Inhibitor removed.
+		 */
+		remove: [inhibitor: Inhibitor];
+
+		/**
+		 * Emitted when an inhibitor is loaded.
+		 * @param inhibitor - Inhibitor loaded.
+		 * @param isReload - Whether or not this was a reload.
+		 */
+		load: [inhibitor: Inhibitor, isReload: boolean];
+	}
+
+	export interface ListenerHandlerEvents extends AkairoHandlerEvents {
+		/**
+		 * Emitted when a listener is removed.
+		 * @param listener - Listener removed.
+		 */
+		remove: [listener: Listener];
+
+		/**
+		 * Emitted when a listener is loaded.
+		 * @param listener - Listener loaded.
+		 * @param isReload - Whether or not this was a reload.
+		 */
+		load: [listener: Listener, isReload: boolean];
+	}
+
+	export interface TaskHandlerEvents extends AkairoHandlerEvents {
+		/**
+		 * Emitted when a task is removed.
+		 * @param task - Task removed.
+		 */
+		remove: [task: Task];
+
+		/**
+		 * Emitted when a task is loaded.
+		 * @param task - Task loaded.
+		 * @param isReload - Whether or not this was a reload.
+		 */
+		load: [task: Task, isReload: boolean];
+	}
+
+	//#endregion
+
 	/**
 	 * Constants used throughout Discord-Akairo.
 	 */
@@ -3258,6 +3335,10 @@ declare module "discord-akairo" {
 			NEWS_CHANNELS: "newsChannels";
 			STORE_CHANNEL: "storeChannel";
 			STORE_CHANNELS: "storeChannels";
+			STAGE_CHANNEL: "stageChannel";
+			STAGE_CHANNELS: "stageChannels";
+			THREAD_CHANNEL: "threadChannel";
+			THREAD_CHANNELS: "threadChannels";
 			ROLE: "role";
 			ROLES: "roles";
 			EMOJI: "emoji";

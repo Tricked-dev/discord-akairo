@@ -1,3 +1,10 @@
+// @ts-check
+"use strict";
+
+/**
+ * @typedef {import("./CommandUtil").Message} Message
+ */
+
 /**
  * Represents a special return value during command execution or argument parsing.
  * @param {string} type - Type of flag.

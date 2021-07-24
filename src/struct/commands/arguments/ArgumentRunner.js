@@ -1,3 +1,20 @@
+// @ts-check
+"use strict";
+
+/**
+ * @typedef {import("../Command")} Command
+ * @typedef {import("../ContentParser").ContentParserResult} ContentParserResult
+ * @typedef {import("../CommandUtil").CommandHandler} CommandHandler
+ * @typedef {import("../Command").ArgumentGenerator} ArgumentGenerator
+ * @typedef {import("../../AkairoClient")} AkairoClient
+ * @typedef {import("./Argument").ArgumentOptions} ArgumentOptions
+ */
+/**
+ * @typedef {Object} TempMessage
+ * @property {import("../CommandUtil")} [util] - command util
+ * @typedef {import("discord.js").Message & TempMessage} Message
+ */
+
 const AkairoError = require("../../../util/AkairoError");
 const Argument = require("./Argument");
 const { ArgumentMatches } = require("../../../util/Constants");
@@ -119,7 +136,7 @@ class ArgumentRunner {
 	async runPhrase(message, parsed, state, arg) {
 		if (arg.unordered || arg.unordered === 0) {
 			const indices =
-				typeof unordered === "number"
+				typeof arg.unordered === "number"
 					? Array.from(parsed.phrases.keys()).slice(arg.unordered)
 					: Array.isArray(arg.unordered)
 					? arg.unordered
@@ -231,6 +248,7 @@ class ArgumentRunner {
 				names.some(name => name.toLowerCase() === flag.key.toLowerCase())
 			).length;
 
+			// @ts-expect-error
 			return amount;
 		}
 
@@ -238,6 +256,7 @@ class ArgumentRunner {
 			names.some(name => name.toLowerCase() === flag.key.toLowerCase())
 		);
 
+		// @ts-expect-error
 		return arg.default == null ? flagFound : !flagFound;
 	}
 
@@ -350,7 +369,7 @@ class ArgumentRunner {
 	 * @param {ContentParserResult} parsed - Parsed data from ContentParser.
 	 * @param {ArgumentRunnerState} state - Argument handling state.
 	 * @param {number} n - Number of indices to increase by.
-	 * @returns {Promise<Flag|any>}
+	 * @returns {void}
 	 */
 	static increaseIndex(parsed, state, n = 1) {
 		state.phraseIndex += n;
@@ -384,8 +403,10 @@ class ArgumentRunner {
 	 * @returns {GeneratorFunction}
 	 */
 	static fromArguments(args) {
+		// @ts-expect-error
 		return function* generate() {
 			const res = {};
+			// @ts-expect-error
 			for (const [id, arg] of args) {
 				res[id] = yield arg;
 			}

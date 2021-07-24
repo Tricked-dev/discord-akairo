@@ -1,3 +1,6 @@
+// @ts-check
+"use strict";
+
 module.exports = {
 	ArgumentMatches: {
 		PHRASE: "phrase",
@@ -40,6 +43,10 @@ module.exports = {
 		NEWS_CHANNELS: "newsChannels",
 		STORE_CHANNEL: "storeChannel",
 		STORE_CHANNELS: "storeChannels",
+		STAGE_CHANNEL: "stageChannel",
+		STAGE_CHANNELS: "stageChannels",
+		THREAD_CHANNEL: "threadChannel",
+		THREAD_CHANNELS: "threadChannels",
 		ROLE: "role",
 		ROLES: "roles",
 		EMOJI: "emoji",

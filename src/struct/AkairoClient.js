@@ -1,3 +1,12 @@
+// @ts-check
+"use strict";
+
+/**
+ * @typedef {import("discord.js").ClientOptions} ClientOptions
+ * @typedef {import("discord.js").Snowflake} Snowflake
+ * @typedef {import("discord.js").UserResolvable} UserResolvable
+ */
+
 const { Client } = require("discord.js");
 const ClientUtil = require("./ClientUtil");
 
@@ -65,9 +74,5 @@ module.exports = AkairoClient;
  * Options for the client.
  * @typedef {Object} AkairoOptions
  * @prop {Snowflake|Snowflake[]} [ownerID=''] - Discord ID of the client owner(s).
- */
-/**
- * Options for the client.
- * @typedef {Object} AkairoOptions
  * @prop {Snowflake|Snowflake[]} [superUserID=''] - Discord ID of the client superUsers(s).
  */

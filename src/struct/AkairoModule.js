@@ -1,3 +1,12 @@
+// @ts-check
+"use strict";
+
+/**
+ * @typedef {import("./AkairoHandler")} AkairoHandler
+ * @typedef {import("../util/Category")} Category
+ * @typedef {import("./AkairoClient")} AkairoClient
+ */
+
 /**
  * Base class for a module.
  * @param {string} id - ID of module.

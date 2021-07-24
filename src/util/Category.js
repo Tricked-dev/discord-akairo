@@ -1,3 +1,6 @@
+// @ts-check
+"use strict";
+
 const { Collection } = require("discord.js");
 
 /**
@@ -7,6 +10,10 @@ const { Collection } = require("discord.js");
  * @extends {Collection}
  */
 class Category extends Collection {
+	/**
+	 * @param {string} id - ID of the category.
+	 * @param {Readonly<Readonly<[any, any]>>[]} [iterable] - Entries to set.
+	 */
 	constructor(id, iterable) {
 		super(iterable);
 

@@ -1,3 +1,21 @@
+// @ts-check
+"use strict";
+
+/**
+ * @typedef {import("./AkairoClient")} AkairoClient
+ * @typedef {import("discord.js").Snowflake} Snowflake
+ * @typedef {import("discord.js").User} User
+ * @typedef {import("discord.js").GuildMember} GuildMember
+ * @typedef {import("discord.js").Role} Role
+ * @typedef {import("discord.js").Emoji} Emoji
+ * @typedef {import("discord.js").Guild} Guild
+ * @typedef {import("discord.js").BufferResolvable} BufferResolvable
+ * @typedef {import("discord.js").GuildChannel} GuildChannel
+ * @typedef {import("discord.js").MessageEmbedOptions} MessageEmbedOptions
+ * @typedef {import("discord.js").ThreadChannel} ThreadChannel
+ * @typedef {import("stream")} Stream
+ */
+
 const {
 	Collection,
 	MessageAttachment,
@@ -20,7 +38,7 @@ class ClientUtil {
 
 	/**
 	 * Resolves a user from a string, such as an ID, a name, or a mention.
-	 * @param {string} text - Text to resolve.
+	 * @param {Snowflake | string} text - Text to resolve.
 	 * @param {Collection<Snowflake, User>} users - Collection of users to find in.
 	 * @param {boolean} [caseSensitive=false] - Makes finding by name case sensitive.
 	 * @param {boolean} [wholeWord=false] - Makes finding by name match full word only.
@@ -28,6 +46,7 @@ class ClientUtil {
 	 */
 	resolveUser(text, users, caseSensitive = false, wholeWord = false) {
 		return (
+			// @ts-expect-error
 			users.get(text) ||
 			users.find(user => this.checkUser(text, user, caseSensitive, wholeWord))
 		);
@@ -93,6 +112,7 @@ class ClientUtil {
 	 */
 	resolveMember(text, members, caseSensitive = false, wholeWord = false) {
 		return (
+			// @ts-expect-error
 			members.get(text) ||
 			members.find(member =>
 				this.checkMember(text, member, caseSensitive, wholeWord)
@@ -161,13 +181,14 @@ class ClientUtil {
 	/**
 	 * Resolves a channel from a string, such as an ID, a name, or a mention.
 	 * @param {string} text - Text to resolve.
-	 * @param {Collection<Snowflake, Channel>} channels - Collection of channels to find in.
+	 * @param {Collection<Snowflake, GuildChannel|ThreadChannel>} channels - Collection of channels to find in.
 	 * @param {boolean} [caseSensitive=false] - Makes finding by name case sensitive.
 	 * @param {boolean} [wholeWord=false] - Makes finding by name match full word only.
-	 * @returns {Channel}
+	 * @returns {GuildChannel|ThreadChannel}
 	 */
 	resolveChannel(text, channels, caseSensitive = false, wholeWord = false) {
 		return (
+			// @ts-expect-error
 			channels.get(text) ||
 			channels.find(channel =>
 				this.checkChannel(text, channel, caseSensitive, wholeWord)
@@ -178,10 +199,10 @@ class ClientUtil {
 	/**
 	 * Resolves multiple channels from a string, such as an ID, a name, or a mention.
 	 * @param {string} text - Text to resolve.
-	 * @param {Collection<Snowflake, Channel>} channels - Collection of channels to find in.
+	 * @param {Collection<Snowflake, GuildChannel|ThreadChannel>} channels - Collection of channels to find in.
 	 * @param {boolean} [caseSensitive=false] - Makes finding by name case sensitive.
 	 * @param {boolean} [wholeWord=false] - Makes finding by name match full word only.
-	 * @returns {Collection<Snowflake, Channel>}
+	 * @returns {Collection<Snowflake, GuildChannel|ThreadChannel>}
 	 */
 	resolveChannels(text, channels, caseSensitive = false, wholeWord = false) {
 		return channels.filter(channel =>
@@ -192,7 +213,7 @@ class ClientUtil {
 	/**
 	 * Checks if a string could be referring to a channel.
 	 * @param {string} text - Text to check.
-	 * @param {Channel} channel - Channel to check.
+	 * @param {GuildChannel|ThreadChannel} channel - Channel to check.
 	 * @param {boolean} [caseSensitive=false] - Makes checking by name case sensitive.
 	 * @param {boolean} [wholeWord=false] - Makes checking by name match full word only.
 	 * @returns {boolean}
@@ -225,6 +246,7 @@ class ClientUtil {
 	 */
 	resolveRole(text, roles, caseSensitive = false, wholeWord = false) {
 		return (
+			// @ts-expect-error
 			roles.get(text) ||
 			roles.find(role => this.checkRole(text, role, caseSensitive, wholeWord))
 		);
@@ -280,6 +302,7 @@ class ClientUtil {
 	 */
 	resolveEmoji(text, emojis, caseSensitive = false, wholeWord = false) {
 		return (
+			// @ts-expect-error
 			emojis.get(text) ||
 			emojis.find(emoji =>
 				this.checkEmoji(text, emoji, caseSensitive, wholeWord)
@@ -337,6 +360,7 @@ class ClientUtil {
 	 */
 	resolveGuild(text, guilds, caseSensitive = false, wholeWord = false) {
 		return (
+			// @ts-expect-error
 			guilds.get(text) ||
 			guilds.find(guild =>
 				this.checkGuild(text, guild, caseSensitive, wholeWord)
@@ -409,12 +433,12 @@ class ClientUtil {
 	 * @returns {number}
 	 */
 	compareStreaming(oldMember, newMember) {
-		const s1 =
-			oldMember.presence.activity &&
-			oldMember.presence.activity.type === "STREAMING";
-		const s2 =
-			newMember.presence.activity &&
-			newMember.presence.activity.type === "STREAMING";
+		const s1 = oldMember.presence.activities?.some(
+			activity => activity?.type === "STREAMING"
+		);
+		const s2 = newMember.presence.activities?.some(
+			activity => activity?.type === "STREAMING"
+		);
 		if (s1 === s2) return 0;
 		if (s1) return 1;
 		if (s2) return 2;
@@ -424,18 +448,18 @@ class ClientUtil {
 	/**
 	 * Combination of `<Client>.fetchUser()` and `<Guild>.fetchMember()`.
 	 * @param {Guild} guild - Guild to fetch in.
-	 * @param {string} id - ID of the user.
+	 * @param {Snowflake} id - ID of the user.
 	 * @param {boolean} cache - Whether or not to add to cache.
 	 * @returns {Promise<GuildMember>}
 	 */
 	async fetchMember(guild, id, cache) {
-		const user = await this.client.users.fetch(id, cache);
-		return guild.members.fetch(user, cache);
+		const user = await this.client.users.fetch(id, { cache });
+		return guild.members.fetch({ user, cache });
 	}
 
 	/**
 	 * Makes a MessageEmbed.
-	 * @param {Object} [data] - Embed data.
+	 * @param {MessageEmbed | MessageEmbedOptions} [data] - Embed data.
 	 * @returns {MessageEmbed}
 	 */
 	embed(data) {
@@ -458,6 +482,7 @@ class ClientUtil {
 	 * @returns {Collection}
 	 */
 	collection(iterable) {
+		// @ts-expect-error - Couldn't be bothered with jsdoc types
 		return new Collection(iterable);
 	}
 }
