@@ -3,7 +3,7 @@
 
 /**
  * @typedef {import("../AkairoModule").AkairoModuleOptions} AkairoModuleOptions
- * @typedef {import("./InhibitorHandler").Command} Command 
+ * @typedef {import("./InhibitorHandler").Command} Command
  * @typedef {import("../commands/CommandUtil").Message} Message
  */
 
