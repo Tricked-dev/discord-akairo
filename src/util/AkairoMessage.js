@@ -113,10 +113,9 @@ class AkairoMessage {
 		// @ts-expect-error
 		this.util = { parsed: { slash } };
 		for (const option of command.slashOptions) {
-			this.content += ` ${option.name}: ${interaction.options.get(
-				option.name,
-				option.required || false
-			)?.value}`;
+			this.content += ` ${option.name}: ${
+				interaction.options.get(option.name, option.required || false)?.value
+			}`;
 		}
 	}
 

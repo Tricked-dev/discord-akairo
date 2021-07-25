@@ -297,7 +297,7 @@ class Command extends AkairoModule {
 	 * @param {any} args - Slash command options
 	 * @returns {any}
 	 */
- 	/* Disabled cause it wouldn't work with the current design */
+	/* Disabled cause it wouldn't work with the current design */
 	// execSlash() {
 	// 	if (this.slash) {
 	// 		throw new AkairoError(
