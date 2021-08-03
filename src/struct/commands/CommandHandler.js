@@ -625,7 +625,7 @@ class CommandHandler extends AkairoHandler {
 						option.name,
 						option.required || false
 					)?.value;
-				}	
+				}
 			}
 
 			let key;
