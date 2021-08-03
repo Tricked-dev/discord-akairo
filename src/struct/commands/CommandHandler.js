@@ -619,11 +619,13 @@ class CommandHandler extends AkairoHandler {
 			}
 
 			const convertedOptions = {};
-			for (const option of command.slashOptions) {
-				convertedOptions[option.name] = interaction.options.get(
-					option.name,
-					option.required || false
-				)?.value;
+			if (command.slashOptions) {
+				for (const option of command.slashOptions) {
+					convertedOptions[option.name] = interaction.options.get(
+						option.name,
+						option.required || false
+					)?.value;
+				}	
 			}
 
 			let key;
