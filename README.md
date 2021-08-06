@@ -14,6 +14,8 @@
   </p>
 </div>
 
+Typescript fork of akairo that is activility maintaned https://github.com/NotEnoughUpdates/discord-akairo Im no longer mainting this fork anymore.
+
 ### Changes in this fork of akairo
 
 Please see [this file](/docs/general/updates.md) for a list of changes in this fork vs normal akairo
