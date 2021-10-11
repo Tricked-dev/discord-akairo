@@ -1,3 +1,7 @@
+# This fork is no longer maintained
+## See https://github.com/NotEnoughUpdates/discord-akairo for an actively maintained fork that's rewritten in typescript
+
+<s>
 <div align="center">
   <br />
   <p>
@@ -13,8 +17,6 @@
     <a href="https://nodei.co/npm/discord-akairo/"><img src="https://nodei.co/npm/discord-akairo.png?downloads=true" alt="npm installnfo" /></a>
   </p>
 </div>
-
-Typescript fork of akairo that is activility maintaned https://github.com/NotEnoughUpdates/discord-akairo Im no longer mainting this fork anymore.
 
 ### Changes in this fork of akairo
 
@@ -92,3 +94,4 @@ _discord.js_
 Open an issue or a pull request!  
 Everyone is welcome to do so.  
 Make sure to run `npm test` before committing.
+</s>
